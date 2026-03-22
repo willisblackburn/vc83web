@@ -1,0 +1,6 @@
+[submodule "submodules/apple2ts"]
+	path = submodules/apple2ts
+	url = https://github.com/willisblackburn/apple2ts.git
+[submodule "submodules/vc83basic"]
+	path = submodules/vc83basic
+	url = https://github.com/willisblackburn/vc83basic.git
