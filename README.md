@@ -81,6 +81,14 @@ To perform a full build (including disk creation) and prepare for deployment:
 npm run build
 ```
 
+### Cleanup
+
+To remove all build artifacts and generated assets:
+
+```bash
+npm run clean
+```
+
 ## Project Structure
 
 - `src/`: React source code for the website.
