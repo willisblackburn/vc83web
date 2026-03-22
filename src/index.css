@@ -95,15 +95,13 @@ main {
 
 .emulator-screen {
   position: relative;
-  width: 560px; /* 280 * 2 */
-  height: 384px; /* 192 * 2 */
-  padding: 20px;
-  background: #1a1a1a;
-  border-radius: 40px;
-  box-shadow: 
-    inset 0 0 50px rgba(0,0,0,1),
-    0 0 20px rgba(51, 255, 51, 0.2);
-  border: 10px solid #333;
+  width: 840px; /* 560 * 1.5 */
+  height: 576px; /* 384 * 1.5 */
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
 }
 
 .emulator-screen iframe {
@@ -117,6 +115,19 @@ main {
 .controls {
   display: flex;
   gap: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.attribution {
+  font-size: 0.7rem;
+  color: var(--retro-green-dim);
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.attribution a {
+  color: var(--retro-green);
+  text-decoration: underline;
 }
 
 .retro-button {

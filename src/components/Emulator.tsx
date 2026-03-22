@@ -35,7 +35,7 @@ const Emulator: React.FC<EmulatorProps> = ({ diskUrl }) => {
       <div className="emulator-screen">
         <iframe
           ref={iframeRef}
-          src={`/emulator/index.html?theme=vc83&machine=apple2p#${diskUrl}`}
+          src={`/emulator/index.html?theme=vc83&machine=apple2p&crtdistort=on#${diskUrl}`}
           title="VC83 BASIC Emulator"
           allow="autoplay"
         />
@@ -47,6 +47,9 @@ const Emulator: React.FC<EmulatorProps> = ({ diskUrl }) => {
         <button className="retro-button reset" onClick={handleReset}>
           Reset
         </button>
+      </div>
+      <div className="attribution">
+        Apple II+ emulator by Chris Torrence <a href="https://apple2ts.com" target="_blank" rel="noopener noreferrer">apple2ts.com</a>
       </div>
     </div>
   );
