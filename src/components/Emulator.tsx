@@ -8,26 +8,25 @@ const Emulator: React.FC<EmulatorProps> = ({ diskUrl }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const handlePowerCycle = () => {
-    if (iframeRef.current) {
-      // Reloading the iframe is the most reliable way to power cycle
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      // Send a reboot command to the emulator using the new extended message listener
+      iframeRef.current.contentWindow.postMessage({
+        type: 'control',
+        action: 'reboot'
+      }, '*');
+    } else if (iframeRef.current) {
+      // Fallback: reload the iframe
       iframeRef.current.src = iframeRef.current.src;
     }
   };
 
   const handleReset = () => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
-      // Send a reset command to the emulator
-      // Based on messagelistener.ts, we can update parameters
+      // Send a reset command to the emulator using the new extended message listener
       iframeRef.current.contentWindow.postMessage({
-        type: 'updateParameters',
-        params: {
-          run: 'reset'
-        }
+        type: 'control',
+        action: 'reset'
       }, '*');
-      
-      // Note: If 'run: reset' isn't handled by apple2ts natively, 
-      // we might need to send a specific key sequence like Ctrl-Reset.
-      // For now, let's try this or just reload.
     }
   };
 
