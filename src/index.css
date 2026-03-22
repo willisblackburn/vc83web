@@ -95,8 +95,8 @@ main {
 
 .emulator-screen {
   position: relative;
-  width: 840px; /* 560 * 1.5 */
-  height: 576px; /* 384 * 1.5 */
+  width: 800px;
+  height: 548px; /* 800 / 1.4583334 */
   padding: 0;
   background: transparent;
   border-radius: 0;
