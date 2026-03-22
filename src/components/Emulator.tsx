@@ -1,28 +1,31 @@
-import React, { useRef } from 'react';
+import { useRef, useImperativeHandle, forwardRef } from 'react';
 
 interface EmulatorProps {
   diskUrl: string;
 }
 
-const Emulator: React.FC<EmulatorProps> = ({ diskUrl }) => {
+export interface EmulatorHandle {
+  powerCycle: () => void;
+  reset: () => void;
+  pasteText: (text: string) => void;
+}
+
+const Emulator = forwardRef<EmulatorHandle, EmulatorProps>(({ diskUrl }, ref) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const handlePowerCycle = () => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
-      // Send a reboot command to the emulator using the new extended message listener
       iframeRef.current.contentWindow.postMessage({
         type: 'control',
         action: 'reboot'
       }, '*');
     } else if (iframeRef.current) {
-      // Fallback: reload the iframe
       iframeRef.current.src = iframeRef.current.src;
     }
   };
 
   const handleReset = () => {
     if (iframeRef.current && iframeRef.current.contentWindow) {
-      // Send a reset command to the emulator using the new extended message listener
       iframeRef.current.contentWindow.postMessage({
         type: 'control',
         action: 'reset'
@@ -30,12 +33,30 @@ const Emulator: React.FC<EmulatorProps> = ({ diskUrl }) => {
     }
   };
 
+  const handlePasteText = (text: string) => {
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({
+        type: 'paste',
+        text: text
+      }, '*');
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    powerCycle: handlePowerCycle,
+    reset: handleReset,
+    pasteText: handlePasteText
+  }));
+
+  // Remove redundant 'disks/' prefix if diskUrl already contains it
+  const cleanedDiskUrl = diskUrl.startsWith('disks/') ? diskUrl.substring(6) : diskUrl;
+
   return (
     <div className="emulator-section">
       <div className="emulator-screen">
         <iframe
           ref={iframeRef}
-          src={`/emulator/index.html?theme=vc83&machine=apple2p&ghosting=on#${diskUrl}`}
+          src={`/emulator/index.html?theme=vc83&machine=apple2e&ghosting=on#${cleanedDiskUrl}`}
           title="VC83 BASIC Emulator"
           allow="autoplay"
         />
@@ -53,6 +74,6 @@ const Emulator: React.FC<EmulatorProps> = ({ diskUrl }) => {
       </div>
     </div>
   );
-};
+});
 
 export default Emulator;
