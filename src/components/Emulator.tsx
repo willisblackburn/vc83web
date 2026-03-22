@@ -35,7 +35,7 @@ const Emulator: React.FC<EmulatorProps> = ({ diskUrl }) => {
       <div className="emulator-screen">
         <iframe
           ref={iframeRef}
-          src={`/emulator/index.html?theme=minimal&machine=apple2p#${diskUrl}`}
+          src={`/emulator/index.html?theme=vc83&machine=apple2p#${diskUrl}`}
           title="VC83 BASIC Emulator"
           allow="autoplay"
         />
