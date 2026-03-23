@@ -9,7 +9,8 @@ const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
   const tabs = [
     { id: 'about', label: 'About' },
     { id: 'manual', label: 'User Manual' },
-    { id: 'technical', label: 'Technical Details' }
+    { id: 'technical', label: 'Technical Details' },
+    { id: 'contributing', label: 'Contributing' }
   ];
 
   return (

@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import { navigationContent } from '../data/content';
 
 interface ContentAreaProps {
@@ -11,28 +12,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({ activeTab }) => {
   if (!page) return null;
 
   return (
-    <div className="content-area">
+    <section className="content-area">
       <h2 className="retro-title">{page.title}</h2>
-      <div 
-        className="page-content"
-        dangerouslySetInnerHTML={{ 
-          __html: page.content.trim()
-            .split('\n')
-            .map(line => {
-              const trimmed = line.trim();
-              if (trimmed.startsWith('### ')) return `<h3>${trimmed.substring(4)}</h3>`;
-              if (trimmed.startsWith('- ')) return `<li>${trimmed.substring(2)}</li>`;
-              if (trimmed === '') return '</p><p>';
-              return trimmed;
-            })
-            .join(' ')
-            .replace(/(<li>.*?<\/li>)/g, '<ul>$1</ul>')
-            .replace(/<\/ul>\s*<ul>/g, '')
-            .replace(/`([^`]*)`/g, '<code>$1</code>')
-            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        }}
-      />
-    </div>
+      <div className="page-content">
+        <ReactMarkdown>{page.content}</ReactMarkdown>
+      </div>
+    </section>
   );
 };
 

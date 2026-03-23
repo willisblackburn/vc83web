@@ -56,7 +56,7 @@ const Emulator = forwardRef<EmulatorHandle, EmulatorProps>(({ diskUrl }, ref) =>
       <div className="emulator-screen">
         <iframe
           ref={iframeRef}
-          src={`/emulator/index.html?theme=vc83&machine=apple2e&ghosting=on#${cleanedDiskUrl}`}
+          src={`/emulator/index.html?theme=vc83&machine=apple2p&ghosting=on#${cleanedDiskUrl}`}
           title="VC83 BASIC Emulator"
           allow="autoplay"
         />

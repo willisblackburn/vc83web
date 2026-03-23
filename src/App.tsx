@@ -18,7 +18,7 @@ const App: React.FC = () => {
       // Sequence: NEW -> [Program Text] -> RUN
       // We send them as a single string to be pasted. 
       // The emulator's paste logic will handle the CRLFs (now managed as CRs in submodule).
-      const fullText = `NEW\n${sample.code}\nRUN\n`;
+      const fullText = `NEW\n${sample.code.trim()}\nRUN\n`;
       emulatorRef.current.pasteText(fullText);
       
       // Scroll to emulator for better UX
@@ -37,11 +37,6 @@ const App: React.FC = () => {
       />
 
       <main>
-        <section className="hero">
-          <p className="lead">
-            The Ultimate BASIC for the Apple II.
-          </p>
-        </section>
 
         <Emulator 
           ref={emulatorRef}
@@ -54,13 +49,6 @@ const App: React.FC = () => {
 
         <ContentArea activeTab={activeTab} />
 
-        <section className="contributing-footer">
-          <h2 className="retro-title">Contributing</h2>
-          <p>
-            VC83 is an open-source project. You can find the source code and contribute to its 
-            development on <a href="https://github.com/willisblackburn/vc83basic" target="_blank" rel="noopener noreferrer">GitHub</a>.
-          </p>
-        </section>
       </main>
       <Footer />
     </div>
