@@ -81,7 +81,21 @@ To perform a full build (including disk creation) and prepare for deployment:
 npm run build
 ```
 
-### Cleanup
+## Deployment
+
+To rebuild the entire project (including the emulator submodule) and deploy to Firebase Hosting:
+
+```bash
+npm run deploy
+```
+
+> [!NOTE]
+> This command will:
+> 1. Rebuild the `apple2ts` submodule in `submodules/apple2ts`.
+> 2. Run the main project build (including disk creation).
+> 3. Execute `firebase deploy` for the `vc83web` project.
+
+## Cleanup
 
 To remove all build artifacts and generated assets:
 
