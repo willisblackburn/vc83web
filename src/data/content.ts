@@ -108,17 +108,46 @@ VC83 BASIC includes a full suite of standard statements:
   technical: {
     title: "Technical Details",
     content: `
-### Architecture
-VC83 BASIC is built as a replacement for Applesoft BASIC, residing in the $D000-$FFFF memory range (Language Card/Firmware area). 
+### Architecture & Memory Map
+VC83 BASIC is designed as a high-performance replacement for Applesoft BASIC, typically residing in the \`$D000-$FFFF\` memory range (Language Card/Firmware area). 
 
-### Memory Map
+**System Memory Map:**
 - **$0000-$07FF**: Zero Page, Stack, and System Globals.
 - **$0800-$BFFF**: User Program and Variable Space.
 - **$C000-$CFFF**: I/O Space.
 - **$D000-$FFFF**: VC83 BASIC Interpreter ROM.
 
-### Implementation
-The interpreter use a custom bytecode format for efficiency, with a highly optimized expression evaluator and garbage-collected string heap. It was developed using modern 6502 cross-assemblers (ca65) and tested extensively on both original hardware and the apple2ts emulator.
+**Internal Memory Management:**
+The interpreter uses several zero-page pointers to manage dynamic structures:
+- \`program_ptr\`: Start of the BASIC program (sequentially stored line records).
+- \`variable_name_table_ptr\`: Start of the Variable Name Table (VNT).
+- \`array_name_table_ptr\`: Points to the Array Name Table (ANT).
+- \`free_ptr\`: First byte of free memory after the ANT.
+- \`string_ptr\`: Bottom of the string space (grows downwards from himem_ptr).
+- \`himem_ptr\`: The highest address used; ceiling for the string space.
+
+### Parser Virtual Machine (PVM)
+VC83 uses a domain-specific language (DSL) and a dedicated Parser Virtual Machine to tokenize programs.
+- **Efficiency**: Keywords are replaced with 1-byte tokens for fast execution.
+- **Validation**: Syntax errors are detected up-front during tokenization.
+- **Reversibility**: The \`LIST\` command uses the PVM to expand tokens back into human-readable code.
+
+### Floating Point Support
+VC83 BASIC uses a custom 5-byte floating-point format:
+- **Precision**: 32-bit fractional significand with an implied \`1.\` (similar to IEEE-754).
+- **Exponent**: 8-bit, excess-128.
+- **Registers**: Uses two main zero-page registers, \`FP0\` and \`FP1\`, with \`FPX\` extending \`FP0\` to 64-bit precision for intermediate calculations.
+- **Operations**: Includes a full suite of unary (SIN, LOG, EXP, etc.) and binary (FADD, FMUL, etc.) operations.
+
+### String Handling
+Strings are managed via a robust garbage collection system:
+- **Structure**: \`[Length Byte] [Data...] [Extra Byte 1] [Extra Byte 2]\`. The extra bytes store forwarding addresses during compaction.
+- **Allocation**: New strings are created at \`string_ptr\`, which moves downwards.
+- **Garbage Collection**: Triggered automatically when \`string_ptr\` reaches \`free_ptr\`, moving all referenced strings to the top of memory for efficient space recovery.
+
+### VC83 vs. Microsoft BASIC
+- **Variable Names**: Can be any length (standard BASIC is limited to 2 characters).
+- **Efficiency**: Features a significantly more efficient string garbage collector to prevent the long "pauses" common in older interpreters.
     `
   },
   contributing: {
