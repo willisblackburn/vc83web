@@ -150,6 +150,65 @@ Strings are managed via a robust garbage collection system:
 - **Efficiency**: Features a significantly more efficient string garbage collector to prevent the long "pauses" common in older interpreters.
     `
   },
+  extending: {
+    title: "Extending VC83",
+    content: `
+### Porting to a New Platform
+VC83 BASIC is designed to be highly portable. To port the interpreter to a new 6502-based platform, follow these technical requirements.
+
+#### 1. Linker Configuration (.cfg)
+Create a custom \`ld65\` configuration file (e.g., \`platform/platform.cfg\`).
+- **Memory Map**: Define \`ZEROPAGE\` (typically starting at \`$80\`), \`MAIN\` RAM, and any platform-specific areas like \`LC\` (bank-switched RAM).
+- **Required Segments**:
+  - \`CODE\`: The main interpreter logic.
+  - \`VECTORS\`: Jump tables for opcodes and statements.
+  - \`FUNCTABS\`: The function metadata table.
+  - \`PARSER\`: PVM bytecode and name tables.
+  - \`ZEROPAGE\`: 128 bytes of contiguous ZP space.
+  - \`ONCE\`: Startup code that is only needed during initialization.
+
+> [!TIP]
+> **The ONCE Segment**: For disk-loaded applications, the \`ONCE\` segment can share address space with the \`BSS\` segment. This code runs first to initialize the system and is immediately overwritten by program data once the interpreter is ready.
+
+#### 2. Memory & Zero-Page Utilization
+- **Zero-Page**: VC83 requires approximately 128 bytes of contiguous zero-page space. This is where the virtual registers (\`FP0\`, \`FP1\`, \`BC\`, \`DE\`) and interpreter state pointers reside.
+- **Buffers**:
+  - \`line_buffer\`: A 256-byte area for storing a single line of BASIC text.
+  - \`stack\`: The 6502 hardware stack (\`$0100-$01FF\`) is used for return addresses.
+  - **Internal Stacks**: The interpreter manages its own primary and operator stacks within its memory space.
+
+#### 3. Mandatory I/O Functions
+Implement these functions in a platform-specific assembly file (e.g., \`platform_io.s\`):
+- **readline**: Reads a line of text from the user into the \`buffer\`.
+  - Must null-terminate the string.
+  - Must return the length of the string in the \`A\` register.
+- **write**: Writes a string of characters.
+  - Address of string in \`AX\` (little-endian).
+  - Length of string in \`Y\`.
+- **putch**: Writes a single character to the output device.
+  - Character passed in the \`A\` register.
+
+#### 4. Extension Statements
+You can add platform-specific commands (like \`GR\` or \`TEXT\` on Apple II) via the extension tables:
+- **ex_statement_name_table**: List of uppercase command names (e.g., \`"COLOR"\`). Ending the list with a null byte or using \`name_table_end\`.
+- **ex_statement_vectors**: Word-aligned jump table to the implementation routines (one per name in the table).
+
+#### 5. Extension Functions
+Functions (like \`PDL(n)\`) are defined in \`ex_function_table\`. Each entry consists of:
+- **Handler Address**: \`.word handler_address - 1\`.
+- **Metadata Byte**: 
+  - **Bits 0-3**: Arity (number of expected arguments).
+  - **Flags**:
+    - \`PROLOG_POP_INT\` / \`PROLOG_POP_FP\`: Automatically pop arguments into X/Y or FP0.
+    - \`EPILOG_PUSH_INT\` / \`EPILOG_PUSH_FP\`: Automatically push return value from A/X or FP0 back to the stack.
+
+#### 6. Makefile Integration
+Add your new platform to the root \`Makefile\`:
+1. Add the platform name to the \`TARGETS\` variable.
+2. Define the build rule for \`basic_{platform}.o\` (linking \`basic.s\` and your platform files).
+3. Define the link rule for \`basic_{platform}\` using your custom \`.cfg\` file.
+    `
+  },
   contributing: {
     title: "Contributing",
     content: `
