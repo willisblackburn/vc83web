@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:emulator && npm run build:disk && tsc -b && vite build",
+    "build": "npm run build:basic && npm run build:emulator && npm run build:disk && tsc -b && vite build",
     "build:emulator": "rm -rf public/emulator && mkdir -p public/emulator && cp submodules/apple2ts/dist/index.html public/emulator/ && cp -r submodules/apple2ts/dist/assets public/emulator/ && cp -r submodules/apple2ts/dist/worklet public/emulator/ && cp submodules/apple2ts/dist/dot.png public/emulator/ && cp submodules/apple2ts/dist/tj-*.png public/emulator/",
     "build:disk": "mkdir -p public/emulator/disks && cp src/disks/master.dsk public/emulator/disks/vc83basic.dsk && ac -as public/emulator/disks/vc83basic.dsk VC83BASIC < submodules/vc83basic/basic_apple2 && ac -bas public/emulator/disks/vc83basic.dsk HELLO < src/disks/HELLO.bas && dsk2woz public/emulator/disks/vc83basic.dsk public/emulator/disks/vc83basic.woz",
+    "build:basic": "make -C submodules/vc83basic basic_apple2",
     "deploy": "(cd submodules/apple2ts && npm run build) && npm run build && firebase deploy --only hosting --project vc83web",
     "clean": "rm -rf dist public/emulator",
     "lint": "eslint .",
