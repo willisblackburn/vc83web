@@ -65,5 +65,18 @@ export const samples: SampleProgram[] = [
 50 PRINT
 60 NEXT I
 `
+  },
+  {
+    id: "factorial",
+    title: "Factorial Calculation",
+    description: "Calculates the factorial of a number up to 10.",
+    code: `
+10 INPUT "NUMBER (1-10): ";N
+20 F=1
+30 FOR I=1 TO N
+40 F=F*I
+50 NEXT I
+60 PRINT N;"! = ";F
+`
   }
 ];

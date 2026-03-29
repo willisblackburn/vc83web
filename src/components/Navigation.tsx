@@ -7,11 +7,11 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
   const tabs = [
-    { id: 'about', label: 'About' },
-    { id: 'manual', label: 'User Manual' },
-    { id: 'technical', label: 'Technical Details' },
-    { id: 'extending', label: 'Extending' },
-    { id: 'contributing', label: 'Contributing' }
+    { id: 'about', label: 'about' },
+    { id: 'manual', label: 'user manual' },
+    { id: 'technical', label: 'technical details' },
+    { id: 'extending', label: 'extending' },
+    { id: 'contributing', label: 'contributing' }
   ];
 
   return (

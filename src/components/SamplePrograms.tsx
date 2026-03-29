@@ -1,29 +1,38 @@
-import type React from 'react';
+import React from 'react';
 import { samples } from '../data/samples';
 import type { SampleProgram } from '../data/samples';
 
 interface SampleProgramsProps {
+  isOpen: boolean;
+  onClose: () => void;
   onSampleClick: (sample: SampleProgram) => void;
 }
 
-const SamplePrograms: React.FC<SampleProgramsProps> = ({ onSampleClick }) => {
+const SamplePrograms: React.FC<SampleProgramsProps> = ({ isOpen, onClose, onSampleClick }) => {
+  if (!isOpen) return null;
+
   return (
-    <div className="samples-container">
-      <h2 className="retro-title">Sample Programs</h2>
-      <div className="samples-grid">
-        {samples.map((sample) => (
-          <div 
-            key={sample.id} 
-            className="sample-panel"
-            onClick={() => onSampleClick(sample)}
-          >
-            <h3>{sample.title}</h3>
-            <p>{sample.description}</p>
-            <div className="sample-footer">
-              <span className="try-it">Load & Run</span>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="sample-browser" onClick={(e) => e.stopPropagation()}>
+        <div className="sample-browser-header">
+          <h2>Select Sample Program</h2>
+          <button className="close-button" onClick={onClose}>&times;</button>
+        </div>
+        <div className="sample-list">
+          {samples.map((sample) => (
+            <div 
+              key={sample.id} 
+              className="sample-item"
+              onClick={() => {
+                onSampleClick(sample);
+                onClose();
+              }}
+            >
+              <h4>{sample.title}</h4>
+              <p>{sample.description}</p>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

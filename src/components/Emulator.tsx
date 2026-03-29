@@ -52,26 +52,13 @@ const Emulator = forwardRef<EmulatorHandle, EmulatorProps>(({ diskUrl }, ref) =>
   const cleanedDiskUrl = diskUrl.startsWith('disks/') ? diskUrl.substring(6) : diskUrl;
 
   return (
-    <div className="emulator-section">
-      <div className="emulator-screen">
-        <iframe
-          ref={iframeRef}
-          src={`/emulator/index.html?theme=vc83&machine=apple2p&ghosting=on#${cleanedDiskUrl}`}
-          title="VC83 BASIC Emulator"
-          allow="autoplay"
-        />
-      </div>
-      <div className="controls">
-        <button className="retro-button power" onClick={handlePowerCycle}>
-          Power
-        </button>
-        <button className="retro-button reset" onClick={handleReset}>
-          Reset
-        </button>
-      </div>
-      <div className="attribution">
-        Apple II+ emulator by Chris Torrence <a href="https://apple2ts.com" target="_blank" rel="noopener noreferrer">apple2ts.com</a>
-      </div>
+    <div className="emulator-screen">
+      <iframe
+        ref={iframeRef}
+        src={`/emulator/index.html?theme=vc83&machine=apple2p&ghosting=on#${cleanedDiskUrl}`}
+        title="VC83 BASIC Emulator"
+        allow="autoplay"
+      />
     </div>
   );
 });
