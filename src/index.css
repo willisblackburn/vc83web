@@ -20,7 +20,7 @@ body {
   color: var(--retro-green);
   font-family: var(--font-mono);
   overflow-x: hidden;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 #root {
@@ -72,7 +72,7 @@ body {
   height: 100%;
   background-image: url('./assets/Grid.jpg');
   background-repeat: no-repeat;
-  background-position: center 200px;
+  background-position: center 300px; /* sm position */
   background-size: auto;
   opacity: 0.4;
   mask-image: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
@@ -80,11 +80,12 @@ body {
   z-index: -1;
 }
 
-/* Site Layout */
+/* Site Layout - Default (sm: < 768px) */
 .app-container {
-  display: grid;
-  grid-template-columns: 350px 1fr;
-  grid-template-rows: auto 1fr auto;
+  width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   gap: 2rem;
   padding: 2rem;
@@ -93,12 +94,9 @@ body {
 
 /* Sidebar */
 .sidebar {
-  grid-column: 1;
-  grid-row: 1;
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  padding-right: 2rem;
 }
 
 .logo-container img {
@@ -161,16 +159,13 @@ body {
 
 /* Main Content Area */
 .main-content {
-  grid-column: 1 / span 2;
-  grid-row: 2;
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 /* Emulator Section */
 .emulator-section {
-  grid-column: 2;
-  grid-row: 1;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -178,8 +173,10 @@ body {
 }
 
 .emulator-screen {
-  width: 720px; /* Shrunk slightly as requested */
-  height: 494px;
+  width: 100%;
+  max-width: 720px;
+  aspect-ratio: 720 / 494;
+  height: auto;
   background: #000;
   border: 1px solid var(--retro-border);
   box-shadow: 0 0 30px rgba(0,0,0,0.5);
@@ -210,7 +207,8 @@ body {
 
 /* Controls below emulator */
 .emulator-controls {
-  width: 720px;
+  width: 100%;
+  max-width: 720px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -356,16 +354,65 @@ body {
   color: #888;
 }
 
-.app-footer {
-  grid-column: 1 / span 2;
-  grid-row: 3;
-}
-
+/* App Footer */
 footer {
-  margin-top: 2rem;
+  margin-top: auto;
+  padding-top: 2rem;
   color: #444;
   font-size: 0.9rem;
   text-align: center;
+}
+
+/* Breakpoints Configuration */
+
+/* md: 768px - 1023px */
+@media (min-width: 768px) {
+  .app-container {
+    width: 768px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .background-grid {
+    background-position: center 200px;
+  }
+
+  .sidebar {
+    grid-column: 1;
+    grid-row: 1;
+    padding-right: 2rem;
+  }
+
+  .emulator-section {
+    grid-column: 2 / span 2;
+    grid-row: 1;
+  }
+
+  .main-content {
+    grid-column: 1 / span 3;
+    grid-row: 2;
+  }
+
+  .app-footer {
+    grid-column: 1 / span 3;
+    grid-row: 3;
+  }
+  
+  footer {
+    margin-top: 2rem;
+  }
+}
+
+/* lg: >= 1024px */
+@media (min-width: 1024px) {
+  .app-container {
+    width: 1024px;
+  }
+
+  .background-grid {
+    background-position: center 100px;
+  }
 }
 footer p {
   margin: 0.2rem 0;
