@@ -5,7 +5,10 @@
   --retro-bg: #000;
   --retro-border: #333;
   --panel-bg: rgba(20, 20, 20, 0.75);
+  --font-primary: 'Space Grotesk', sans-serif;
   --font-mono: 'Courier New', Courier, monospace;
+  --font-content-header: 'Permanent Marker', sans-serif;
+  --font-content: 'Space Grotesk', sans-serif;
 }
 
 @font-face {
@@ -18,7 +21,7 @@ body {
   padding: 0;
   background-color: var(--retro-bg);
   color: var(--retro-green);
-  font-family: var(--font-mono);
+  font-family: var(--font-primary);
   overflow-x: hidden;
   min-height: 100vh;
 }
@@ -122,7 +125,6 @@ body {
   color: #888;
   border: none;
   padding: 0.5rem 0;
-  font-family: var(--font-mono);
   font-size: 1.2rem;
   cursor: pointer;
   text-align: left;
@@ -209,31 +211,13 @@ body {
 
 /* Controls below emulator */
 .emulator-controls {
-  width: 100%;
+  width: 90%;
   max-width: 720px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 1rem;
-}
-
-.samples-trigger {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: transparent;
-  border: 2px solid var(--retro-border);
-  color: var(--retro-amber);
-  padding: 0.75rem 1.5rem;
-  font-family: var(--font-mono);
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.samples-trigger:hover {
-  border-color: var(--retro-amber);
-  background: rgba(255, 204, 0, 0.05);
+  margin-left: 5%;
 }
 
 .hardware-buttons {
@@ -242,23 +226,47 @@ body {
 }
 
 .retro-button {
-  background: #222;
-  color: #aaa;
-  border: 1px solid #444;
-  padding: 0.5rem 1.25rem;
-  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;      /* Bold */
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.5rem 1.5rem;
+  background: #333;      /* Dark industrial gray */
+  color: rgb(184, 184, 184);           /* Retro phosphor green text */
+  border: 2px solid #555;
   cursor: pointer;
-  text-transform: lowercase;
-  box-shadow: 2px 2px 0 #000;
+  font-family: sans-serif;
+
+  /* background: #676767;
+  color: white;
+  border-style: solid;
+  border-width: 6px 0 0;
+  padding: 0.5rem 1.5rem;
+  font-size: 1.0rem;
+  cursor: pointer;
+  transition: transform 0.1s, filter 0.2s; */
+}
+
+.retro-button:hover {
+  filter: brightness(1.2);
 }
 
 .retro-button:active {
-  transform: translate(1px, 1px);
+  transform: translate(2px, 2px);
   box-shadow: 1px 1px 0 #000;
 }
 
-.retro-button.reset:hover { color: #ff0; border-color: #ff0; }
-.retro-button.power:hover { color: #f00; border-color: #f00; }
+.retro-button.power {
+  border-top-color: #ff0000;
+}
+
+.retro-button.reset {
+  border-top-color: #ffff00;
+}
+
+.retro-button.samples-trigger {
+  border-top-color: #0088ff;
+}
 
 /* Translucent Content Panel */
 .content-area-panel {
@@ -275,13 +283,14 @@ body {
 
 .page-content {
   line-height: 1.6;
-  font-size: 1.1rem;
+  font-size: 1.0rem;
 }
 
-.page-content h2, .page-content h3 {
+.content-area-panel h2, .content-area-panel h3 {
   color: var(--retro-amber);
-  text-transform: uppercase;
-  margin-top: 2rem;
+  margin-top: 1rem;
+  font-family: var(--font-content-header);
+  font-size: 2rem;
 }
 
 /* Sample Browser Modal */
@@ -426,7 +435,6 @@ footer p {
   margin-top: 1.5rem;
   color: #888;
   font-size: 0.9rem;
-  font-family: var(--font-mono);
 }
 
 .attribution a {

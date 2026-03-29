@@ -58,23 +58,23 @@ const App: React.FC = () => {
           
           <div className="emulator-controls">
             <button 
-              className="samples-trigger" 
+              className="retro-button samples-trigger" 
               onClick={() => setIsSampleBrowserOpen(true)}
             >
-              samples... 📂
+              Load sample...
             </button>
             <div className="hardware-buttons">
               <button 
                 className="retro-button reset" 
                 onClick={() => emulatorRef.current?.reset()}
               >
-                reset
+                RESET
               </button>
               <button 
                 className="retro-button power" 
                 onClick={() => emulatorRef.current?.powerCycle()}
               >
-                power
+                POWER
               </button>
             </div>
           </div>
