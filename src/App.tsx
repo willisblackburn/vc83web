@@ -26,7 +26,7 @@ const App: React.FC = () => {
   return (
     <div className="app-container">
       <div className="crt-overlay crt-flicker" />
-      <div className="background-grid" />
+      <div className="background" />
       
       <aside className="sidebar">
         <Header />
