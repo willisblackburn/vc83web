@@ -182,10 +182,7 @@ body {
   max-width: 720px;
   aspect-ratio: 720 / 494;
   height: auto;
-  background: #000;
-  border: 1px solid var(--retro-border);
   box-shadow: 0 0 30px rgba(0,0,0,0.5);
-  border-radius: 8px;
   overflow: hidden;
   position: relative;
   z-index: 20; /* Ensures it sits tightly "on top" of extended-bars which has z-index 10 */
