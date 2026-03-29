@@ -10,14 +10,6 @@ import ContentArea from './components/ContentArea';
 import type { SampleProgram } from './data/samples';
 
 const App: React.FC = () => {
-  console.log("=== APP.TSX END RENDER EVALUATING ===");
-  console.log("Checking components:", {
-    Header: typeof Header,
-    Emulator: typeof Emulator,
-    Navigation: typeof Navigation,
-    SamplePrograms: typeof SamplePrograms,
-    ContentArea: typeof ContentArea
-  });
 
   const [activeTab, setActiveTab] = useState('about');
   const [isSampleBrowserOpen, setIsSampleBrowserOpen] = useState(false);

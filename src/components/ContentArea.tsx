@@ -1,13 +1,12 @@
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import { navigationContent } from '../data/content';
+import { navigationPages } from './Navigation';
 
 interface ContentAreaProps {
   activeTab: string;
 }
 
 const ContentArea: React.FC<ContentAreaProps> = ({ activeTab }) => {
-  const page = navigationContent[activeTab];
+  const page = navigationPages.find((p) => p.id === activeTab);
 
   if (!page) return null;
 
@@ -15,7 +14,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({ activeTab }) => {
     <section className="content-area-panel">
       <h2 className="retro-title">{page.title}</h2>
       <div className="page-content">
-        <ReactMarkdown>{page.content}</ReactMarkdown>
+        {page.component}
       </div>
     </section>
   );
