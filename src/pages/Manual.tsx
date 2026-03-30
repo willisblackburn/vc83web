@@ -3,7 +3,7 @@ import React from 'react';
 const Manual: React.FC = () => {
   return (
     <>
-      <h3>1. Immediate Mode</h3>
+      <h2>1. Immediate Mode</h2>
       <p>
         You can enter any BASIC statement without a line number to execute it immediately. 
         This is useful for calculations or testing commands.
@@ -13,7 +13,7 @@ const Manual: React.FC = () => {
         <li><strong>Example</strong>: <code>INPUT A$: PRINT "HELLO ";A$</code></li>
       </ul>
 
-      <h3>2. Entering and Editing the Program</h3>
+      <h2>2. Entering and Editing the Program</h2>
       <p>
         Lines starting with a line number (1–65535) are stored in memory as part of your program.
       </p>
@@ -24,7 +24,7 @@ const Manual: React.FC = () => {
         <li><strong>NEW</strong>: Erases the entire program and all variables from memory.</li>
       </ul>
 
-      <h3>3. Running the Program</h3>
+      <h2>3. Running the Program</h2>
       <ul>
         <li><strong>RUN</strong>: Starts execution from the lowest line number.</li>
         <li><strong>STOP</strong>: Pauses execution. You can inspect or change variables in immediate mode.</li>
@@ -34,7 +34,7 @@ const Manual: React.FC = () => {
         <li><strong>Reset</strong>: Press the Reset button on the emulator to regain control if a program is in an infinite loop.</li>
       </ul>
 
-      <h3>4. Expressions</h3>
+      <h2>4. Expressions</h2>
       <p>VC83 supports standard mathematical and string operators:</p>
       <ul>
         <li><strong>Math</strong>: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code> (exponentiation).</li>
@@ -42,7 +42,7 @@ const Manual: React.FC = () => {
         <li><strong>Relational</strong>: <code>=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>.</li>
       </ul>
 
-      <h3>5. Controlling Program Flow</h3>
+      <h2>5. Controlling Program Flow</h2>
       <ul>
         <li><strong>IF</strong>: <code>IF [condition] THEN [statement]</code> (or line number). Executes the rest of the line only if the condition is true.</li>
         <li><strong>Logic</strong>: <code>AND</code>, <code>OR</code>, <code>NOT</code> for complex conditions.</li>
@@ -51,7 +51,7 @@ const Manual: React.FC = () => {
         <li><strong>POP</strong>: Removes the top GOSUB or FOR entry from the stack. Use this if you need to exit a loop or subroutine prematurely.</li>
       </ul>
 
-      <h3>6. Statements</h3>
+      <h2>6. Statements</h2>
       <p>VC83 BASIC includes a full suite of standard statements:</p>
       <ul>
         <li><strong>CLR</strong>: Resets all variables.</li>
@@ -80,7 +80,7 @@ const Manual: React.FC = () => {
         <li><strong>STOP</strong>: Pauses the program.</li>
       </ul>
 
-      <h3>7. Functions</h3>
+      <h2>7. Functions</h2>
       <ul>
         <li><strong>ABS(N)</strong>: Absolute value.</li>
         <li><strong>ADR(V$)</strong>: Returns the memory address of string data.</li>

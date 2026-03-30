@@ -12,7 +12,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({ activeTab }) => {
 
   return (
     <section className="content-area-panel">
-      <h2 className="retro-title">{page.title}</h2>
+      <h1 className="retro-title">{page.title}</h1>
       <div className="page-content">
         {page.component}
       </div>

@@ -3,13 +3,13 @@ import React from 'react';
 const Extending: React.FC = () => {
   return (
     <>
-      <h3>Porting to a New Platform</h3>
+      <h2>Porting to a New Platform</h2>
       <p>
         VC83 BASIC is designed to be highly portable. To port the interpreter to a 
         new 6502-based platform, follow these technical requirements.
       </p>
 
-      <h4>1. Linker Configuration (.cfg)</h4>
+      <h3>1. Linker Configuration (.cfg)</h3>
       <p>Create a custom <code>ld65</code> configuration file (e.g., <code>platform/platform.cfg</code>).</p>
       <ul>
         <li><strong>Memory Map</strong>: Define <code>ZEROPAGE</code> (typically starting at <code>$80</code>), <code>MAIN</code> RAM, and any platform-specific areas like <code>LC</code> (bank-switched RAM).</li>
@@ -32,7 +32,7 @@ const Extending: React.FC = () => {
         immediately overwritten by program data once the interpreter is ready.
       </div>
 
-      <h4>2. Memory &amp; Zero-Page Utilization</h4>
+      <h3>2. Memory &amp; Zero-Page Utilization</h3>
       <ul>
         <li><strong>Zero-Page</strong>: VC83 requires approximately 128 bytes of contiguous zero-page space. This is where the virtual registers (<code>FP0</code>, <code>FP1</code>, <code>BC</code>, <code>DE</code>) and interpreter state pointers reside.</li>
         <li><strong>Buffers</strong>:
@@ -44,7 +44,7 @@ const Extending: React.FC = () => {
         </li>
       </ul>
 
-      <h4>3. Mandatory I/O Functions</h4>
+      <h3>3. Mandatory I/O Functions</h3>
       <p>Implement these functions in a platform-specific assembly file (e.g., <code>platform_io.s</code>):</p>
       <ul>
         <li><strong>readline</strong>: Reads a line of text from the user into the <code>buffer</code>.
@@ -66,14 +66,14 @@ const Extending: React.FC = () => {
         </li>
       </ul>
 
-      <h4>4. Extension Statements</h4>
+      <h3>4. Extension Statements</h3>
       <p>You can add platform-specific commands (like <code>GR</code> or <code>TEXT</code> on Apple II) via the extension tables:</p>
       <ul>
         <li><code>ex_statement_name_table</code>: List of uppercase command names (e.g., <code>"COLOR"</code>). Ending the list with a null byte or using <code>name_table_end</code>.</li>
         <li><code>ex_statement_vectors</code>: Word-aligned jump table to the implementation routines (one per name in the table).</li>
       </ul>
 
-      <h4>5. Extension Functions</h4>
+      <h3>5. Extension Functions</h3>
       <p>Functions (like <code>PDL(n)</code>) are defined in <code>ex_function_table</code>. Each entry consists of:</p>
       <ul>
         <li><strong>Handler Address</strong>: <code>.word handler_address - 1</code>.</li>
@@ -90,7 +90,7 @@ const Extending: React.FC = () => {
         </li>
       </ul>
 
-      <h4>6. Makefile Integration</h4>
+      <h3>6. Makefile Integration</h3>
       <p>Add your new platform to the root <code>Makefile</code>:</p>
       <ol>
         <li>Add the platform name to the <code>TARGETS</code> variable.</li>

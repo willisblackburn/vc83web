@@ -28,6 +28,14 @@ body {
   min-height: 100vh;
 }
 
+h1 {
+  font-size: 1.5em;
+}
+
+h2 {
+  font-size: 1.1em;
+}
+
 #root {
   min-height: 100vh;
   position: relative;
@@ -130,7 +138,7 @@ body {
   background: transparent;
   color: var(--retro-gray);
   border: none;
-  padding: 0.25rem 0;
+  padding: 0.4rem 0;
   font-size: 1.2rem;
   cursor: pointer;
   text-align: left;
@@ -152,13 +160,14 @@ body {
 }
 
 .github-link {
-  margin-top: 1.5rem;
+  /* margin-top: 1.5rem; */
   display: flex;
   align-items: center;
   color: var(--retro-gray);
   text-decoration: none;
   transition: color 0.2s;
-  padding-left: calc(1rem + 3px);
+  padding-top: 0.4rem;
+  padding-left: calc(1rem + 3px); /* Add 3px for button border */
 }
 
 .github-link:hover {
@@ -280,14 +289,14 @@ body {
   max-width: 100%;
 }
 
-.content-area-panel h2 {
+.content-area-panel h1 {
   color: var(--retro-amber);
   margin-top: 1rem;
   font-family: var(--font-content-header);
   font-size: 2rem;
 }
 
-.content-area-panel h3 {
+.content-area-panel h2 {
   color: var(--retro-green);
 }
 
@@ -354,9 +363,8 @@ body {
   align-items: center;
 }
 
-.sample-browser-header h2 {
+.sample-browser-header h1 {
   margin: 0;
-  font-size: 1.2rem;
   color: var(--retro-amber);
 }
 
@@ -384,7 +392,7 @@ body {
   background: #333;
 }
 
-.sample-item h4 {
+.sample-item h2 {
   margin: 0;
   color: var(--retro-green);
 }

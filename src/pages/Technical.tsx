@@ -3,7 +3,7 @@ import React from 'react';
 const Technical: React.FC = () => {
   return (
     <>
-      <h3>Architecture &amp; Memory Map</h3>
+      <h2>Architecture &amp; Memory Map</h2>
       <p>
         VC83 BASIC is designed as a high-performance replacement for Applesoft BASIC, 
         typically residing in the <code>$D000-$FFFF</code> memory range (Language Card/Firmware area).
@@ -28,7 +28,7 @@ const Technical: React.FC = () => {
         <li><code>himem_ptr</code>: The highest address used; ceiling for the string space.</li>
       </ul>
 
-      <h3>Parser Virtual Machine (PVM)</h3>
+      <h2>Parser Virtual Machine (PVM)</h2>
       <p>
         VC83 uses a domain-specific language (DSL) and a dedicated Parser Virtual Machine to 
         tokenize programs.
@@ -39,7 +39,7 @@ const Technical: React.FC = () => {
         <li><strong>Reversibility</strong>: The <code>LIST</code> command uses the PVM to expand tokens back into human-readable code.</li>
       </ul>
 
-      <h3>Floating Point Support</h3>
+      <h2>Floating Point Support</h2>
       <p>VC83 BASIC uses a custom 5-byte floating-point format:</p>
       <ul>
         <li><strong>Precision</strong>: 32-bit fractional significand with an implied <code>1.</code> (similar to IEEE-754).</li>
@@ -48,7 +48,7 @@ const Technical: React.FC = () => {
         <li><strong>Operations</strong>: Includes a full suite of unary (SIN, LOG, EXP, etc.) and binary (FADD, FMUL, etc.) operations.</li>
       </ul>
 
-      <h3>String Handling</h3>
+      <h2>String Handling</h2>
       <p>Strings are managed via a robust garbage collection system:</p>
       <ul>
         <li><strong>Structure</strong>: <code>[Length Byte] [Data...] [Extra Byte 1] [Extra Byte 2]</code>. The extra bytes store forwarding addresses during compaction.</li>
@@ -56,7 +56,7 @@ const Technical: React.FC = () => {
         <li><strong>Garbage Collection</strong>: Triggered automatically when <code>string_ptr</code> reaches <code>free_ptr</code>, moving all referenced strings to the top of memory for efficient space recovery.</li>
       </ul>
 
-      <h3>VC83 vs. Microsoft BASIC</h3>
+      <h2>VC83 vs. Microsoft BASIC</h2>
       <ul>
         <li><strong>Variable Names</strong>: Can be any length (standard BASIC is limited to 2 characters).</li>
         <li><strong>Efficiency</strong>: Features a significantly more efficient string garbage collector to prevent the long "pauses" common in older interpreters.</li>

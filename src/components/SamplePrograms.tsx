@@ -15,7 +15,7 @@ const SamplePrograms: React.FC<SampleProgramsProps> = ({ isOpen, onClose, onSamp
     <div className="modal-overlay" onClick={onClose}>
       <div className="sample-browser" onClick={(e) => e.stopPropagation()}>
         <div className="sample-browser-header">
-          <h2>Select Sample Program</h2>
+          <h1>Select Sample Program</h1>
           <button className="close-button" onClick={onClose}>&times;</button>
         </div>
         <div className="sample-list">
@@ -28,7 +28,7 @@ const SamplePrograms: React.FC<SampleProgramsProps> = ({ isOpen, onClose, onSamp
                 onClose();
               }}
             >
-              <h4>{sample.title}</h4>
+              <h2>{sample.title}</h2>
               <p>{sample.description}</p>
             </div>
           ))}
