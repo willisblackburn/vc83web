@@ -301,6 +301,21 @@ body {
   text-decoration: none;
 }
 
+.page-content .note {
+  padding: 1rem; 
+  border-left: 4px solid var(--retro-amber); 
+  background: rgba(255, 204, 0, 0.1); 
+  margin: 1rem 0px;  
+}
+
+.page-content .code {
+  padding: 1rem; 
+  border-left: 4px solid var(--retro-green); 
+  background: rgba(128, 128, 128, 0.1); 
+  margin: 1rem 0px;
+  font-family: var(--font-mono);
+}
+
 /* Main Content Area */
 .main-content {
   display: flex;

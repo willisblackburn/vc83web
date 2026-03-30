@@ -25,12 +25,7 @@ const Extending: React.FC = () => {
         </li>
       </ul>
 
-      <div style={{
-        padding: '1rem',
-        borderLeft: '4px solid var(--retro-amber)',
-        background: 'rgba(255, 204, 0, 0.1)',
-        margin: '1rem 0'
-      }}>
+      <div className="note">
         <strong>Note: The ONCE Segment</strong><br/>
         For disk-loaded applications, the <code>ONCE</code> segment can share address space with 
         the <code>BSS</code> segment. This code runs first to initialize the system and is 

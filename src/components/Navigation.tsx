@@ -14,12 +14,6 @@ export interface PageInfo {
 
 export const navigationPages: PageInfo[] = [
   {
-    id: 'about',
-    label: 'about',
-    title: "About VC83 BASIC",
-    component: <About />
-  },
-  {
     id: 'manual',
     label: 'user manual',
     title: "User Manual",
@@ -42,7 +36,13 @@ export const navigationPages: PageInfo[] = [
     label: 'contributing',
     title: "Contributing",
     component: <Contributing />
-  }
+  },
+  {
+    id: 'about',
+    label: 'about',
+    title: "About VC83 BASIC",
+    component: <About />
+  },
 ];
 
 interface NavigationProps {

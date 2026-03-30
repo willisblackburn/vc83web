@@ -11,7 +11,7 @@ import type { SampleProgram } from './data/samples';
 
 const App: React.FC = () => {
 
-  const [activeTab, setActiveTab] = useState('about');
+  const [activeTab, setActiveTab] = useState('manual');
   const [isSampleBrowserOpen, setIsSampleBrowserOpen] = useState(false);
   const emulatorRef = useRef<EmulatorHandle>(null);
 
