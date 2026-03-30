@@ -5,6 +5,7 @@ const Header: React.FC = () => {
   return (
     <div className="logo-container">
       <img src={logo} alt="VC83 BASIC Logo" />
+      <div className="extended-bars" />
     </div>
   );
 };

@@ -1,10 +1,12 @@
 :root {
+  --retro-gray: #ccc;
+  --retro-gray-dim: #888;
   --retro-green: #33ff33;
   --retro-green-dim: #1ec21e;
   --retro-amber: #ffcc00;
   --retro-bg: #000;
   --retro-border: #333;
-  --panel-bg: rgba(20, 20, 20, 0.75);
+  --panel-bg: rgba(20, 20, 20, 0.5);
   --font-primary: 'Space Grotesk', sans-serif;
   --font-mono: 'Courier New', Courier, monospace;
   --font-content-header: 'Permanent Marker', sans-serif;
@@ -20,7 +22,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: var(--retro-bg);
-  color: var(--retro-green);
+  color: var(--retro-gray);
   font-family: var(--font-primary);
   overflow-x: hidden;
   min-height: 100vh;
@@ -104,7 +106,11 @@ body {
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
+}
+
+.logo-container {
+  position: relative;
 }
 
 .logo-container img {
@@ -117,14 +123,14 @@ body {
 .retro-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.25rem;
 }
 
 .nav-button {
   background: transparent;
-  color: #888;
+  color: var(--retro-gray);
   border: none;
-  padding: 0.5rem 0;
+  padding: 0.25rem 0;
   font-size: 1.2rem;
   cursor: pointer;
   text-align: left;
@@ -146,12 +152,13 @@ body {
 }
 
 .github-link {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   display: flex;
   align-items: center;
-  color: #888;
+  color: var(--retro-gray);
   text-decoration: none;
   transition: color 0.2s;
+  padding-left: calc(1rem + 3px);
 }
 
 .github-link:hover {
@@ -159,16 +166,9 @@ body {
 }
 
 .github-icon {
-  width: 48px;
-  height: 48px;
+  width: 1.8rem;
+  height: 1.8rem;
   fill: currentColor;
-}
-
-/* Main Content Area */
-.main-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
 }
 
 /* Emulator Section */
@@ -200,8 +200,8 @@ body {
 .extended-bars {
   position: absolute;
   top: 0;
-  left: -115px; /* Overlaps logo exactly at the requested point and hides the right border */
-  right: -2rem;
+  left: 270px; /* Overlaps logo exactly at the requested point and hides the right border */
+  width: 200vw;
   height: 268px; /* Matches rendered logo height (280 * 3914 / 4096) */
   background-image: url('./assets/VC83_Logo_Slice.png');
   background-repeat: repeat-x;
@@ -234,6 +234,7 @@ body {
   background: #333;      /* Dark industrial gray */
   color: rgb(184, 184, 184);           /* Retro phosphor green text */
   border: 2px solid #555;
+  border-left-width: 3px;
   cursor: pointer;
   font-family: sans-serif;
 
@@ -257,15 +258,15 @@ body {
 }
 
 .retro-button.power {
-  border-top-color: #ff0000;
+  border-left-color: #ff0000;
 }
 
 .retro-button.reset {
-  border-top-color: #ffff00;
+  border-left-color: #ffff00;
 }
 
 .retro-button.samples-trigger {
-  border-top-color: #0088ff;
+  border-left-color: #0088ff;
 }
 
 /* Translucent Content Panel */
@@ -274,11 +275,20 @@ body {
   background: var(--panel-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 3rem;
+  padding: 1rem 3rem;
   border-radius: 4px;
   max-width: 100%;
-  margin-top: 2rem;
+}
+
+.content-area-panel h2 {
+  color: var(--retro-amber);
+  margin-top: 1rem;
+  font-family: var(--font-content-header);
+  font-size: 2rem;
+}
+
+.content-area-panel h3 {
+  color: var(--retro-green);
 }
 
 .page-content {
@@ -286,11 +296,16 @@ body {
   font-size: 1.0rem;
 }
 
-.content-area-panel h2, .content-area-panel h3 {
-  color: var(--retro-amber);
-  margin-top: 1rem;
-  font-family: var(--font-content-header);
-  font-size: 2rem;
+.page-content a {
+  color: var(--retro-green);
+  text-decoration: none;
+}
+
+/* Main Content Area */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 /* Sample Browser Modal */
@@ -362,16 +377,38 @@ body {
 .sample-item p {
   margin: 0.5rem 0 0;
   font-size: 0.9rem;
-  color: #888;
+  color: var(--retro-gray);
 }
 
 /* App Footer */
 footer {
   margin-top: auto;
   padding-top: 2rem;
-  color: #444;
+  color: var(--retro-gray-dim);
   font-size: 0.9rem;
   text-align: center;
+}
+
+footer p {
+  margin: 0.2rem 0;
+}
+
+.attribution {
+  margin-top: 1.5rem;
+  color: var(--retro-gray-dim);
+  font-size: 0.9rem;
+  text-align: center;
+  width: 100%;
+  max-width: 720px;
+}
+
+.attribution a {
+  color: var(--retro-gray);
+  text-decoration: none;
+}
+
+.attribution a:hover {
+  text-decoration: underline;
 }
 
 /* Breakpoints Configuration */
@@ -401,6 +438,10 @@ footer {
     grid-row: 1;
   }
 
+  .emulator-screen {
+    margin-top: 20px;
+  }
+
   .main-content {
     grid-column: 1 / span 3;
     grid-row: 2;
@@ -426,21 +467,4 @@ footer {
     width: 1280px;
     top: 100px;
   }
-}
-footer p {
-  margin: 0.2rem 0;
-}
-
-.attribution {
-  margin-top: 1.5rem;
-  color: #888;
-  font-size: 0.9rem;
-}
-
-.attribution a {
-  color: #444;
-  text-decoration: none;
-}
-.attribution a:hover {
-  text-decoration: underline;
 }

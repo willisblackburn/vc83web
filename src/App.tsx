@@ -50,7 +50,6 @@ const App: React.FC = () => {
       </aside>
 
       <main className="emulator-section">
-          <div className="extended-bars" />
           <Emulator 
             ref={emulatorRef}
             diskUrl="vc83basic.woz" 
