@@ -5,24 +5,57 @@ const Manual: React.FC = () => {
     <>
       <h3>1. Immediate Mode</h3>
       <p>
-        You can enter any BASIC statement without a line number to execute it immediately. 
-        This is useful for calculations or testing commands.
+        As soon as you see the <code>READY.</code> prompt, the computer is waiting for your instructions. 
+        In "Immediate Mode" (sometimes called Direct Mode), you can type any BASIC statement, 
+        and the computer will execute it as soon as you press <code>Enter</code>. This makes 
+        the system feel like a powerful scientific calculator or a command-line interface. 
+        For example, you can perform quick calculations or test commands without writing a full program.
       </p>
-      <ul>
-        <li><strong>Example</strong>: <code>PRINT 12 * (3 + 4)</code> displays <code>84</code>.</li>
-        <li><strong>Example</strong>: <code>INPUT A$: PRINT "HELLO ";A$</code></li>
-      </ul>
+      <div className="code">
+        PRINT 12 * (3 + 4)
+      </div>
+      <p>
+        You can even string multiple commands together on a single line by separating them 
+        with a colon (<code>:</code>). This allows you to perform complex actions 
+        instantly:
+      </p>
+      <div className="code">
+        INPUT "WHAT IS YOUR NAME? ";A$: PRINT "HELLO ";A$
+      </div>
+      <p>
+        Any variables you create in Immediate Mode will remain in the computer's memory, 
+        waiting to be used either by further immediate commands or by a program you later 
+        decide to <code>RUN</code>.
+      </p>
 
       <h3>2. Entering and Editing the Program</h3>
       <p>
-        Lines starting with a line number (1–65535) are stored in memory as part of your program.
+        To create a program that can be saved and executed repeatedly, you must begin each line 
+        with a line number between 1 and 65535. When the computer sees a line number, it 
+        doesn't execute the statement immediately; instead, it stores it in memory as part 
+        of a sequence.
       </p>
-      <ul>
-        <li><strong>Add/Replace</strong>: Type a line number followed by the statement. Re-entering an existing line number replaces it.</li>
-        <li><strong>Delete</strong>: Type the line number by itself and press Enter.</li>
-        <li><strong>LIST</strong>: Displays the program. Use <code>LIST 100</code> for a specific line, or <code>LIST 10,100</code> for a range.</li>
-        <li><strong>NEW</strong>: Erases the entire program and all variables from memory.</li>
-      </ul>
+      <p>
+        Managing your code is straightforward. To <strong>add</strong> a new line, simply type 
+        a new line number followed by the statement. If you need to <strong>replace</strong> 
+        an existing line, re-type that same number with the corrected text—the computer 
+        always keeps the most recent version. To **delete** a line entirely, type its number 
+        on a blank line and press <code>Enter</code>.
+      </p>
+      <p>
+        As your program grows, you will want to review your work. The <code>LIST</code> command 
+        displays your stored program on the screen. You can view the entire program by typing 
+        <code>LIST</code>, or target specific areas:
+      </p>
+      <div className="code">
+        LIST 100       (Displays line 100 only)<br/>
+        LIST 10,100    (Displays from line 10 through 100)
+      </div>
+      <p>
+        When you are finished with one project and ready to start something completely fresh, 
+        type <code>NEW</code>. This command wipes the current program and all variables from 
+        memory, giving you a clean slate.
+      </p>
 
       <h3>3. Running the Program</h3>
       <p>
