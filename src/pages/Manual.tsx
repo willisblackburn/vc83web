@@ -11,7 +11,7 @@ const Manual: React.FC = () => {
         the system feel like a powerful scientific calculator or a command-line interface. 
         For example, you can perform quick calculations or test commands without writing a full program.
       </p>
-      <div className="code">
+      <div className="example">
         PRINT 12 * (3 + 4)
       </div>
       <p>
@@ -19,7 +19,7 @@ const Manual: React.FC = () => {
         with a colon (<code>:</code>). This allows you to perform complex actions 
         instantly:
       </p>
-      <div className="code">
+      <div className="example">
         INPUT "WHAT IS YOUR NAME? ";A$: PRINT "HELLO ";A$
       </div>
       <p>
@@ -47,7 +47,7 @@ const Manual: React.FC = () => {
         displays your stored program on the screen. You can view the entire program by typing 
         <code>LIST</code>, or target specific areas:
       </p>
-      <div className="code">
+      <div className="example">
         LIST 100       (Displays line 100 only)<br/>
         LIST 10,100    (Displays from line 10 through 100)
       </div>
@@ -62,7 +62,7 @@ const Manual: React.FC = () => {
         After you have entered your program lines, you use the <code>RUN</code> command to begin execution. 
         Execution always starts at the lowest line number and proceeds sequentially.
       </p>
-      <div className="code">
+      <div className="example">
         RUN
       </div>
       <p>
@@ -73,7 +73,7 @@ const Manual: React.FC = () => {
         If you want to start execution from a specific line number—perhaps for debugging or testing a specific routine—without 
         clearing your variables, you can use the <code>GOTO</code> command in immediate mode:
       </p>
-      <div className="code">
+      <div className="example">
         GOTO 500
       </div>
       <p>

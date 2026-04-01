@@ -7,10 +7,7 @@
   --retro-bg: #000;
   --retro-border: #333;
   --panel-bg: rgba(20, 20, 20, 0.5);
-  --font-primary: 'Space Grotesk', sans-serif;
-  --font-mono: 'Courier New', Courier, monospace;
   --font-content-header: 'Permanent Marker', sans-serif;
-  --font-content: 'Space Grotesk', sans-serif;
 }
 
 @font-face {
@@ -18,12 +15,36 @@
   src: url('/emulator/assets/PrintChar21.woff2') format('woff2');
 }
 
+/* Set fonts everywhere. */
+
+body,
+button {
+  font-family: 'Inter', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.page-content code,
+.page-content .example {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.content-area-panel h1 {
+  font-family: var(--font-content-header);
+}
+
+.retro-button {
+  font-family: sans-serif;
+}
+
+/* Positioning, colors, etc. */
+
 body {
   margin: 0;
   padding: 0;
   background-color: var(--retro-bg);
   color: var(--retro-gray);
-  font-family: var(--font-primary);
   overflow-x: hidden;
   min-height: 100vh;
 }
@@ -127,47 +148,60 @@ h2 {
   filter: drop-shadow(0 0 15px rgba(51, 255, 51, 0.3));
 }
 
-/* Navigation - Vertical */
+.logo-subtitle {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--retro-gray);
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.4;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+}
+
+/* Navigation - Vertical Centered */
 .retro-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0 0 0;
 }
 
 .nav-button {
   background: transparent;
   color: var(--retro-gray);
   border: none;
-  padding: 0.4rem 0;
-  font-size: 1.2rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 1.1rem;
   cursor: pointer;
-  text-align: left;
+  text-align: center;
   text-transform: capitalize;
   transition: all 0.2s;
-  border-left: 3px solid transparent;
-  padding-left: 1rem;
+  border-bottom: 2px solid transparent;
+  font-weight: 500;
+  width: fit-content;
 }
 
 .nav-button:hover {
   color: var(--retro-green);
-  border-left-color: var(--retro-green-dim);
+  border-bottom-color: var(--retro-green-dim);
 }
 
 .nav-button.active {
   color: var(--retro-green);
-  border-left-color: var(--retro-green);
-  background: linear-gradient(to right, rgba(51, 255, 51, 0.1), transparent);
+  border-bottom-color: var(--retro-green);
+  background: linear-gradient(to top, rgba(51, 255, 51, 0.15), transparent);
 }
 
 .github-link {
-  /* margin-top: 1.5rem; */
   display: flex;
   align-items: center;
+  justify-content: center;
   color: var(--retro-gray);
   text-decoration: none;
   transition: color 0.2s;
-  padding-top: 0.4rem;
-  padding-left: calc(1rem + 3px); /* Add 3px for button border */
+  padding: 0.4rem;
 }
 
 .github-link:hover {
@@ -175,9 +209,8 @@ h2 {
 }
 
 .github-icon {
-  width: 1.8rem;
-  height: 1.8rem;
-  fill: currentColor;
+  font-size: 1.8rem;
+  color: inherit;
 }
 
 /* Emulator Section */
@@ -245,16 +278,6 @@ h2 {
   border: 2px solid #555;
   border-left-width: 3px;
   cursor: pointer;
-  font-family: sans-serif;
-
-  /* background: #676767;
-  color: white;
-  border-style: solid;
-  border-width: 6px 0 0;
-  padding: 0.5rem 1.5rem;
-  font-size: 1.0rem;
-  cursor: pointer;
-  transition: transform 0.1s, filter 0.2s; */
 }
 
 .retro-button:hover {
@@ -284,7 +307,7 @@ h2 {
   background: var(--panel-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 1rem 3rem;
+  padding: 0.5rem 2rem;
   border-radius: 4px;
   max-width: 100%;
 }
@@ -292,7 +315,6 @@ h2 {
 .content-area-panel h1 {
   color: var(--retro-amber);
   margin-top: 1rem;
-  font-family: var(--font-content-header);
   font-size: 2rem;
 }
 
@@ -307,7 +329,6 @@ h2 {
 }
 
 .page-content code {
-  font-family: var(--font-mono);
   background-color: var(--retro-gray);
   color: #000;
   padding: 0 0.3rem;
@@ -331,7 +352,6 @@ h2 {
   border-left: 4px solid var(--retro-green); 
   background: rgba(128, 128, 128, 0.1); 
   margin: 1rem 0px;
-  font-family: var(--font-mono);
 }
 
 /* Main Content Area */
