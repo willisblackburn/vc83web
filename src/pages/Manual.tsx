@@ -5,7 +5,7 @@ const Manual: React.FC = () => {
     <>
       <h3>1. Immediate Mode</h3>
       <p>
-        As soon as you see the <code>READY.</code> prompt, the computer is waiting for your instructions. 
+        As soon as you see the <code>READY</code> prompt, the computer is waiting for your instructions. 
         In "Immediate Mode" (sometimes called Direct Mode), you can type any BASIC statement, 
         and the computer will execute it as soon as you press <code>Enter</code>. This makes 
         the system feel like a powerful scientific calculator or a command-line interface. 
@@ -92,7 +92,7 @@ const Manual: React.FC = () => {
         while execution is paused will "break the link," making it impossible to <code>CONT</code>inue.
       </p>
       <p>
-        When you want a program to terminate explicitly and return to the <code>READY.</code> prompt, 
+        When you want a program to terminate explicitly and return to the <code>READY</code> prompt, 
         use the <code>END</code> statement. Finally, if a program enters an infinite loop and 
         refuses to stop through normal means, use the <strong>RESET</strong> button on the emulator 
         control panel to regain control of the system.

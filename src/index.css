@@ -7,7 +7,6 @@
   --retro-bg: #000;
   --retro-border: #333;
   --panel-bg: rgba(20, 20, 20, 0.5);
-  --font-content-header: 'Permanent Marker', sans-serif;
 }
 
 @font-face {
@@ -31,7 +30,7 @@ button {
 }
 
 .content-area-panel h1 {
-  font-family: var(--font-content-header);
+  font-family: 'Permanent Marker', sans-serif;
 }
 
 .retro-button {
@@ -307,7 +306,7 @@ h2 {
   background: var(--panel-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 0.5rem 2rem;
+  padding: 0.5rem 3rem;
   border-radius: 4px;
   max-width: 100%;
 }
@@ -347,7 +346,7 @@ h2 {
   margin: 1rem 0px;  
 }
 
-.page-content .code {
+.page-content .example {
   padding: 1rem; 
   border-left: 4px solid var(--retro-green); 
   background: rgba(128, 128, 128, 0.1); 
