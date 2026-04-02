@@ -353,6 +353,85 @@ h2 {
   margin: 1rem 0px;
 }
 
+/* Reference Styles (Statements & Functions) */
+.statement-entry,
+.function-entry {
+  margin-top: 3rem;
+  margin-bottom: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--retro-border);
+}
+
+.statement-header,
+.function-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.statement-keyword,
+.function-keyword {
+  font-family: 'Permanent Marker', sans-serif;
+  color: var(--retro-amber);
+  font-size: 1.8rem;
+}
+
+.statement-synopsis,
+.function-synopsis {
+  color: var(--retro-gray);
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+.statement-syntax,
+.function-syntax {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.8rem 1.2rem;
+  border-left: 4px solid var(--retro-amber);
+  margin: 1rem 0;
+  font-family: 'Courier New', Courier, monospace;
+  color: #fff;
+}
+
+.statement-section-label,
+.function-section-label {
+  color: var(--retro-green);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  margin-top: 1.2rem;
+  margin-bottom: 0.4rem;
+}
+
+.statement-args,
+.function-args {
+  margin-left: 1.5rem;
+  list-style-type: none;
+  padding: 0;
+}
+
+.statement-arg,
+.function-arg {
+  margin-bottom: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.statement-arg-name,
+.function-arg-name {
+  font-weight: 600;
+  color: var(--retro-gray);
+  min-width: 100px;
+}
+
+.statement-description,
+.function-description,
+.function-return {
+  margin: 1rem 0;
+}
+
 /* Main Content Area */
 .main-content {
   display: flex;
