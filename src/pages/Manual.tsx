@@ -1,3 +1,14 @@
+import React, { Fragment } from 'react';
+
+const STATEMENT_GROUPS = [
+  ['GOTO', 'GOSUB', 'RETURN', 'ON', 'IF', 'END', 'STOP', 'CONT', 'POP', 'RUN'],
+  ['FOR', 'NEXT'],
+  ['LET', 'DIM', 'CLR', 'NEW', 'POKE', 'PEEK', 'ADR'],
+  ['DATA', 'READ', 'RESTORE'],
+  ['PRINT', 'INPUT', 'LIST'],
+  ['REM']
+];
+
 interface StatementProps {
   keyword: string;
   synopsis: string;
@@ -14,33 +25,60 @@ const Statement: React.FC<StatementProps> = ({
   args, 
   children, 
   example 
-}) => (
-  <div className="statement-entry">
-    <div className="statement-header">
-      <span className="statement-keyword">{keyword}</span>
-      <span className="statement-synopsis">— {synopsis}</span>
+}) => {
+  const group = STATEMENT_GROUPS.find(g => g.includes(keyword));
+  const seeAlso = (group ? group.filter(k => k !== keyword) : []);
+
+  return (
+    <div className="statement-entry" id={keyword}>
+      <div className="statement-header">
+        <span className="statement-keyword">{keyword}</span>
+        <span className="statement-synopsis">— {synopsis}</span>
+      </div>
+      <div className="statement-section-label">Syntax</div>
+      <div className="statement-syntax">{syntax}</div>
+      {args && args.length > 0 && (
+        <>
+          <div className="statement-section-label">Arguments</div>
+          <ul className="statement-args">
+            {args.map(arg => (
+              <li key={arg.name} className="statement-arg">
+                <span className="statement-arg-name">{arg.name}:</span>
+                <span className="statement-arg-desc">{arg.desc}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <div className="statement-section-label">Description</div>
+      <div className="statement-description">{children}</div>
+      {seeAlso.length > 0 && (
+        <>
+          <div className="statement-section-label">See also</div>
+          <div className="function-see-also">
+            {seeAlso.map((k, index) => (
+              <Fragment key={k}>
+                <a href={`#${k}`}>{k}</a>
+                {index < seeAlso.length - 1 ? ', ' : ''}
+              </Fragment>
+            ))}
+          </div>
+        </>
+      )}
+      <div className="statement-section-label">Example</div>
+      <div className="example">{example}</div>
     </div>
-    <div className="statement-section-label">Syntax</div>
-    <div className="statement-syntax">{syntax}</div>
-    {args && args.length > 0 && (
-      <>
-        <div className="statement-section-label">Arguments</div>
-        <ul className="statement-args">
-          {args.map(arg => (
-            <li key={arg.name} className="statement-arg">
-              <span className="statement-arg-name">{arg.name}:</span>
-              <span className="statement-arg-desc">{arg.desc}</span>
-            </li>
-          ))}
-        </ul>
-      </>
-    )}
-    <div className="statement-section-label">Description</div>
-    <div className="statement-description">{children}</div>
-    <div className="statement-section-label">Example</div>
-    <div className="example">{example}</div>
-  </div>
-);
+  );
+};
+
+const FUNCTION_GROUPS = [
+  ['SIN', 'COS', 'TAN', 'ATN'],
+  ['LEFT$', 'RIGHT$', 'MID$', 'LEN', 'ASC', 'CHR$', 'STR$', 'VAL'],
+  ['LOG', 'EXP', 'SQR'],
+  ['INT', 'ROUND', 'ABS', 'SGN'],
+  ['PEEK', 'POKE', 'ADR', 'USR', 'FRE'],
+  ['RND']
+];
 
 interface FunctionReferenceProps {
   keyword: string;
@@ -60,35 +98,53 @@ const FunctionReference: React.FC<FunctionReferenceProps> = ({
   returns,
   children, 
   example 
-}) => (
-  <div className="function-entry">
-    <div className="function-header">
-      <span className="function-keyword">{keyword}</span>
-      <span className="function-synopsis">— {synopsis}</span>
+}) => {
+  const group = FUNCTION_GROUPS.find(g => g.includes(keyword));
+  const seeAlso = (group ? group.filter(k => k !== keyword) : []);
+
+  return (
+    <div className="function-entry" id={keyword}>
+      <div className="function-header">
+        <span className="function-keyword">{keyword}</span>
+        <span className="function-synopsis">— {synopsis}</span>
+      </div>
+      <div className="function-section-label">Syntax</div>
+      <div className="function-syntax">{syntax}</div>
+      {args && args.length > 0 && (
+        <>
+          <div className="function-section-label">Arguments</div>
+          <ul className="function-args">
+            {args.map(arg => (
+              <li key={arg.name} className="function-arg">
+                <span className="function-arg-name">{arg.name}:</span>
+                <span className="function-arg-desc">{arg.desc}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <div className="function-section-label">Returns</div>
+      <div className="function-return">{returns}</div>
+      <div className="function-section-label">Description</div>
+      <div className="function-description">{children}</div>
+      {seeAlso.length > 0 && (
+        <>
+          <div className="function-section-label">See also</div>
+          <div className="function-see-also">
+            {seeAlso.map((k, index) => (
+              <Fragment key={k}>
+                <a href={`#${k}`}>{k}</a>
+                {index < seeAlso.length - 1 ? ', ' : ''}
+              </Fragment>
+            ))}
+          </div>
+        </>
+      )}
+      <div className="function-section-label">Example</div>
+      <div className="example">{example}</div>
     </div>
-    <div className="function-section-label">Syntax</div>
-    <div className="function-syntax">{syntax}</div>
-    {args && args.length > 0 && (
-      <>
-        <div className="function-section-label">Arguments</div>
-        <ul className="function-args">
-          {args.map(arg => (
-            <li key={arg.name} className="function-arg">
-              <span className="function-arg-name">{arg.name}:</span>
-              <span className="function-arg-desc">{arg.desc}</span>
-            </li>
-          ))}
-        </ul>
-      </>
-    )}
-    <div className="function-section-label">Returns</div>
-    <div className="function-return">{returns}</div>
-    <div className="function-section-label">Description</div>
-    <div className="function-description">{children}</div>
-    <div className="function-section-label">Example</div>
-    <div className="example">{example}</div>
-  </div>
-);
+  );
+};
 
 const Manual: React.FC = () => {
   return (

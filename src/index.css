@@ -428,8 +428,19 @@ h2 {
 
 .statement-description,
 .function-description,
-.function-return {
+.function-return,
+.function-see-also {
   margin: 1rem 0;
+}
+
+.function-see-also a {
+  color: var(--retro-green);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.function-see-also a:hover {
+  filter: brightness(1.2);
 }
 
 /* Main Content Area */
