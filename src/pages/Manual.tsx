@@ -33,7 +33,7 @@ const StatementReference: React.FC<StatementProps> = ({
     <div className="statement-entry" id={keyword}>
       <div className="statement-header">
         <span className="statement-keyword">{keyword}</span>
-        <span className="statement-synopsis">— {synopsis}</span>
+        <span className="statement-synopsis">{synopsis}</span>
       </div>
       <div className="statement-section-label">Syntax</div>
       <div className="statement-syntax">{syntax}</div>
@@ -106,7 +106,7 @@ const FunctionReference: React.FC<FunctionReferenceProps> = ({
     <div className="function-entry" id={keyword}>
       <div className="function-header">
         <span className="function-keyword">{keyword}</span>
-        <span className="function-synopsis">— {synopsis}</span>
+        <span className="function-synopsis">{synopsis}</span>
       </div>
       <div className="function-section-label">Syntax</div>
       <div className="function-syntax">{syntax}</div>
@@ -738,7 +738,7 @@ const Manual: React.FC = () => {
 
       <FunctionReference
         keyword="ADR"
-        synopsis="string memory address"
+        synopsis="get memory address of string"
         syntax="ADR(string_variable)"
         args={[{ name: "string_variable", desc: "the string to inspect" }]}
         returns="The memory address where the string data is stored."
