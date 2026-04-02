@@ -1,9 +1,9 @@
 import React from 'react';
-import About from '../pages/About';
 import Manual from '../pages/Manual';
 import Technical from '../pages/Technical';
 import Extending from '../pages/Extending';
-import Contributing from '../pages/Contributing';
+import Project from '../pages/Project';
+import FAQ from '../pages/FAQ';
 
 export interface PageInfo {
   id: string;
@@ -15,33 +15,33 @@ export interface PageInfo {
 export const navigationPages: PageInfo[] = [
   {
     id: 'manual',
-    label: 'user manual',
+    label: 'User Manual',
     title: "User Manual",
     component: <Manual />
   },
   {
     id: 'technical',
-    label: 'technical details',
+    label: 'Technical Details',
     title: "Technical Details",
     component: <Technical />
   },
   {
     id: 'extending',
-    label: 'extending',
+    label: 'Extending',
     title: "Extending VC83",
     component: <Extending />
   },
   {
-    id: 'contributing',
-    label: 'contributing',
-    title: "Contributing",
-    component: <Contributing />
+    id: 'project',
+    label: 'Project',
+    title: "Project Overview",
+    component: <Project />
   },
   {
-    id: 'about',
-    label: 'about',
-    title: "About VC83 BASIC",
-    component: <About />
+    id: 'faq',
+    label: 'FAQ',
+    title: "Frequently Asked Questions",
+    component: <FAQ />
   },
 ];
 

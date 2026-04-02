@@ -18,7 +18,7 @@ interface StatementProps {
   example: React.ReactNode;
 }
 
-const Statement: React.FC<StatementProps> = ({ 
+const StatementReference: React.FC<StatementProps> = ({ 
   keyword, 
   synopsis, 
   syntax, 
@@ -75,7 +75,7 @@ const FUNCTION_GROUPS = [
   ['SIN', 'COS', 'TAN', 'ATN'],
   ['LEFT$', 'RIGHT$', 'MID$', 'LEN', 'ASC', 'CHR$', 'STR$', 'VAL'],
   ['LOG', 'EXP', 'SQR'],
-  ['INT', 'ROUND', 'ABS', 'SGN'],
+  ['INT', 'ABS', 'SGN'],
   ['PEEK', 'POKE', 'ADR', 'USR', 'FRE'],
   ['RND']
 ];
@@ -402,7 +402,7 @@ const Manual: React.FC = () => {
       <h3>6. Statements</h3>
       <p>VC83 BASIC includes a full suite of standard statements:</p>
 
-      <Statement
+      <StatementReference
         keyword="CLR"
         synopsis="resets all variables"
         syntax="CLR"
@@ -411,9 +411,9 @@ const Manual: React.FC = () => {
         The <code>CLR</code> statement deletes all variables from memory and resets their values to zero 
         (for numbers) or empty strings (for strings). It also resets the internal stack, effectively 
         canceling any active <code>GOSUB</code> or <code>FOR</code> loops.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="CONT"
         synopsis="continues program execution"
         syntax="CONT"
@@ -422,9 +422,9 @@ const Manual: React.FC = () => {
         Use <code>CONT</code> to resume program execution after it has been paused by a <code>STOP</code> 
         statement or by pressing the break key. Note that you cannot use <code>CONT</code> if you 
         have edited any program lines while execution was paused.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="DATA"
         synopsis="defines constant data"
         syntax="DATA value1 [, value2, ...]"
@@ -436,9 +436,9 @@ const Manual: React.FC = () => {
         <code>DATA</code> statements allow you to store list of values within your program. These 
         values can be retrieved using the <code>READ</code> statement. String values in <code>DATA</code> 
         only need quotation marks if they contain commas or leading spaces.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="DIM"
         synopsis="declares an array"
         syntax="DIM name(size1 [, size2, ...])"
@@ -451,9 +451,9 @@ const Manual: React.FC = () => {
         <code>DIM</code> sets aside memory for an array with one or more dimensions. The index 
         of each dimension starts at 0, so <code>DIM A(10)</code> actually creates 11 elements. 
         If you use an array without <code>DIM</code>ming it first, BASIC defaults to a size of 10.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="END"
         synopsis="terminates the program"
         syntax="END"
@@ -462,8 +462,8 @@ const Manual: React.FC = () => {
         <code>END</code> stops program execution and returns the system to the <code>READY</code> 
         prompt. Unlike <code>STOP</code>, it does not print a "BREAK IN LINE" message. It is 
         often used to prevent execution from "falling into" subroutines at the end of a program.
-      </Statement>
-      <Statement
+      </StatementReference>
+      <StatementReference
         keyword="FOR"
         synopsis="starts a counted loop"
         syntax="FOR variable = start TO end [STEP increment]"
@@ -478,9 +478,9 @@ const Manual: React.FC = () => {
         <code>end</code> value. If <code>STEP</code> is omitted, BASIC assumes an increment of 1. 
         Loops can count backwards if the <code>start</code> is greater than the <code>end</code> 
         and the <code>STEP</code> is negative.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="GOSUB"
         synopsis="calls a subroutine"
         syntax="GOSUB line_number"
@@ -492,9 +492,9 @@ const Manual: React.FC = () => {
         <code>GOSUB</code> jumps to the specified line number and saves its current position 
         on the internal stack. When the program later encounters a <code>RETURN</code>, 
         it will jump back to the statement following the <code>GOSUB</code>.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="GOTO"
         synopsis="jumps to a line"
         syntax="GOTO line_number"
@@ -506,9 +506,9 @@ const Manual: React.FC = () => {
         <code>GOTO</code> causes an unconditional jump to the specified line number. It is 
         often used at the end of a block of code to loop back to an earlier point 
         or to skip over subroutines.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="IF"
         synopsis="conditional execution"
         syntax="IF condition THEN statement | line_number"
@@ -521,9 +521,9 @@ const Manual: React.FC = () => {
         The <code>IF</code> statement evaluates a condition. If the result is true (non-zero), 
         the code following <code>THEN</code> is executed. If false (zero), BASIC ignores 
         the rest of the current line and moves to the next line number.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="INPUT"
         synopsis="gets data from the user"
         syntax='INPUT ["prompt";] variable1 [, variable2, ...]'
@@ -537,8 +537,8 @@ const Manual: React.FC = () => {
         prompt text) to the user. The values typed by the user are assigned to the 
         specified variables. Multiple variables can be input at once, separated by 
         commas.
-      </Statement>
-      <Statement
+      </StatementReference>
+      <StatementReference
         keyword="LET"
         synopsis="assigns a value to a variable"
         syntax="[LET] variable = expression"
@@ -550,9 +550,9 @@ const Manual: React.FC = () => {
       >
         <code>LET</code> is used to assign values to variables. In VC83 BASIC, the 
         <code>LET</code> keyword itself is optional—you can simply write <code>A = 5</code>.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="LIST"
         synopsis="displays program lines"
         syntax="LIST [start_line [, end_line]]"
@@ -565,9 +565,9 @@ const Manual: React.FC = () => {
         <code>LIST</code> output your stored program to the screen. If no line numbers are 
         provided, the entire program is shown. You can list a single line or a range 
         of lines separated by a comma.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="NEW"
         synopsis="erases the current program"
         syntax="NEW"
@@ -576,9 +576,9 @@ const Manual: React.FC = () => {
         The <code>NEW</code> command deletes the program currently in memory and 
         resets all variables. Use this when you want to start a completely new 
         program from scratch.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="NEXT"
         synopsis="ends a FOR loop"
         syntax="NEXT [variable]"
@@ -591,9 +591,9 @@ const Manual: React.FC = () => {
         loop counter and returns execution to the corresponding <code>FOR</code> statement 
         if the end value hasn't been reached. The variable name is optional but 
         recommended for clarity.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="ON"
         synopsis="multi-way branching"
         syntax="ON expression GOTO | GOSUB line1, line2, ..."
@@ -607,8 +607,8 @@ const Manual: React.FC = () => {
         and jumps to the Nth line number in the list. If the result is 0, execution 
         continues on the next line. Values 1 through N jump to the corresponding 
         line. Values outside this range will cause an error.
-      </Statement>
-      <Statement
+      </StatementReference>
+      <StatementReference
         keyword="POKE"
         synopsis="writes to a memory address"
         syntax="POKE address, value"
@@ -621,9 +621,9 @@ const Manual: React.FC = () => {
         <code>POKE</code> allows you to directly modify the computer's memory. It is often used 
         to trigger hardware effects, change system settings, or store small amounts 
         of data in memory locations not used by BASIC.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="POP"
         synopsis="removes an entry from the stack"
         syntax="POP"
@@ -633,9 +633,9 @@ const Manual: React.FC = () => {
         address from the internal stack. This is necessary if you intend to exit 
         from a subroutine or loop using a <code>GOTO</code> instead of the standard 
         <code>RETURN</code> or <code>NEXT</code>.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="PRINT"
         synopsis="outputs text and data"
         syntax='PRINT [expression] [; | ,] ...'
@@ -650,9 +650,9 @@ const Manual: React.FC = () => {
         on the screen. A semicolon (<code>;</code>) keeps the cursor at the end 
         of the current item, while a comma (<code>,</code>) moves it to the 
         next tab stop (usually every 10 characters).
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="READ"
         synopsis="gets values from DATA statements"
         syntax="READ variable1 [, variable2, ...]"
@@ -664,9 +664,9 @@ const Manual: React.FC = () => {
         <code>READ</code> retrieves values from the program's <code>DATA</code> statements 
         and assigns them to variables. BASIC keeps an internal pointer that 
         advances with each <code>READ</code>.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="REM"
         synopsis="identifies a comment"
         syntax="REM [comment text]"
@@ -675,8 +675,8 @@ const Manual: React.FC = () => {
         <code>REM</code> (short for Remark) allows you to add comments to your program. 
         Anything following <code>REM</code> on a line is ignored by the computer 
         during execution.
-      </Statement>
-      <Statement
+      </StatementReference>
+      <StatementReference
         keyword="RESTORE"
         synopsis="resets the DATA pointer"
         syntax="RESTORE"
@@ -685,9 +685,9 @@ const Manual: React.FC = () => {
         <code>RESTORE</code> resets the program's internal <code>DATA</code> pointer to 
         the very first <code>DATA</code> statement in the program. This allows you 
         to read the same values multiple times.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="RETURN"
         synopsis="returns from a subroutine"
         syntax="RETURN"
@@ -696,9 +696,9 @@ const Manual: React.FC = () => {
         <code>RETURN</code> marks the end of a subroutine. It retrieves the return 
         address from the stack and jumps back to the statement immediately 
         following the most recent <code>GOSUB</code>.
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="RUN"
         synopsis="starts program execution"
         syntax="RUN [line_number]"
@@ -709,9 +709,9 @@ const Manual: React.FC = () => {
       >
         <code>RUN</code> clears all variables and begins executing the program from the 
         lowest line number (or the specified line).
-      </Statement>
+      </StatementReference>
 
-      <Statement
+      <StatementReference
         keyword="STOP"
         synopsis="pauses program execution"
         syntax="STOP"
@@ -720,7 +720,7 @@ const Manual: React.FC = () => {
         <code>STOP</code> halts the program and prints a "BREAK IN LINE" message. Unlike 
         <code>END</code>, it is intended for debugging, and you can resume execution 
         using the <code>CONT</code> command.
-      </Statement>
+      </StatementReference>
 
       <h3>7. Functions</h3>
       <p>Functions perform calculations or transformations and return a single value.</p>
@@ -918,17 +918,6 @@ const Manual: React.FC = () => {
       >
         Returns a pseudo-random decimal number. The behavior varies slightly 
         depending on the seed argument's value (positive, negative, or zero).
-      </FunctionReference>
-
-      <FunctionReference
-        keyword="ROUND"
-        synopsis="round to nearest"
-        syntax="ROUND(numeric_expression)"
-        args={[{ name: "numeric_expression", desc: "the value to round" }]}
-        returns="The nearest whole number (integer)."
-        example={<>PRINT ROUND(3.6)<br />4</>}
-      >
-        Rounds a decimal number to the closest integer.
       </FunctionReference>
 
       <FunctionReference

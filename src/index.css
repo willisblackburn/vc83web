@@ -33,6 +33,11 @@ button {
   font-family: 'Permanent Marker', sans-serif;
 }
 
+.statement-keyword,
+.function-keyword {
+  font-family: 'Inter', sans-serif;
+}
+
 .retro-button {
   font-family: sans-serif;
 }
@@ -175,7 +180,6 @@ h2 {
   font-size: 1.1rem;
   cursor: pointer;
   text-align: center;
-  text-transform: capitalize;
   transition: all 0.2s;
   border-bottom: 2px solid transparent;
   font-weight: 500;
@@ -372,7 +376,6 @@ h2 {
 
 .statement-keyword,
 .function-keyword {
-  font-family: 'Permanent Marker', sans-serif;
   color: var(--retro-amber);
   font-size: 1.8rem;
 }
