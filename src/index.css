@@ -308,8 +308,6 @@ h2 {
 .content-area-panel {
   flex: 1;
   background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   padding: 0.5rem 3rem;
   border-radius: 4px;
   max-width: 100%;
