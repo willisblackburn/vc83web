@@ -5,31 +5,37 @@ const Project: React.FC = () => {
     <>
       <h2>About the Project</h2>
       <p>
-        VC83 BASIC is a high-performance BASIC interpreter for the Apple II family of computers, 
-        written entirely in 6502 assembly language. It aims to provide a modern programming 
-        experience while staying true to the constraints and charm of the early 8-bit era.
+        VC83 is a cross-platform BASIC interpreter for the 6502.
+        Although on this web site it runs in an Apple II emulator, it was intended as a native BASIC
+        for new 6502-based retrocomputer projects. My aim was to provide a feature-rich BASIC that
+        was well-documented, tested, and adaptable to any project. 
       </p>
       <p>
-        Whether you are a retro enthusiast or a curious developer, VC83 offers a unique blend 
-        of speed, compatibility, and simplicity. Features include:
+        VC83 BASIC is available to you under the terms of the MIT License.
+        You're welcome to use it with or without changes in your own projects,
+        provided you adhere to the license terms.
+        No need to ask permission, just fork and go!
       </p>
-      <ul>
-        <li>Fast floating-point math routines.</li>
-        <li>Support for classic BASIC syntax.</li>
-        <li>Optimized for the Apple II family.</li>
-      </ul>
-
+      <p>
+        The VC83 name itself and logo are restricted.
+        You can share the official version, but if you want to maintain your own fork and not
+        contribute changes back to the project, you can't call it "VC83 BASIC."
+        Just call it something else!
+      </p>
       <h2>Contributing</h2>
       <p>
-        Contributions to VC83 BASIC are welcome! If you find a bug, 
+        If you find a bug, 
         have a feature request, or want to improve the codebase, 
         please feel free to open an issue or submit a pull request 
         on the GitHub repository.
       </p>
       <p>
-        We are especially interested in performance optimizations, 
-        new built-in functions, and improvements to the technical 
-        documentation.
+        By contributing code to this project, you agree to license your contribution under the MIT License.
+      </p>
+      <p>
+        Pull requests are welcome, but I can't guarantee that I'll merge them.
+        To improve the chance of your contribution being accepted,
+        please reach out or open an issue to discuss your proposed changes before starting work.
       </p>
     </>
   );
