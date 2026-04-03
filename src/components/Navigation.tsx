@@ -1,7 +1,7 @@
 import React from 'react';
 import Manual from '../pages/Manual';
 import Technical from '../pages/Technical';
-import Extending from '../pages/Extending';
+import Platforms from '../pages/Platforms';
 import Project from '../pages/Project';
 import FAQ from '../pages/FAQ';
 
@@ -21,20 +21,20 @@ export const navigationPages: PageInfo[] = [
   },
   {
     id: 'technical',
-    label: 'Technical Details',
-    title: "Technical Details",
+    label: 'Technical Reference',
+    title: "Technical Reference",
     component: <Technical />
   },
   {
-    id: 'extending',
-    label: 'Extending',
-    title: "Extending VC83",
-    component: <Extending />
+    id: 'platforms',
+    label: 'Platforms and Extending',
+    title: "Platforms and Extending",
+    component: <Platforms />
   },
   {
     id: 'project',
     label: 'Project',
-    title: "Project Overview",
+    title: "Project",
     component: <Project />
   },
   {

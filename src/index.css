@@ -25,8 +25,9 @@ button {
 }
 
 .page-content code,
-.page-content .example {
-    font-family: 'Courier New', Courier, monospace;
+.page-content .example,
+.reference-syntax {
+  font-family: 'Courier New', Courier, monospace;
 }
 
 .content-area-panel h1 {
@@ -348,17 +349,24 @@ h2 {
   margin: 1rem 0px;  
 }
 
-.page-content .example {
+.page-content .example,
+.reference-value .example {
   padding: 1rem; 
-  border-left: 4px solid var(--retro-green); 
   background: rgba(128, 128, 128, 0.1); 
-  margin: 1rem 0px;
+}
+
+.page-content .example {
+  margin: 1rem 0;
+}
+
+.reference-value .example {
+  margin: 0;
 }
 
 /* Reference Styles (Statements & Functions) */
 .reference-entry {
-  margin-top: 3.5rem;
-  margin-bottom: 3.5rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--retro-border);
 }
@@ -366,16 +374,48 @@ h2 {
 .reference-header {
   display: flex;
   align-items: baseline;
-  gap: 2rem;
-  margin-bottom: 2rem;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .reference-keyword {
-  font-family: 'Inter', sans-serif;
   color: var(--retro-amber);
   font-size: 1.5rem;
   font-weight: 700;
+}
+
+/* Technical Tables (PVM Opcodes, etc.) */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  border: 1px solid var(--retro-border);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+table th, table td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--retro-border);
+}
+
+table th {
+  background: rgba(51, 255, 51, 0.1);
+  color: var(--retro-green);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+table td {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+table.pvm-table td:first-child {
   min-width: 120px;
+  white-space: nowrap;
 }
 
 .reference-synopsis {
@@ -386,7 +426,7 @@ h2 {
 
 .reference-grid {
   display: grid;
-  grid-template-columns: 140px 1fr;
+  grid-template-columns: 120px 1fr;
   gap: 1.2rem 2rem;
 }
 
@@ -400,11 +440,8 @@ h2 {
 }
 
 .reference-syntax {
-  font-family: 'Courier New', Courier, monospace;
   color: #fff;
   background: rgba(0, 0, 0, 0.4);
-  padding: 0.8rem 1.2rem;
-  border-left: 4px solid var(--retro-amber);
 }
 
 .reference-args {
@@ -414,19 +451,15 @@ h2 {
 }
 
 .reference-arg {
-  margin-bottom: 0.8rem;
   display: flex;
   gap: 0.5rem;
 }
 
 .reference-arg-name {
   font-weight: 600;
-  color: var(--retro-gray);
-  min-width: 120px;
 }
 
 .reference-arg-desc {
-  line-height: 1.4;
 }
 
 .reference-see-also a {

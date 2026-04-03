@@ -59,6 +59,11 @@ const StatementReference: React.FC<StatementReferenceProps> = ({
         <div className="reference-label">Description</div>
         <div className="reference-value">{children}</div>
 
+        <div className="reference-label">Example</div>
+        <div className="reference-value">
+          <div className="example">{example}</div>
+        </div>
+
         {seeAlso.length > 0 && (
           <>
             <div className="reference-label">See also</div>
@@ -75,10 +80,6 @@ const StatementReference: React.FC<StatementReferenceProps> = ({
           </>
         )}
 
-        <div className="reference-label">Example</div>
-        <div className="reference-value">
-          <div className="example">{example}</div>
-        </div>
       </div>
     </div>
   );
@@ -148,6 +149,11 @@ const FunctionReference: React.FC<FunctionReferenceProps> = ({
         <div className="reference-label">Description</div>
         <div className="reference-value">{children}</div>
 
+        <div className="reference-label">Example</div>
+        <div className="reference-value">
+          <div className="example">{example}</div>
+        </div>
+
         {seeAlso.length > 0 && (
           <>
             <div className="reference-label">See also</div>
@@ -163,11 +169,6 @@ const FunctionReference: React.FC<FunctionReferenceProps> = ({
             </div>
           </>
         )}
-
-        <div className="reference-label">Example</div>
-        <div className="reference-value">
-          <div className="example">{example}</div>
-        </div>
       </div>
     </div>
   );
@@ -509,7 +510,7 @@ const Manual: React.FC = () => {
       <StatementReference
         keyword="DATA"
         synopsis="defines constant data"
-        syntax="DATA value1 [, value2, ...]"
+        syntax="DATA value1 [, value2 [, ...]]"
         args={[
           { name: "value", desc: "a numeric or string constant to be stored" }
         ]}
@@ -523,7 +524,7 @@ const Manual: React.FC = () => {
       <StatementReference
         keyword="DIM"
         synopsis="declares an array"
-        syntax="DIM name(size1 [, size2, ...])"
+        syntax="DIM name(size1 [, size2 [, ...]])"
         args={[
           { name: "name", desc: "the name of the array variable" },
           { name: "size", desc: "the maximum index for that dimension" }
@@ -608,9 +609,9 @@ const Manual: React.FC = () => {
       <StatementReference
         keyword="INPUT"
         synopsis="gets data from the user"
-        syntax='INPUT ["prompt";] variable1 [, variable2, ...]'
+        syntax='INPUT ["prompt";] variable1 [, variable2 [, ...]]'
         args={[
-          { name: "prompt", desc: "(optional) text to display to the user" },
+          { name: "prompt", desc: "(optional) text to display to the user; if not provided, the prompt is \"?\"" },
           { name: "variable", desc: "the variable(s) to store the result in" }
         ]}
         example={<>10 INPUT "WHAT IS YOUR NAME? "; N$<br />20 PRINT "HELLO "; N$</>}
@@ -678,7 +679,7 @@ const Manual: React.FC = () => {
       <StatementReference
         keyword="ON"
         synopsis="multi-way branching"
-        syntax="ON expression GOTO | GOSUB line1, line2, ..."
+        syntax="ON expression GOTO | GOSUB line1 [, line2 [, ...]]"
         args={[
           { name: "expression", desc: "a numeric value determining the jump index" },
           { name: "line", desc: "comma-separated list of destination line numbers" }
@@ -726,18 +727,19 @@ const Manual: React.FC = () => {
           { name: ";", desc: "concatenates the next item without spaces" },
           { name: ",", desc: "tabs the next item to the next column" }
         ]}
-        example={<>PRINT "SCORE: "; S, "LIVES: "; L</>}
+        example={<>PRINT "SCORE: ";S,"LIVES: ";L<br/>?"HELLO, ";NAME$</>}
       >
         <code>PRINT</code> (which can be abbreviated as <code>?</code>) displays information 
         on the screen. A semicolon (<code>;</code>) keeps the cursor at the end 
         of the current item, while a comma (<code>,</code>) moves it to the 
-        next tab stop (usually every 10 characters).
+        next tab stop (usually every 10 characters). A question mark (<code>?</code>) may be
+        used an abbreviation for <code>PRINT</code>.
       </StatementReference>
 
       <StatementReference
         keyword="READ"
         synopsis="gets values from DATA statements"
-        syntax="READ variable1 [, variable2, ...]"
+        syntax="READ variable1 [, variable2 [, ...]]"
         args={[
           { name: "variable", desc: "the name of the variable to load data into" }
         ]}

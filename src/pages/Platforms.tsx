@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Extending: React.FC = () => {
+const Platforms: React.FC = () => {
   return (
     <>
       <h2>Porting to a New Platform</h2>
@@ -12,15 +12,15 @@ const Extending: React.FC = () => {
       <h3>1. Linker Configuration (.cfg)</h3>
       <p>Create a custom <code>ld65</code> configuration file (e.g., <code>platform/platform.cfg</code>).</p>
       <ul>
-        <li><strong>Memory Map</strong>: Define <code>ZEROPAGE</code> (typically starting at <code>$80</code>), <code>MAIN</code> RAM, and any platform-specific areas like <code>LC</code> (bank-switched RAM).</li>
-        <li><strong>Required Segments</strong>:
+        <li><strong>Memory Map:</strong> Define <code>ZEROPAGE</code> (typically starting at <code>$80</code>), <code>MAIN</code> RAM, and any platform-specific areas like <code>LC</code> (bank-switched RAM).</li>
+        <li><strong>Required Segments:</strong>
           <ul>
-            <li><code>CODE</code>: The main interpreter logic.</li>
-            <li><code>VECTORS</code>: Jump tables for opcodes and statements.</li>
-            <li><code>FUNCTABS</code>: The function metadata table.</li>
-            <li><code>PARSER</code>: PVM bytecode and name tables.</li>
-            <li><code>ZEROPAGE</code>: 128 bytes of contiguous ZP space.</li>
-            <li><code>ONCE</code>: Startup code that is only needed during initialization.</li>
+            <li><code>CODE</code>: The main interpreter logic</li>
+            <li><code>VECTORS</code>: Jump tables for opcodes and statements</li>
+            <li><code>FUNCTABS</code>: The function metadata table</li>
+            <li><code>PARSER</code>: PVM bytecode and name tables</li>
+            <li><code>ZEROPAGE</code>: 128 bytes of contiguous ZP space</li>
+            <li><code>ONCE</code>: Startup code that is only needed during initialization</li>
           </ul>
         </li>
       </ul>
@@ -34,12 +34,12 @@ const Extending: React.FC = () => {
 
       <h3>2. Memory &amp; Zero-Page Utilization</h3>
       <ul>
-        <li><strong>Zero-Page</strong>: VC83 requires approximately 128 bytes of contiguous zero-page space. This is where the virtual registers (<code>FP0</code>, <code>FP1</code>, <code>BC</code>, <code>DE</code>) and interpreter state pointers reside.</li>
-        <li><strong>Buffers</strong>:
+        <li><strong>Zero-Page:</strong> VC83 requires approximately 128 bytes of contiguous zero-page space. This is where the virtual registers (<code>FP0</code>, <code>FP1</code>, <code>BC</code>, <code>DE</code>) and interpreter state pointers reside.</li>
+        <li><strong>Buffers:</strong>
           <ul>
-            <li><code>line_buffer</code>: A 256-byte area for storing a single line of BASIC text.</li>
-            <li><code>stack</code>: The 6502 hardware stack (<code>$0100-$01FF</code>) is used for return addresses.</li>
-            <li><strong>Internal Stacks</strong>: The interpreter manages its own primary and operator stacks within its memory space.</li>
+            <li><code>line_buffer</code>: A 256-byte area for storing a single line of BASIC text</li>
+            <li><code>stack</code>: The 6502 hardware stack (<code>$0100-$01FF</code>) is used for return addresses</li>
+            <li><strong>Internal Stacks:</strong> The interpreter manages its own primary and operator stacks within its memory space</li>
           </ul>
         </li>
       </ul>
@@ -47,19 +47,19 @@ const Extending: React.FC = () => {
       <h3>3. Mandatory I/O Functions</h3>
       <p>Implement these functions in a platform-specific assembly file (e.g., <code>platform_io.s</code>):</p>
       <ul>
-        <li><strong>readline</strong>: Reads a line of text from the user into the <code>buffer</code>.
+        <li><strong>readline:</strong> Reads a line of text from the user into the <code>buffer</code>.
           <ul>
             <li>Must null-terminate the string.</li>
             <li>Must return the length of the string in the <code>A</code> register.</li>
           </ul>
         </li>
-        <li><strong>write</strong>: Writes a string of characters.
+        <li><strong>write:</strong> Writes a string of characters.
           <ul>
             <li>Address of string in <code>AX</code> (little-endian).</li>
             <li>Length of string in <code>Y</code>.</li>
           </ul>
         </li>
-        <li><strong>putch</strong>: Writes a single character to the output device.
+        <li><strong>putch:</strong> Writes a single character to the output device.
           <ul>
             <li>Character passed in the <code>A</code> register.</li>
           </ul>
@@ -76,11 +76,11 @@ const Extending: React.FC = () => {
       <h3>5. Extension Functions</h3>
       <p>Functions (like <code>PDL(n)</code>) are defined in <code>ex_function_table</code>. Each entry consists of:</p>
       <ul>
-        <li><strong>Handler Address</strong>: <code>.word handler_address - 1</code>.</li>
-        <li><strong>Metadata Byte</strong>:
+        <li><strong>Handler Address:</strong> <code>.word handler_address - 1</code>.</li>
+        <li><strong>Metadata Byte:</strong>
           <ul>
-            <li><strong>Bits 0-3</strong>: Arity (number of expected arguments).</li>
-            <li><strong>Flags</strong>:
+            <li><strong>Bits 0-3:</strong> Arity (number of expected arguments).</li>
+            <li><strong>Flags:</strong>
               <ul>
                 <li><code>PROLOG_POP_INT</code> / <code>PROLOG_POP_FP</code>: Automatically pop arguments into X/Y or FP0.</li>
                 <li><code>EPILOG_PUSH_INT</code> / <code>EPILOG_PUSH_FP</code>: Automatically push return value from A/X or FP0 back to the stack.</li>
@@ -101,4 +101,4 @@ const Extending: React.FC = () => {
   );
 };
 
-export default Extending;
+export default Platforms;
