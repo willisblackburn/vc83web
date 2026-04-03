@@ -9,7 +9,7 @@ const STATEMENT_GROUPS = [
   ['REM']
 ];
 
-interface StatementProps {
+interface StatementReferenceProps {
   keyword: string;
   synopsis: string;
   syntax: string;
@@ -18,7 +18,7 @@ interface StatementProps {
   example: React.ReactNode;
 }
 
-const StatementReference: React.FC<StatementProps> = ({ 
+const StatementReference: React.FC<StatementReferenceProps> = ({ 
   keyword, 
   synopsis, 
   syntax, 
@@ -30,43 +30,56 @@ const StatementReference: React.FC<StatementProps> = ({
   const seeAlso = (group ? group.filter(k => k !== keyword) : []);
 
   return (
-    <div className="statement-entry" id={keyword}>
-      <div className="statement-header">
-        <span className="statement-keyword">{keyword}</span>
-        <span className="statement-synopsis">{synopsis}</span>
+    <div className="reference-entry" id={keyword}>
+      <div className="reference-header">
+        <span className="reference-keyword">{keyword}</span>
+        <span className="reference-synopsis">{synopsis}</span>
       </div>
-      <div className="statement-section-label">Syntax</div>
-      <div className="statement-syntax">{syntax}</div>
-      {args && args.length > 0 && (
-        <>
-          <div className="statement-section-label">Arguments</div>
-          <ul className="statement-args">
-            {args.map(arg => (
-              <li key={arg.name} className="statement-arg">
-                <span className="statement-arg-name">{arg.name}:</span>
-                <span className="statement-arg-desc">{arg.desc}</span>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      <div className="statement-section-label">Description</div>
-      <div className="statement-description">{children}</div>
-      {seeAlso.length > 0 && (
-        <>
-          <div className="statement-section-label">See also</div>
-          <div className="function-see-also">
-            {seeAlso.map((k, index) => (
-              <Fragment key={k}>
-                <a href={`#${k}`}>{k}</a>
-                {index < seeAlso.length - 1 ? ', ' : ''}
-              </Fragment>
-            ))}
-          </div>
-        </>
-      )}
-      <div className="statement-section-label">Example</div>
-      <div className="example">{example}</div>
+
+      <div className="reference-grid">
+        <div className="reference-label">Syntax</div>
+        <div className="reference-value reference-syntax">{syntax}</div>
+
+        {args && args.length > 0 && (
+          <>
+            <div className="reference-label">Arguments</div>
+            <div className="reference-value">
+              <ul className="reference-args">
+                {args.map(arg => (
+                  <li key={arg.name} className="reference-arg">
+                    <span className="reference-arg-name">{arg.name}:</span>
+                    <span className="reference-arg-desc">{arg.desc}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        <div className="reference-label">Description</div>
+        <div className="reference-value">{children}</div>
+
+        {seeAlso.length > 0 && (
+          <>
+            <div className="reference-label">See also</div>
+            <div className="reference-value">
+              <div className="reference-see-also">
+                {seeAlso.map((k, index) => (
+                  <Fragment key={k}>
+                    <a href={`#${k}`}>{k}</a>
+                    {index < seeAlso.length - 1 ? ', ' : ''}
+                  </Fragment>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        <div className="reference-label">Example</div>
+        <div className="reference-value">
+          <div className="example">{example}</div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -103,45 +116,59 @@ const FunctionReference: React.FC<FunctionReferenceProps> = ({
   const seeAlso = (group ? group.filter(k => k !== keyword) : []);
 
   return (
-    <div className="function-entry" id={keyword}>
-      <div className="function-header">
-        <span className="function-keyword">{keyword}</span>
-        <span className="function-synopsis">{synopsis}</span>
+    <div className="reference-entry" id={keyword}>
+      <div className="reference-header">
+        <span className="reference-keyword">{keyword}</span>
+        <span className="reference-synopsis">{synopsis}</span>
       </div>
-      <div className="function-section-label">Syntax</div>
-      <div className="function-syntax">{syntax}</div>
-      {args && args.length > 0 && (
-        <>
-          <div className="function-section-label">Arguments</div>
-          <ul className="function-args">
-            {args.map(arg => (
-              <li key={arg.name} className="function-arg">
-                <span className="function-arg-name">{arg.name}:</span>
-                <span className="function-arg-desc">{arg.desc}</span>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      <div className="function-section-label">Returns</div>
-      <div className="function-return">{returns}</div>
-      <div className="function-section-label">Description</div>
-      <div className="function-description">{children}</div>
-      {seeAlso.length > 0 && (
-        <>
-          <div className="function-section-label">See also</div>
-          <div className="function-see-also">
-            {seeAlso.map((k, index) => (
-              <Fragment key={k}>
-                <a href={`#${k}`}>{k}</a>
-                {index < seeAlso.length - 1 ? ', ' : ''}
-              </Fragment>
-            ))}
-          </div>
-        </>
-      )}
-      <div className="function-section-label">Example</div>
-      <div className="example">{example}</div>
+
+      <div className="reference-grid">
+        <div className="reference-label">Syntax</div>
+        <div className="reference-value reference-syntax">{syntax}</div>
+
+        {args && args.length > 0 && (
+          <>
+            <div className="reference-label">Arguments</div>
+            <div className="reference-value">
+              <ul className="reference-args">
+                {args.map(arg => (
+                  <li key={arg.name} className="reference-arg">
+                    <span className="reference-arg-name">{arg.name}:</span>
+                    <span className="reference-arg-desc">{arg.desc}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        <div className="reference-label">Returns</div>
+        <div className="reference-value">{returns}</div>
+
+        <div className="reference-label">Description</div>
+        <div className="reference-value">{children}</div>
+
+        {seeAlso.length > 0 && (
+          <>
+            <div className="reference-label">See also</div>
+            <div className="reference-value">
+              <div className="reference-see-also">
+                {seeAlso.map((k, index) => (
+                  <Fragment key={k}>
+                    <a href={`#${k}`}>{k}</a>
+                    {index < seeAlso.length - 1 ? ', ' : ''}
+                  </Fragment>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        <div className="reference-label">Example</div>
+        <div className="reference-value">
+          <div className="example">{example}</div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -166,7 +193,7 @@ const Manual: React.FC = () => {
         instantly:
       </p>
       <div className="example">
-        INPUT "WHAT IS YOUR NAME? ";A$: PRINT "HELLO ";A$
+        INPUT "WHAT IS YOUR NAME? ";A$:PRINT "HELLO ";A$
       </div>
       <p>
         Any variables you create in Immediate Mode will remain in the computer's memory, 

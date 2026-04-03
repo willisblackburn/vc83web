@@ -358,91 +358,86 @@ h2 {
 }
 
 /* Reference Styles (Statements & Functions) */
-.statement-entry,
-.function-entry {
-  margin-top: 3rem;
-  margin-bottom: 2rem;
-  padding-top: 1rem;
+.reference-entry {
+  margin-top: 3.5rem;
+  margin-bottom: 3.5rem;
+  padding-top: 1.5rem;
   border-top: 1px solid var(--retro-border);
 }
 
-.statement-header,
-.function-header {
+.reference-header {
   display: flex;
   align-items: baseline;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
-.statement-keyword,
-.function-keyword {
+.reference-keyword {
+  font-family: 'Inter', sans-serif;
   color: var(--retro-amber);
-  font-size: 1.8rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  min-width: 120px;
 }
 
-.statement-synopsis,
-.function-synopsis {
+.reference-synopsis {
   color: var(--retro-gray);
   font-style: italic;
   font-size: 1.1rem;
 }
 
-.statement-syntax,
-.function-syntax {
-  background: rgba(0, 0, 0, 0.4);
-  padding: 0.8rem 1.2rem;
-  border-left: 4px solid var(--retro-amber);
-  margin: 1rem 0;
-  font-family: 'Courier New', Courier, monospace;
-  color: #fff;
+.reference-grid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 1.2rem 2rem;
 }
 
-.statement-section-label,
-.function-section-label {
+.reference-label {
   color: var(--retro-green);
   font-weight: 600;
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.05em;
-  margin-top: 1.2rem;
-  margin-bottom: 0.4rem;
+  padding-top: 0.2rem; /* Minor alignment with first line of content */
 }
 
-.statement-args,
-.function-args {
-  margin-left: 1.5rem;
+.reference-syntax {
+  font-family: 'Courier New', Courier, monospace;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.8rem 1.2rem;
+  border-left: 4px solid var(--retro-amber);
+}
+
+.reference-args {
   list-style-type: none;
   padding: 0;
+  margin: 0;
 }
 
-.statement-arg,
-.function-arg {
-  margin-bottom: 0.5rem;
+.reference-arg {
+  margin-bottom: 0.8rem;
   display: flex;
   gap: 0.5rem;
 }
 
-.statement-arg-name,
-.function-arg-name {
+.reference-arg-name {
   font-weight: 600;
   color: var(--retro-gray);
-  min-width: 100px;
+  min-width: 120px;
 }
 
-.statement-description,
-.function-description,
-.function-return,
-.function-see-also {
-  margin: 1rem 0;
+.reference-arg-desc {
+  line-height: 1.4;
 }
 
-.function-see-also a {
+.reference-see-also a {
   color: var(--retro-green);
   text-decoration: underline;
   font-weight: 600;
 }
 
-.function-see-also a:hover {
+.reference-see-also a:hover {
   filter: brightness(1.2);
 }
 
