@@ -56,7 +56,7 @@ const Technical: React.FC = () => {
       </p>
       <h3>PVM Opcodes</h3>
       <p>
-        The PVM DSL consists of opcodes defined as assembler macros and embedded in regular assembly language code.
+        The PVM DSL consists of opcodes defined as assembler macros and embedded in the assembly language source.
         Opcodes instruct the parser to match characters in the input and copy them to the tokenized program line, apply transformations
         to the tokenized program, and resolve alternative syntax paths. The PVM reads opcodes from <code>pvm_program_ptr</code> and
         executes them in sequence.
@@ -196,10 +196,10 @@ const Technical: React.FC = () => {
 
       <h3>PVM Examples</h3>
       <p>
-        The following example implements the rule for parsing a statement name. It first attempts to 
+        The following example implements the rule for parsing a statement name. It attempts to 
         match a literal question mark (a shortcut for the <code>PRINT</code> statement). If that 
         fails, it backtracks to the savepoint created by <code>TRY</code> and invokes the 
-        <code>pvm_name</code> subrule to match a standard alphanumeric name.
+        <code>pvm_name</code> subrule to match an alphanumeric name.
       </p>
       <div className="example">{`pvm_statement_name:
     TRY pvm_name
@@ -216,11 +216,11 @@ pvm_name:
     RETURN`}</div>
 
       <p>
-        The <code>pvm_name</code> subrule demonstrates a robust loop for matching an alphanumeric 
-        identifier. It first mandates that the identifier starts with a letter using <code>MATCH_RANGE</code>. 
-        Then, it uses a <code>TRY-ACCEPT</code> loop to repeatedly match valid characters (A-Z, 0-9, or _) 
+        The <code>pvm_name</code> subrule uses a loop for matching an alphanumeric 
+        identifier. It mandates that the identifier starts with a letter using <code>MATCH_RANGE</code>. 
+        Then, it uses a <code>TRY-ACCEPT</code> loop to repeatedly match characters (A-Z, 0-9, or _) 
         until a non-name character is encountered. When matching fails, the PVM backtracks to the 
-        <code>@done</code> handler to return successfully, effectively terminating the loop.
+        <code>@done</code> handler to return, terminating the loop.
       </p>
       
       <p>
@@ -293,10 +293,10 @@ pvm_name:
         or <code>FMUL</code>) operate on the combination of <strong>FP0</strong> and <strong>FP1</strong>.
       </p>
       <p>
-        To prevent precision loss during intermediate calculations, a 32-bit extension register 
-        called <strong>FPX</strong> is utilized. This register effectively extends 
-        the <strong>FP0</strong> significand to 64 bits. This extra workspace is critical during 
-        multiplication and addition, where significant bits might otherwise be shifted out 
+        To preserve precision during intermediate calculations, a 32-bit extension register 
+        called <strong>FPX</strong> is used. This register extends 
+        the <strong>FP0</strong> significand to 64 bits during 
+        multiplication and addition, where bits might otherwise be shifted out 
         before normalization.
       </p>
 
@@ -338,58 +338,52 @@ pvm_name:
 
       <h3>Normalization and Rounding</h3>
       <p>
-        A floating-point value is considered <strong>normalized</strong> when the most-significant bit (MSB) of
-        its significand is 1. This state provides several critical advantages:
+        The <code>normalize</code> routine is used after every operation to ensure the most-significant bit (MSB) 
+        of the resulting significand is 1. If an operation results in an overflow or a leading zero, 
+        the routine shifts the significand and adjusts the exponent accordingly.
+      </p>
+      <p>
+        A floating-point value is considered <strong>normalized</strong> when the MSB of
+        its significand is 1. This characteristic ensures:
       </p>
       <ul>
         <li>
-          <strong>Precision:</strong> It allows the use of the <strong>implied 1-bit</strong>. Since 
+          <strong>Precision:</strong> It allows the use of an <strong>implied 1-bit</strong>. Because 
           the leading bit of a normalized non-zero number is always 1, it does not need to 
-          be stored in memory, providing an extra bit of precision to the fractional part.
+          be stored in memory.
         </li>
         <li>
           <strong>Uniqueness:</strong> Normalization ensures that every non-zero number has a 
-          unique representation. Without it, a value like 1.0 could be represented in 
-          multiple ways (e.g., 1.0 &times; 2<sup>0</sup>, 0.5 &times; 2<sup>1</sup>, 2 &times; 2<sup>-1</sup>), 
-          which would complicate equality testing.
+          unique representation, which simplifies equality testing.
         </li>
         <li>
           <strong>Comparison Efficiency:</strong> Because the MSB is always 1, the magnitude of 
-          two normalized numbers can be compared by simply looking at their exponents first. 
-          If the exponents are equal, a direct bitwise comparison of the significands determines 
-          which value is larger.
+          two normalized numbers can be compared by their exponents first.
         </li>
         <li>
-          <strong>Relative Error:</strong> By keeping the significand as "full" as possible, 
-          normalization ensures that the maximum number of bits are used to represent the 
-          available precision, minimizing the relative error across the entire range of values.
+          <strong>Relative Error:</strong> By maintaining the significand at maximum capacity, 
+          normalization ensures that the maximum number of bits represent the available precision.
         </li>
       </ul>
       <p>
-        The <code>normalize</code> routine runs
-        after every operation to ensure the MSB of the resulting significand is 1. If an 
-        operation results in an overflow or a leading zero, the routine shifts the significand 
-        and adjusts the exponent accordingly.
-      </p>
-      <p>
-        During the normalization process, the system implements a <strong>round-half-up</strong> algorithm. 
+        During normalization, the system implements a <strong>round-half-up</strong> algorithm. 
         It inspects the bits shifted into <strong>FPX</strong> and an internal rounding byte. 
         If the fractional remainder is 0.5 or greater, the significand is incremented. If 
-        this increment causes a "carry out," the system performs a final right-shift and 
-        exponent adjustment to maintain perfect normalization.
+        this increment causes an overflow, the system performs a final right-shift and 
+        exponent adjustment.
       </p>
 
       <h3>Arithmetic and Transcendental Functions</h3>
       <p>
-        VC83 BASIC provides a complete set of standard arithmetic and higher-level mathematical 
+        VC83 BASIC provides standard arithmetic and higher-level mathematical 
         functions. Arithmetic functions like <code>fadd</code>, <code>fsub</code>,
         and <code>fmul</code> expect their operands to be loaded into the FP registers and yield their
-        results in <strong>FP0</strong>. Comparison (<code>fcmp</code>) is designed to return flags that 
-        are compatible with standard 6502 branch instructions (<code>BEQ</code>, <code>BCS</code>, 
-        etc.), allowing for efficient conditional logic in the interpreter.
+        results in <strong>FP0</strong>. Comparison (<code>fcmp</code>) returns flags that 
+        are compatible with 6502 branch instructions (<code>BEQ</code>, <code>BCS</code>, 
+        etc.) for conditional logic in the interpreter.
       </p>
       <p>
-        The library includes advanced transcendental support for logarithmic and trigonometric 
+        The library includes support for logarithmic and trigonometric 
         calculations.
       </p>
       <table>
@@ -491,30 +485,73 @@ pvm_name:
 
       <h3>Polynomial Evaluation</h3>
       <p>
-        Transcendental functions are computed using two optimized evaluation
+        Transcendental functions are computed using two evaluation
         routines: <code>fpoly</code> and <code>fpoly_odd</code>. The <code>fpoly</code> function implements 
-        Horner's Method, iterating through a table of coefficients to solve polynomials 
-        efficiently with minimal multiplications.
+        Horner's Method, iterating through a table of coefficients to solve polynomials with minimal multiplications.
       </p>
       <p>
-        The <code>fpoly_odd</code> variant is a specialized optimization for functions containing 
-        only odd powers (such as the Taylor series for <code>fsin</code>). It squares the 
+        The <code>fpoly_odd</code> variant is an optimization for functions containing 
+        only odd powers (such as the series for <code>fsin</code>). It squares the 
         input argument once to generate all even powers, then multiplies by the input, raising the power of each term by one
         and making them all odd.
       </p>
 
       <h2>String Handling</h2>
-      <p>Strings are managed via a robust garbage collection system:</p>
-      <ul>
-        <li><strong>Structure:</strong> <code>[Length Byte] [Data...] [Extra Byte 1] [Extra Byte 2]</code>. The extra bytes store forwarding addresses during compaction.</li>
-        <li><strong>Allocation:</strong> New strings are created at <code>string_ptr</code>, which moves downwards.</li>
-        <li><strong>Garbage Collection:</strong> Triggered automatically when <code>string_ptr</code> reaches <code>free_ptr</code>, moving all referenced strings to the top of memory for efficient space recovery.</li>
-      </ul>
+      <p>
+        VC83 BASIC manages strings using a heap at the top of system memory. 
+        Data is stored downward from <code>himem_ptr</code> 
+        toward the program's <code>free_ptr</code>, allowing the heap to expand and contract as 
+        needed. This geometry provides the boundary between executable code and 
+        string data.
+      </p>
+      
+      <h3>The Garbage Collector</h3>
+      <p>
+        Memory is managed using a <strong>Mark-Sweep-Compact</strong> 
+        garbage collector. This routine reclaims memory and 
+        eliminates fragmentation. The collector 
+        executes in six phases:
+      </p>
+      <div className="example">{`Phase 1: Clear mark bits for all strings in the heap.
+Phase 2: Scan variable tables, arrays, and the stack to identify referenced strings.
+Phase 3: Calculate relocation offsets for each marked string.
+Phase 4: Update all pointers to reflect the relocation.
+Phase 5: Physically relocate string data to the bottom of free space.
+Phase 6: Shift the entire block back to the top of memory.`}</div>
+      <p>
+        This two-pass relocation strategy is used to maintain a contiguous heap. By first 
+        compacting referenced strings at the bottom of the free space (near <code>free_ptr</code>) 
+        and then shifting the block back to <code>himem_ptr</code>, the interpreter ensures 
+        that all recovered space is available for the program code and new allocations.
+      </p>
+
+      <h3>Core String Routines</h3>
+      <p>
+        Allocation is managed by <code>string_alloc</code>. This routine 
+        checks for available memory before reserving space. If a 
+        request exceeds available RAM, <code>string_alloc</code> triggers the 
+        garbage collector. If memory is insufficient after compaction, the interpreter 
+        raises an <code>ERR_OUT_OF_MEMORY</code> exception.
+      </p>
+      <p>
+        Input and parsing are handled by <code>read_string</code>. This parser 
+        uses different termination rules based on the input. If a string starts with a 
+        double quote, it is treated as quoted; in this mode, two consecutive double 
+        quotes (<code>""</code>) are interpreted as a single literal quote mark. 
+        Unquoted strings are treated as comma-delimited, stopping at the first comma.
+      </p>
+      <p>
+        To access data from the heap, the interpreter uses the <code>load_s</code> family 
+        of routines. These map a string descriptor on the heap to one of 
+        the 16-bit Zero Page registers (such as <code>S0</code> or <code>S1</code>) 
+        and return the string's length in the <strong>A</strong> register. This 
+        allows the interpreter to process strings using indirect indexed addressing.
+      </p>
 
       <h2>VC83 vs. Microsoft BASIC</h2>
       <ul>
-        <li><strong>Variable Names:</strong> Can be any length (standard BASIC is limited to 2 characters)</li>
-        <li><strong>Efficiency:</strong> Features a significantly more efficient string garbage collector to prevent the long "pauses" common in older interpreters</li>
+        <li><strong>Variable Names:</strong> Can be any length (standard BASIC is often limited to 2 characters).</li>
+        <li><strong>Efficiency:</strong> The string garbage collector is designed to minimize pauses during execution.</li>
       </ul>
     </>
   );
