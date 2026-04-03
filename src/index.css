@@ -361,6 +361,7 @@ h3 {
 .reference-value .example {
   padding: 1rem; 
   background: rgba(128, 128, 128, 0.1); 
+  white-space: pre-wrap;
 }
 
 .page-content .example {

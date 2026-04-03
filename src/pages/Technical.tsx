@@ -194,7 +194,51 @@ const Technical: React.FC = () => {
         </tbody>
       </table>
 
-      <h3>Floating Point Representation</h3>
+      <h3>PVM Examples</h3>
+      <p>
+        The following example implements the rule for parsing a statement name. It first attempts to 
+        match a literal question mark (a shortcut for the <code>PRINT</code> statement). If that 
+        fails, it backtracks to the savepoint created by <code>TRY</code> and invokes the 
+        <code>pvm_name</code> subrule to match a standard alphanumeric name.
+      </p>
+      <div className="example">{`pvm_statement_name:
+    TRY pvm_name
+    MATCH '?'
+    RETURN
+
+pvm_name:
+    MATCH_RANGE {'A', 'Z'}
+@next:
+    TRY @done
+    MATCH_RANGE {'A', 'Z'}, {'0', '9'}, {'_', '_'}
+    ACCEPT @next
+@done:
+    RETURN`}</div>
+
+      <p>
+        The <code>pvm_name</code> subrule demonstrates a robust loop for matching an alphanumeric 
+        identifier. It first mandates that the identifier starts with a letter using <code>MATCH_RANGE</code>. 
+        Then, it uses a <code>TRY-ACCEPT</code> loop to repeatedly match valid characters (A-Z, 0-9, or _) 
+        until a non-name character is encountered. When matching fails, the PVM backtracks to the 
+        <code>@done</code> handler to return successfully, effectively terminating the loop.
+      </p>
+      
+      <p>
+        In this second example, a simplified version of the main statement parser uses 
+        a savepoint to capture a potential keyword. The <code>TOKENIZE</code> opcode matches the 
+        captured text against a name table and replaces it with a 1-byte token. Finally, 
+        a fictitious <code>pvm_args</code> rule is called to handle the rest of the statement.
+      </p>
+      <div className="example">{`pvm_simple_statement:
+    WS
+    TRY @fail
+    CALL pvm_statement_name
+    TOKENIZE keyword_table
+    CALL pvm_args
+@fail:
+    RETURN`}</div>
+
+      <h2>Floating Point Support</h2>
       <p>
         VC83 BASIC utilizes a custom 5-byte (40-bit) floating-point format designed for a balance 
         of precision and performance on 8-bit hardware. This format is conceptually similar to 
@@ -346,7 +390,7 @@ const Technical: React.FC = () => {
       </p>
       <p>
         The library includes advanced transcendental support for logarithmic and trigonometric 
-        calculations:
+        calculations.
       </p>
       <table>
         <thead>
@@ -375,7 +419,7 @@ const Technical: React.FC = () => {
           <tr>
             <td><code>fdiv</code></td>
             <td>Arithmetic</td>
-            <td>Divides <strong>FP0</strong> by <strong>FP1</strong>; raises <code>DIVIDE BY ZERO</code> error if necessary.</td>
+            <td>Divides <strong>FP0</strong> by <strong>FP1</strong>; raises ERR_DIVIDE_BY_ZERO error if necessary.</td>
           </tr>
           <tr>
             <td><code>fcmp</code></td>
@@ -396,6 +440,16 @@ const Technical: React.FC = () => {
             <td><code>round</code></td>
             <td>Rounding</td>
             <td>Rounds <strong>FP0</strong> to the nearest integer (round-half-up).</td>
+          </tr>
+          <tr>
+            <td><code>int_to_fp</code></td>
+            <td>Conversion</td>
+            <td>Converts a 16-bit signed integer (passed in <strong>AX</strong>) into <strong>FP0</strong>.</td>
+          </tr>
+          <tr>
+            <td><code>truncate_fp_to_int</code></td>
+            <td>Conversion</td>
+            <td>Truncates <strong>FP0</strong> to a 16-bit signed integer and returns it in <strong>AX</strong>.</td>
           </tr>
           <tr>
             <td><code>fsin</code></td>
