@@ -177,7 +177,7 @@ const FunctionReference: React.FC<FunctionReferenceProps> = ({
 const Manual: React.FC = () => {
   return (
     <>
-      <h3>1. Immediate Mode</h3>
+      <h2>1. Immediate Mode</h2>
       <p>
         As soon as you see the <code>READY</code> prompt, the computer is waiting for your instructions. 
         In "immediate mode" (sometimes called "direct mode"), you can type any BASIC statement, 
@@ -201,7 +201,7 @@ const Manual: React.FC = () => {
         waiting to be used by further commands.
       </p>
 
-      <h3>2. Entering and Editing the Program</h3>
+      <h2>2. Entering and Editing the Program</h2>
       <p>
         To create a program that can be saved and executed repeatedly, you must begin each line 
         with a line number between 0 and 32767. When the computer sees a line number, it 
@@ -238,7 +238,7 @@ const Manual: React.FC = () => {
         memory, giving you a clean slate.
       </p>
 
-      <h3>3. Running the Program</h3>
+      <h2>3. Running the Program</h2>
       <p>
         After you have entered your program lines, you use the <code>RUN</code> command to begin execution. 
         Execution always starts at the lowest line number and proceeds sequentially.
@@ -280,9 +280,9 @@ const Manual: React.FC = () => {
         Other platforms may have some other means of interrupting the program.)
       </p>
 
-      <h3>4. Variables and Types</h3>
+      <h2>4. Variables and Types</h2>
 
-      <h4>Single Variables</h4>
+      <h3>Single Variables</h3>
       <p>
         VC83 BASIC supports two fundamental types of data: <strong>numbers</strong> and <strong>strings</strong>.
       </p>
@@ -302,7 +302,7 @@ const Manual: React.FC = () => {
         20 B$="VC83"
       </div>
 
-      <h4>Array Variables</h4>
+      <h3>Array Variables</h3>
       <p>
         When you need to store a collection of related values, use an <strong>array</strong>. 
         Before using an array, you should "dimension" it using the <code>DIM</code> statement 
@@ -328,7 +328,7 @@ const Manual: React.FC = () => {
         If you use an array without a <code>DIM</code> statement, VC83 BASIC will 
         automatically dimension it with a default size of 10.
       </p>
-      <h3>5. Expressions</h3>
+      <h2>5. Expressions</h2>
       <p>
         Expressions are the building blocks of BASIC logic. An expression can be as simple as a single 
         number (<code>42</code>) or variable (<code>X</code>), or a complex combination of values, 
@@ -336,7 +336,7 @@ const Manual: React.FC = () => {
         VC83 BASIC: either a <strong>number</strong> or a <strong>string</strong>.
       </p>
 
-      <h4>Functions and Values</h4>
+      <h3>Functions and Values</h3>
       <p>
         Functions take expressions as arguments and return a new value that can be used immediately 
         within a larger calculation. For example, in <code>PRINT 10 + LEN(A$)</code>, 
@@ -345,7 +345,7 @@ const Manual: React.FC = () => {
         or <code>STR$(N)</code> to convert a number into text.
       </p>
 
-      <h4>Mathematical Operators</h4>
+      <h3>Mathematical Operators</h3>
       <p>
         VC83 supports standard arithmetic:
       </p>
@@ -356,7 +356,7 @@ const Manual: React.FC = () => {
         <li><strong>Unary Minus</strong> (<code>-</code>): Negates a value (e.g., <code>-5</code>)</li>
       </ul>
 
-      <h4>String Concatenation</h4>
+      <h3>String Concatenation</h3>
       <p>
         To join two strings together, use the <code>&amp;</code> operator:
       </p>
@@ -365,7 +365,7 @@ const Manual: React.FC = () => {
         PRINT A$ &amp; " " &amp; B$
       </div>
 
-      <h4>Relational Operators</h4>
+      <h3>Relational Operators</h3>
       <p>
         These operators compare two values (<code>=</code>, <code>&lt;&gt;</code>, <code>&lt;</code>, 
         <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>). Unlike some languages that have a 
@@ -376,7 +376,7 @@ const Manual: React.FC = () => {
         numbers, you can use them in math, such as <code>SCORE=SCORE+(X&gt;10)</code>.
       </p>
 
-      <h4>Logical and Bitwise Operators</h4>
+      <h3>Logical and Bitwise Operators</h3>
       <p>
         The <code>AND</code>, <code>OR</code>, and <code>NOT</code> operators are primarily used 
         for complex conditions.
@@ -390,7 +390,7 @@ const Manual: React.FC = () => {
         101 AND 011 is 001).
       </p>
 
-      <h4>Precedence and Parentheses</h4>
+      <h3>Precedence and Parentheses</h3>
       <p>
         BASIC follows a strict order of operations: exponentiation first, followed by multiplication 
         and division, then addition and subtraction, and finally relational and logical tests. 
@@ -402,13 +402,13 @@ const Manual: React.FC = () => {
         PRINT (2+3)*4
       </div>
 
-      <h3>6. Controlling Program Flow</h3>
+      <h2>6. Controlling Program Flow</h2>
       <p>
         Programs typically run from top to bottom, but "flow control" statements allow your 
         programs to make decisions, repeat actions, and jump between different routines.
       </p>
 
-      <h4>Decisions: IF and THEN</h4>
+      <h3>Decisions: IF and THEN</h3>
       <p>
         The <code>IF</code> statement tests a numeric expression. If the result 
         is <strong>non-zero</strong> (true), 
@@ -424,7 +424,7 @@ const Manual: React.FC = () => {
         30 PRINT "TRY AGAIN":GOTO 10<br />
       </div>
 
-      <h4>Branching: GOTO and GOSUB</h4>
+      <h3>Branching: GOTO and GOSUB</h3>
       <p>
         <code>GOTO</code> performs an immediate jump to a specific line number. <code>GOSUB</code> is more powerful:
         it jumps to a line but remembers where it came from. When the system 
@@ -443,7 +443,7 @@ const Manual: React.FC = () => {
         BACK AGAIN
       </div>
 
-      <h4>Repeating: FOR and NEXT</h4>
+      <h3>Repeating: FOR and NEXT</h3>
       <p>
         To run a block of code multiple times, use <code>FOR</code>. You define a counter variable, its 
         starting and ending values, and an optional <code>STEP</code> to determine how much the 
@@ -465,7 +465,7 @@ const Manual: React.FC = () => {
         loop that is no longer active.
       </p>
 
-      <h4>Multi-way Jumps: ON ... GOTO/GOSUB</h4>
+      <h3>Multi-way Jumps: ON ... GOTO/GOSUB</h3>
       <p>
         When you have many potential destinations, use <code>ON ... GOTO</code> or <code>ON ... GOSUB</code>.
         This command looks at a numeric value and jumps to the 
@@ -482,7 +482,7 @@ const Manual: React.FC = () => {
         30 PRINT "INVALID SELECTION":GOTO 10
       </div>
 
-      <h3>7. Statements</h3>
+      <h2>7. Statements</h2>
       <p>VC83 BASIC includes a full suite of standard statements:</p>
 
       <StatementReference
@@ -806,7 +806,7 @@ const Manual: React.FC = () => {
         using the <code>CONT</code> command.
       </StatementReference>
 
-      <h3>8. Functions</h3>
+      <h2>8. Functions</h2>
       <p>Functions perform calculations or transformations and return a single value.</p>
 
       <FunctionReference

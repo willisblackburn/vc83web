@@ -14,26 +14,61 @@ const Technical: React.FC = () => {
         <li><code>himem_ptr</code>: The highest address used; ceiling for the string space</li>
       </ul>
 
-      <h2>Parser Virtual Machine (PVM)</h2>
+      <h2>Parser</h2>
       <p>
-        VC83 uses a Parser Virtual Machine that implements a domain-specific language (DSL) to parse and tokenize statements.
-        Each invocation of the PVM parses one statement; line numbers and statement separators are handled by 
-        the <code>parse_line</code> function.
-      </p>
-      <p>
-        The PVM reads input from <code>buffer</code> and outputs the tokenized program line to <code>line_buffer</code>.
-        It maintains two pointers:
+        The parser converts the BASIC source code into a tokenized representation that is stored in memory.
+        It reads input from <code>buffer</code> and outputs the tokenized program line to <code>line_buffer</code>.
+        The size of both buffers is 256 bytes, and the parser raises ERR_LINE_TOO_LONG if the parser tries to write
+        past the end of <code>line_buffer</code>. The input buffer is terminated by a 0 byte.
+        While parsing, the parser maintains two pointers:
       </p>
       <ul>
         <li><code>buffer_pos</code>: The read position in <code>buffer</code></li>
         <li><code>line_pos</code>: The write position in <code>line_buffer</code></li>
       </ul>
       <p>
-        PVM opcodes instruct the parser to match characters in the input and copy them to the tokenized program line, apply transformations
+        The entry point of the parser is <code>parse_line</code>, which handles the line number and statement separators.
+        Most of the work is done by <code>parse_statement,</code> which uses the Parser Virtual Machine (PVM) and a 
+        domain-specific language (DSL) to parse complete statements.
+      </p>
+      <p>
+        Functions written in the PVM DSL are called rules. The PVM begins parsing at the <code>pvm_statement</code> rule.
+        PVM rules can invoke subrules using the <code>CALL</code> opcode, which is analogous to the 6502 <code>JSR</code> instruction.
+        When a rule completes, it returns to the caller using the <code>RETURN</code> opcode (analogous to <code>RTS</code>).
+      </p>
+      <h3>Backtracking</h3>
+      <p>
+        The PVM supports backtracking, that is, abandoning a rule, or a stack of them, and returning to an earlier point to try an
+        alternative syntax path. The <code>TRY</code> opcode creates a savepoint for the current rule and sets an alternative
+        syntax handler.
+        If the rule fails, the PVM restores the savepoint and resumes execution from the <code>TRY</code> handler.
+        If the current rule doesn't have a savepoint, then the rule fails, but that failure may cause the invocation of 
+        a <code>TRY</code> handler in the calling rule, or any rule in the call chain above that.
+        Each rule can support only one savepoint at a time, so a single rule cannot have nested <code>TRY</code> blocks.
+        The program must use a subrule to manage the inner try block.
+      </p>
+      <p>
+        The <code>ACCEPT</code> opcode is used within a series of alternatives to accept the current alternative and skip over the others.
+        It clears the savepoint so that subsequently failures will not cause the PVM to discard the already-validated input.
+        Returning from a subrule implicitly <code>ACCEPT</code>s the input. Note that <code>ACCEPT</code>ing syntax in a rule does
+        not prevent another rule higher in the call chain from failing and causing the PVM to backtrack and discard the <code>ACCEPT</code>ed
+        input.
+      </p>
+      <h3>PVM Opcodes</h3>
+      <p>
+        The PVM DSL consists of opcodes defined as assembler macros and embedded in regular assembly language code.
+        Opcodes instruct the parser to match characters in the input and copy them to the tokenized program line, apply transformations
         to the tokenized program, and resolve alternative syntax paths. The PVM reads opcodes from <code>pvm_program_ptr</code> and
         executes them in sequence.
       </p>
-      <h4>PVM Opcodes</h4>
+      <p>
+        PVM opcodes are designed to be as compact as possible, with each one being one or two bytes in length, except the
+        <code>MATCH_RANGE</code> opcode, which requires two bytes plus two additional byte for each range. All addresses
+        in the DSL are offsets relative to <code>pvm_program_ptr</code> and are limited to 6 bits
+        (<code>TRY</code>, <code>ACCEPT</code>) or
+        12 bits (<code>JUMP</code>, <code>CALL</code>, <code>TOKENIZE</code>). The 6-bit addresses are adequate because
+        <code>TRY</code> and <code>ACCEPT</code> are used for implemneting alternative syntax paths within a single rule.
+      </p>
       <table className="pvm-table">
         <thead>
           <tr>
@@ -48,18 +83,20 @@ const Technical: React.FC = () => {
               If the character at <code>buffer_pos</code> matches <code>char</code>, 
               copy it to the tokenized line and increment both pointers; 
               else <code>FAIL</code>.
+              The 0 at the end of the input buffer never matches.
             </td>
           </tr>
           <tr>
             <td>MATCH s</td>
             <td>
-              Matches a entire string <code>s</code>. Exactly equivalent to a sequence of <code>MATCH char</code> opcodes for each character in <code>s</code>.
+              Matches a entire string <code>s</code>.
+              Exactly equivalent to a sequence of <code>MATCH char</code> opcodes for each character in <code>s</code>.
             </td>
           </tr>
           <tr>
             <td>MATCH *</td>
             <td>
-              Matches any character except the 0 at the end of the line.
+              Matches any character except the 0 at the end of the input buffer.
             </td>
           </tr>
           <tr>
