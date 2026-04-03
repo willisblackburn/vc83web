@@ -68,7 +68,7 @@ const App: React.FC = () => {
           </div>
           
         <div className="attribution">
-          Apple II+ emulator by Chris Torrence <a href="https://apple2ts.com" target="_blank" rel="noopener noreferrer">apple2ts.com</a>
+          Apple II emulator by Chris Torrence <a href="https://apple2ts.com" target="_blank" rel="noopener noreferrer">apple2ts.com</a>
         </div>
       </main>
 

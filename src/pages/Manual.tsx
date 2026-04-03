@@ -179,13 +179,13 @@ const Manual: React.FC = () => {
       <h3>1. Immediate Mode</h3>
       <p>
         As soon as you see the <code>READY</code> prompt, the computer is waiting for your instructions. 
-        In "Immediate Mode" (sometimes called Direct Mode), you can type any BASIC statement, 
-        and the computer will execute it as soon as you press <code>Enter</code>. This makes 
+        In "immediate mode" (sometimes called "direct mode"), you can type any BASIC statement, 
+        and the computer will execute it as soon as you press <strong>Enter</strong>. This makes 
         the system feel like a powerful scientific calculator or a command-line interface. 
         For example, you can perform quick calculations or test commands without writing a full program.
       </p>
       <div className="example">
-        PRINT 12 * (3 + 4)
+        PRINT 12 * (3 + 4)      
       </div>
       <p>
         You can even string multiple commands together on a single line by separating them 
@@ -196,33 +196,40 @@ const Manual: React.FC = () => {
         INPUT "WHAT IS YOUR NAME? ";A$:PRINT "HELLO ";A$
       </div>
       <p>
-        Any variables you create in Immediate Mode will remain in the computer's memory, 
-        waiting to be used either by further immediate commands or by a program you later 
-        decide to <code>RUN</code>.
+        Any variables you create in immediate mode will remain in the computer's memory, 
+        waiting to be used by further commands.
       </p>
 
       <h3>2. Entering and Editing the Program</h3>
       <p>
         To create a program that can be saved and executed repeatedly, you must begin each line 
-        with a line number between 1 and 65535. When the computer sees a line number, it 
-        doesn't execute the statement immediately; instead, it stores it in memory as part 
-        of a sequence.
+        with a line number between 0 and 32767. When the computer sees a line number, it 
+        doesn't execute the statement immediately; instead, it stores it in memory. The line
+        numbers determine the ordering of the program lines in memory and their execution order.
+      </p>
+      <p>
+        When entering programs in BASIC, it is common to use line numbers that are multiples of 10.
+        This leaves some extra line numbers "between" the lines in case you need to insert a new line later.
       </p>
       <p>
         Managing your code is straightforward. To <strong>add</strong> a new line, simply type 
-        a new line number followed by the statement. If you need to <strong>replace</strong> 
-        an existing line, re-type that same number with the corrected text—the computer 
-        always keeps the most recent version. To **delete** a line entirely, type its number 
-        on a blank line and press <code>Enter</code>.
+        a new line number followed by the statement. If you need 
+        to <strong>replace</strong> an existing line, re-type that same number with the corrected text;
+        the computer 
+        always keeps the most recent version. To <strong>delete</strong> a line entirely, type its number 
+        on a blank line and press <strong>Enter</strong>.
       </p>
       <p>
         As your program grows, you will want to review your work. The <code>LIST</code> command 
-        displays your stored program on the screen. You can view the entire program by typing 
-        <code>LIST</code>, or target specific areas:
+        displays your stored program on the screen. You can view the entire program by
+        typing <code>LIST</code>, or display a specific line:
       </p>
       <div className="example">
-        LIST 100       (Displays line 100 only)<br/>
-        LIST 10,100    (Displays from line 10 through 100)
+        LIST 100
+      </div>
+      <p>or a range of lines:</p>
+      <div className="example">
+        LIST 10,100
       </div>
       <p>
         When you are finished with one project and ready to start something completely fresh, 
@@ -239,7 +246,7 @@ const Manual: React.FC = () => {
         RUN
       </div>
       <p>
-        <code>RUN</code> automatically performs a <code>CLR</code> (Clear) operation. This wipes all variables 
+        <code>RUN</code> automatically performs <code>CLR</code>, which wipes all variables 
         and arrays from memory, resetting everything to zero or empty strings before the program starts.
       </p>
       <p>
@@ -255,129 +262,177 @@ const Manual: React.FC = () => {
         all variables remain in memory with their last-assigned values. You can even access and change them 
         in immediate mode. If you then restart the program using <code>GOTO</code> instead of <code>RUN</code>, 
         those variables will still have their previous values. This "living" memory can be a powerful tool 
-        for debugging, but it can also lead to bugs if you expect a fresh start! To manually clear 
-        memory at any time, simply type <code>CLR</code>.
+        for debugging, but it can also lead to bugs if you expect a fresh start! To manually reset all variables
+        at any time, simply type <code>CLR</code>.
       </p>
       <p>
         To temporarily halt a running program, include a <code>STOP</code> statement in your code. The computer will 
         report the line where it stopped and wait for your next command. To resume execution, 
-        type <code>CONT</code> (Continue). However, keep in mind that modifying your program lines 
+        type <code>CONT</code> (continue). However, keep in mind that modifying your program lines 
         while execution is paused will "break the link," making it impossible to <code>CONT</code>inue.
       </p>
       <p>
         When you want a program to terminate explicitly and return to the <code>READY</code> prompt, 
         use the <code>END</code> statement. Finally, if a program enters an infinite loop and 
         refuses to stop through normal means, use the <strong>RESET</strong> button on the emulator 
-        control panel to regain control of the system.
+        control panel to regain control of the system. (Note that this is unique to VC83 BASIC on the Apple II. 
+        Other platforms may have some other means of interrupting the program.)
       </p>
 
-      <h3>4. Expressions</h3>
+      <h3>4. Variables and Types</h3>
+
+      <h4>Single Variables</h4>
+      <p>
+        VC83 BASIC supports two fundamental types of data: <strong>numbers</strong> and <strong>strings</strong>.
+      </p>
+      <ul>
+        <li><strong>Numbers</strong> are used for any numeric value, including integers and 
+          decimal (floating-point) numbers. Example: <code>X=42</code>.</li>
+        <li><strong>Strings</strong> are used for text. String variable names must always end 
+          with a dollar sign (<code>$</code>), which is pronounced "string." Example: <code>A$="HELLO"</code>.
+          Strings can be up to 255 characters in length.</li>
+      </ul>
+      <p>
+        To assign a value to a variable, you can use the <code>LET</code> statement, or 
+        simply omit it for a more concise syntax:
+      </p>
+      <div className="example">
+        10 LET A=100<br />
+        20 B$="VC83"
+      </div>
+
+      <h4>Array Variables</h4>
+      <p>
+        When you need to store a collection of related values, use an <strong>array</strong>. 
+        Before using an array, you should "dimension" it using the <code>DIM</code> statement 
+        to specify its maximum size. Array indices start at zero.
+      </p>
+      <p>For example, to create and assign an array of strings:</p>
+      <div className="example">
+        10 DIM NAMES$(50)<br/>
+        20 NAMES$(1)="CHRIS"
+      </div>
+      <p>
+        <code>NAME$</code> is a string array with a maximum index of 50. Becuase indices start at 
+        0, <code>NAME$</code> holds 51 string values.
+      </p>
+      <p>Arrays can have more than one dimension. VC83 BASIC supports any number of dimensions,
+        although is rare to need more than 2 or 3.
+        In this example, <code>GRID</code> is an array of 121 (not 100) numbers.</p>
+      <div className="example">
+        10 DIM GRID(10,10)<br/>
+        20 GRID(1,1)=10:GRID(1,2)=20:GRID(2,1)=30:GRID(2,2)=40
+      </div>
+      <p>
+        If you use an array without a <code>DIM</code> statement, VC83 BASIC will 
+        automatically dimension it with a default size of 10.
+      </p>
+      <h3>5. Expressions</h3>
       <p>
         Expressions are the building blocks of BASIC logic. An expression can be as simple as a single 
         number (<code>42</code>) or variable (<code>X</code>), or a complex combination of values, 
-        operators, and functions. Every expression eventually resolves to either a **number** or a **string**.
+        operators, and functions. Every expression eventually resolves to one of the two types supported by
+        VC83 BASIC: either a <strong>number</strong> or a <strong>string</strong>.
       </p>
 
+      <h4>Functions and Values</h4>
       <p>
-        <strong>Functions and Values</strong><br />
         Functions take expressions as arguments and return a new value that can be used immediately 
         within a larger calculation. For example, in <code>PRINT 10 + LEN(A$)</code>, 
         the <code>LEN</code> function calculates the length of a string, which is then added to 10. 
-        To convert between types, use <code>VAL(S$)</code> to extract a number from a string, or 
-        <code>STR$(N)</code> to convert a number into text.
+        To convert between types, use <code>VAL(S$)</code> to extract a number from a string, 
+        or <code>STR$(N)</code> to convert a number into text.
       </p>
 
+      <h4>Mathematical Operators</h4>
       <p>
-        <strong>Mathematical Operators</strong><br />
         VC83 supports standard arithmetic:
       </p>
       <ul>
-        <li><strong>Exponentiation</strong> (<code>^</code>): Raises a number to a power.</li>
-        <li><strong>Multiplication</strong> (<code>*</code>) and <strong>Division</strong> (<code>/</code>).</li>
-        <li><strong>Addition</strong> (<code>+</code>) and <strong>Subtraction</strong> (<code>-</code>).</li>
-        <li><strong>Unary Minus</strong> (<code>-</code>): Negates a value (e.g., <code>-5</code>).</li>
+        <li><strong>Exponentiation</strong> (<code>^</code>): Raises a number to a power</li>
+        <li><strong>Multiplication</strong> (<code>*</code>) and <strong>Division</strong> (<code>/</code>)</li>
+        <li><strong>Addition</strong> (<code>+</code>) and <strong>Subtraction</strong> (<code>-</code>)</li>
+        <li><strong>Unary Minus</strong> (<code>-</code>): Negates a value (e.g., <code>-5</code>)</li>
       </ul>
 
+      <h4>String Concatenation</h4>
       <p>
-        <strong>String Concatenation</strong><br />
         To join two strings together, use the <code>&amp;</code> operator:
       </p>
       <div className="example">
-        A$ = "HELLO" : B$ = "WORLD"<br />
+        A$="HELLO":B$="WORLD"<br />
         PRINT A$ &amp; " " &amp; B$
       </div>
 
+      <h4>Relational Operators</h4>
       <p>
-        <strong>Relational Operators</strong><br />
         These operators compare two values (<code>=</code>, <code>&lt;&gt;</code>, <code>&lt;</code>, 
         <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>). Unlike some languages that have a 
-        dedicated "Boolean" type, BASIC relational operators always return a number: **1** if the 
-        condition is true, and **0** if it is false. Relational operators work with both numbers 
+        dedicated "boolean" type, BASIC relational operators always return a number: <strong>1</strong> if the 
+        condition is true, and <strong>0</strong> if it is false. Relational operators work with both numbers 
         and strings (e.g., <code>A$ &lt; B$</code> for alphabetization), but both operands must 
-        be of the same type—you cannot compare a number to a string. Because they return 
-        numbers, you can use them in math, such as <code>SCORE = SCORE + (X &gt; 10)</code>.
+        be of the same type; you cannot compare a number to a string. Because relational operators return 
+        numbers, you can use them in math, such as <code>SCORE=SCORE+(X&gt;10)</code>.
       </p>
 
+      <h4>Logical and Bitwise Operators</h4>
       <p>
-        <strong>Logical and Bitwise Operators</strong><br />
         The <code>AND</code>, <code>OR</code>, and <code>NOT</code> operators are primarily used 
-        for complex conditions. Like relational operators, they require both sides of the 
-        operation to be of the same type (either both numbers or both strings):
+        for complex conditions.
       </p>
       <div className="example">
-        IF X &gt; 0 AND X &lt; 10 THEN PRINT "IN RANGE"
+        IF X&gt;0 AND X&lt;10 THEN PRINT "IN RANGE"
       </div>
       <p>
         When used with numbers, <code>AND</code> and <code>OR</code> perform bitwise operations 
-        on the integer part of the value. For example, <code>PRINT 5 AND 3</code> outputs <code>1</code> 
-        (binary 101 AND 011 is 001).
+        on the integer part of the value. For example, <code>PRINT 5 AND 3</code> outputs <code>1</code> (binary 
+        101 AND 011 is 001).
       </p>
 
+      <h4>Precedence and Parentheses</h4>
       <p>
-        <strong>Precedence and Parentheses</strong><br />
         BASIC follows a strict order of operations: exponentiation first, followed by multiplication 
         and division, then addition and subtraction, and finally relational and logical tests. 
         You can always use <strong>parentheses</strong> <code>()</code> to override this order 
         or simply to make your code easier to read:
       </p>
       <div className="example">
-        PRINT 2 + 3 * 4     (Outputs 14)<br />
-        PRINT (2 + 3) * 4   (Outputs 20)
+        PRINT 2+3*4<br/>
+        PRINT (2+3)*4
       </div>
 
-      <h3>5. Controlling Program Flow</h3>
+      <h3>6. Controlling Program Flow</h3>
       <p>
-        Programs typically run from top to bottom, but "Flow Control" statements allow your 
+        Programs typically run from top to bottom, but "flow control" statements allow your 
         programs to make decisions, repeat actions, and jump between different routines.
       </p>
 
+      <h4>Decisions: IF and THEN</h4>
       <p>
-        <strong>Decisions: IF and THEN</strong><br />
-        The <code>IF</code> statement tests a numeric expression. If the result is **non-zero** 
-        (true), the statement following <code>THEN</code> is executed. Crucially, <code>IF</code> 
-        executes **all remaining statements on the line** if the condition is met. If the 
-        condition is **zero** (false), BASIC immediately skips the rest of the line and 
+        The <code>IF</code> statement tests a numeric expression. If the result 
+        is <strong>non-zero</strong> (true), 
+        the statement following <code>THEN</code> is executed. 
+        Crucially, <code>IF</code> executes <strong>all remaining statements on the line</strong> if the condition is met. If the 
+        condition is <strong>zero</strong> (false), BASIC immediately skips the rest of the line and 
         proceeds to the next numbered line. Note that the condition must be a number; 
         testing a string directly will result in an error.
       </p>
       <div className="example">
         10 INPUT "GUESS THE NUMBER (1-10)? ";G<br />
-        20 IF G=7 THEN PRINT "WINNER!" : END<br />
-        30 PRINT "TRY AGAIN" : GOTO 10<br />
-        RUN
+        20 IF G=7 THEN PRINT "WINNER!":END<br />
+        30 PRINT "TRY AGAIN":GOTO 10<br />
       </div>
 
+      <h4>Branching: GOTO and GOSUB</h4>
       <p>
-        <strong>Branching: GOTO and GOSUB</strong><br />
-        <code>GOTO</code> performs an immediate jump to a specific line number. <code>GOSUB</code> 
-        is more powerful: it jumps to a line but remembers where it came from. When the system 
-        reaches a <code>RETURN</code>, it jumps back to the command immediately following the 
-        <code>GOSUB</code>. This allows you to write "subroutines"—blocks of code you can reuse 
-        from many places.
+        <code>GOTO</code> performs an immediate jump to a specific line number. <code>GOSUB</code> is more powerful:
+        it jumps to a line but remembers where it came from. When the system 
+        reaches a <code>RETURN</code>, it jumps back to the command immediately following the <code>GOSUB</code>. This 
+        allows you to write subroutines, blocks of code you can reuse from many places.
       </p>
       <div className="example">
         10 PRINT "MAIN CODE"<br />
-        20 GOSUB 100 : PRINT "BACK AGAIN"<br />
+        20 GOSUB 100:PRINT "BACK AGAIN"<br />
         30 END<br />
         100 PRINT "INSIDE SUBROUTINE"<br />
         110 RETURN<br />
@@ -387,14 +442,14 @@ const Manual: React.FC = () => {
         BACK AGAIN
       </div>
 
+      <h4>Repeating: FOR and NEXT</h4>
       <p>
-        <strong>Repeating: FOR, TO, and NEXT</strong><br />
-        To run a block of code multiple times, use <code>FOR</code>. You define a variable, its 
+        To run a block of code multiple times, use <code>FOR</code>. You define a counter variable, its 
         starting and ending values, and an optional <code>STEP</code> to determine how much the 
-        counter increases (or decreases) each time.
+        counter increases (or decreases, if the step value is negative) each time.
       </p>
       <div className="example">
-        10 FOR I = 1 TO 5 STEP 2<br />
+        10 FOR I=1 TO 5 STEP 2<br />
         20 PRINT "COUNT:"; I<br />
         30 NEXT I<br />
         RUN<br />
@@ -403,16 +458,16 @@ const Manual: React.FC = () => {
         COUNT: 5
       </div>
       <p>
-        If you need to leave a loop or a subroutine early using a <code>GOTO</code>, use the 
-        <code>POP</code> command first. This "pops" the top entry off the internal control 
+        If you need to leave a loop or a subroutine early using a <code>GOTO</code>,
+        use the <code>POP</code> command first. This removes the top entry from the internal control 
         stack, ensuring the system doesn't try to <code>RETURN</code> to a subroutine or 
         loop that is no longer active.
       </p>
 
+      <h4>Multi-way Jumps: ON ... GOTO/GOSUB</h4>
       <p>
-        <strong>Multi-way Jumps: ON</strong><br />
-        When you have many potential destinations, use <code>ON ... GOTO</code> or 
-        <code>ON ... GOSUB</code>. This command looks at a numeric value and jumps to the 
+        When you have many potential destinations, use <code>ON ... GOTO</code> or <code>ON ... GOSUB</code>.
+        This command looks at a numeric value and jumps to the 
         Nth line number in the comma-separated list.
       </p>
       <ul>
@@ -421,19 +476,19 @@ const Manual: React.FC = () => {
         <li>Numbers <strong>less than 0</strong> or <strong>greater than N</strong> will cause an error.</li>
       </ul>
       <div className="example">
-        10 INPUT "PICK 1 OR 2: "; X<br />
-        20 ON X GOTO 100, 200<br />
-        30 PRINT "INVALID SELECTION" : GOTO 10
+        10 INPUT "PICK 1 OR 2: ";X<br />
+        20 ON X GOTO 100,200<br />
+        30 PRINT "INVALID SELECTION":GOTO 10
       </div>
 
-      <h3>6. Statements</h3>
+      <h3>7. Statements</h3>
       <p>VC83 BASIC includes a full suite of standard statements:</p>
 
       <StatementReference
         keyword="CLR"
         synopsis="resets all variables"
         syntax="CLR"
-        example={<>10 A = 10 : B$ = "HI"<br />20 CLR<br />30 PRINT A; B$</>}
+        example={<>10 A=10:B$="HI"<br />20 CLR<br />30 PRINT A;B$</>}
       >
         The <code>CLR</code> statement deletes all variables from memory and resets their values to zero 
         (for numbers) or empty strings (for strings). It also resets the internal stack, effectively 
@@ -444,7 +499,7 @@ const Manual: React.FC = () => {
         keyword="CONT"
         synopsis="continues program execution"
         syntax="CONT"
-        example={<>STOP<br />(READY)<br />CONT</>}
+        example={<>10 STOP<br/>20 PRINT "AT 20"<br />RUN<br/><br/>STOPPED AT 10<br />CONT<br/>AT 20</>}
       >
         Use <code>CONT</code> to resume program execution after it has been paused by a <code>STOP</code> 
         statement or by pressing the break key. Note that you cannot use <code>CONT</code> if you 
@@ -473,7 +528,7 @@ const Manual: React.FC = () => {
           { name: "name", desc: "the name of the array variable" },
           { name: "size", desc: "the maximum index for that dimension" }
         ]}
-        example={<>10 DIM A(100)<br />20 DIM MAP(10, 10)<br />30 A(50) = 42</>}
+        example={<>10 DIM A(100)<br />20 DIM MAP(10, 10)<br />30 A(50)=42</>}
       >
         <code>DIM</code> sets aside memory for an array with one or more dimensions. The index 
         of each dimension starts at 0, so <code>DIM A(10)</code> actually creates 11 elements. 
@@ -493,13 +548,13 @@ const Manual: React.FC = () => {
       <StatementReference
         keyword="FOR"
         synopsis="starts a counted loop"
-        syntax="FOR variable = start TO end [STEP increment]"
+        syntax="FOR variable=start TO end [STEP increment]"
         args={[
           { name: "variable", desc: "a numeric variable used as the loop counter" },
           { name: "start/end", desc: "the initial and final values for the counter" },
           { name: "increment", desc: "(optional) the amount to change the counter by each loop" }
         ]}
-        example={<>10 FOR I = 1 TO 10 STEP 2<br />20 PRINT I<br />30 NEXT I</>}
+        example={<>10 FOR I=1 TO 10 STEP 2<br />20 PRINT I<br />30 NEXT I</>}
       >
         <code>FOR</code> begins a loop that repeats until the counter variable reaches the 
         <code>end</code> value. If <code>STEP</code> is omitted, BASIC assumes an increment of 1. 
@@ -568,15 +623,15 @@ const Manual: React.FC = () => {
       <StatementReference
         keyword="LET"
         synopsis="assigns a value to a variable"
-        syntax="[LET] variable = expression"
+        syntax="[LET] variable=expression"
         args={[
           { name: "variable", desc: "the name of the variable to store the value in" },
           { name: "expression", desc: "the numeric or string value to assign" }
         ]}
-        example={<>10 LET A = 5<br />20 B$ = "RETRO"</>}
+        example={<>10 LET A=5<br />20 B$="RETRO"</>}
       >
         <code>LET</code> is used to assign values to variables. In VC83 BASIC, the 
-        <code>LET</code> keyword itself is optional—you can simply write <code>A = 5</code>.
+        <code>LET</code> keyword itself is optional—you can simply write <code>A=5</code>.
       </StatementReference>
 
       <StatementReference
@@ -612,7 +667,7 @@ const Manual: React.FC = () => {
         args={[
           { name: "variable", desc: "(optional) the counter variable of the loop" }
         ]}
-        example={<>10 FOR I = 1 TO 10: PRINT I: NEXT I</>}
+        example={<>10 FOR I=1 TO 10: PRINT I: NEXT I</>}
       >
         <code>NEXT</code> marks the end of a <code>FOR</code> loop block. It increments the 
         loop counter and returns execution to the corresponding <code>FOR</code> statement 
@@ -749,7 +804,7 @@ const Manual: React.FC = () => {
         using the <code>CONT</code> command.
       </StatementReference>
 
-      <h3>7. Functions</h3>
+      <h3>8. Functions</h3>
       <p>Functions perform calculations or transformations and return a single value.</p>
 
       <FunctionReference
@@ -769,7 +824,7 @@ const Manual: React.FC = () => {
         syntax="ADR(string_variable)"
         args={[{ name: "string_variable", desc: "the string to inspect" }]}
         returns="The memory address where the string data is stored."
-        example={<>10 A$ = "CAT": PRINT ADR(A$)</>}
+        example={<>10 A$="CAT": PRINT ADR(A$)</>}
       >
         Returns the actual memory address pointing to the start of the string's character data. 
         This is useful for passing string data to machine language routines.
@@ -985,7 +1040,7 @@ const Manual: React.FC = () => {
         syntax="STR$(numeric_expression)"
         args={[{ name: "numeric_expression", desc: "the number to convert" }]}
         returns="A string representation of the number."
-        example={<>10 A$ = STR$(42): PRINT A$</>}
+        example={<>10 A$=STR$(42): PRINT A$</>}
       >
         Converts a numeric value into a string of text characters.
       </FunctionReference>
@@ -1010,7 +1065,7 @@ const Manual: React.FC = () => {
           { name: "argument", desc: "numeric value passed in the accumulator" }
         ]}
         returns="The numeric value returned by the machine language routine."
-        example={<>X = USR(49152, 10)</>}
+        example={<>X=USR(49152, 10)</>}
       >
         Calls a machine language subroutine at the specified memory address. The 
         argument is passed to the routine, and the routine's result is returned 

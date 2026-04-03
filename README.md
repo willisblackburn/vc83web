@@ -1,6 +1,6 @@
 # VC83 BASIC Web Project
 
-This project provides a retro-themed website featuring an Apple II+ emulator running VC83 BASIC.
+This project provides a retro-themed website featuring an Apple II emulator running VC83 BASIC.
 
 ## Prerequisites
 

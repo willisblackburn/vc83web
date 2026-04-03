@@ -4,7 +4,7 @@ const Footer: React.FC = () => {
   return (
     <footer>
       <p>VC83 BASIC &copy; {new Date().getFullYear()} Willis Blackburn</p>
-      <p>Apple II+ emulator &copy; {new Date().getFullYear()} Chris Torrence</p>
+      <p>Apple II emulator &copy; {new Date().getFullYear()} Chris Torrence</p>
     </footer>
   );
 };
