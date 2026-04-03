@@ -5,7 +5,7 @@ const Platforms: React.FC = () => {
     <>
       <h2>Porting to a New Platform</h2>
       <p>
-        VC83 BASIC is designed to be highly portable. To port the interpreter to a 
+        VC83 BASIC is designed to be portable. To port the interpreter to a 
         new 6502-based platform, follow these technical requirements.
       </p>
 

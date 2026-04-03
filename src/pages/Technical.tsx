@@ -194,14 +194,260 @@ const Technical: React.FC = () => {
         </tbody>
       </table>
 
-      <h2>Floating Point Support</h2>
-      <p>VC83 BASIC uses a custom 5-byte floating-point format:</p>
+      <h3>Floating Point Representation</h3>
+      <p>
+        VC83 BASIC utilizes a custom 5-byte (40-bit) floating-point format designed for a balance 
+        of precision and performance on 8-bit hardware. This format is conceptually similar to 
+        that of a IEEE-754 32-bit single-precision float, but increases the size of the
+        signifcand to 40 bits to support 9 decimal digits of precision, and swaps the ordering of the sign bit and exponent
+        fields so that the 8-bit exponent can occupy one full byte in memory. VC83 BASIC floats
+        do not support subnormal, NaN, or infinity values.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Bits</th>
+            <th>Field</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0–30</td>
+            <td>Significand</td>
+            <td>The 31-bit fractional part (mantissa) of the value. Stored least significant byte first.</td>
+          </tr>
+          <tr>
+            <td>31</td>
+            <td>Sign</td>
+            <td>The sign bit (0 for positive, 1 for negative).</td>
+          </tr>
+          <tr>
+            <td>32–39</td>
+            <td>Exponent</td>
+            <td>8-bit biased exponent (excess-127). An exponent of 0 represents a value of zero.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        All 40 bits are stored in memory in little-endian format. In other words, the first byte contains bits 0-7, 
+        the second byte contains bits 8-15, and so on. The exponent byte therefore occupies the last byte in memory.
+      </p>
+      <p>
+        For any non-zero exponent <code>e</code>, the actual mathematical exponent is <code>e-127</code>. 
+        The actual significand includes an <strong>implied 1 bit</strong> to the left of the binary 
+        point (e.g., <code>1.[fraction]</code>). This hidden bit allows the 31 bits of stored data 
+        to provide 32 bits of precision.
+      </p>
+
+      <h3>Internal Registers: FP0, FP1, and FPX</h3>
+      <p>
+        The interpreter maintains two primary 5-byte registers in zero page: <strong>FP0</strong> (the accumulator) 
+        and <strong>FP1</strong> (the operand). Operations in the floating point module typically 
+        follow a standard convention where unary functions (like <code>SQR</code> or <code>LOG</code>) 
+        operate directly on <strong>FP0</strong>, while binary operations (like <code>FADD</code> 
+        or <code>FMUL</code>) operate on the combination of <strong>FP0</strong> and <strong>FP1</strong>.
+      </p>
+      <p>
+        To prevent precision loss during intermediate calculations, a 32-bit extension register 
+        called <strong>FPX</strong> is utilized. This register effectively extends 
+        the <strong>FP0</strong> significand to 64 bits. This extra workspace is critical during 
+        multiplication and addition, where significant bits might otherwise be shifted out 
+        before normalization.
+      </p>
+
+      <h3>Loading and Storing Values</h3>
+      <p>
+        Data movement between the interpreter's registers and system memory is handled
+        by <code>load_fp</code> and <code>store_fp</code>. These functions convert between the 40-bit, implied-1 memory format
+        and the expande format of the FP0 and FP1 registers.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Operation</th>
+            <th>Address<br/>(AY)</th>
+            <th>Register<br/>(X)</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>load_fp</code></td>
+            <td>Source address</td>
+            <td>FP0 or FP1</td>
+            <td>Unpacks the 5-byte memory format, restores the implied 1 bit, and breaks out the sign into a separate byte.</td>
+          </tr>
+          <tr>
+            <td><code>store_fp</code></td>
+            <td>Destination address</td>
+            <td>FP0 or FP1</td>
+            <td>Re-packs the significand by hiding the implied 1 bit and merging the sign bit back into the 4th significand byte.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Addressing is performed using the 6502's <code>A</code> and <code>Y</code> registers to point 
+        to the 16-bit memory address, while the <code>X</code> register specifies whether the 
+        operation uses <strong>FP0</strong> or <strong>FP1</strong>.
+      </p>
+
+      <h3>Normalization and Rounding</h3>
+      <p>
+        A floating-point value is considered <strong>normalized</strong> when the most-significant bit (MSB) of
+        its significand is 1. This state provides several critical advantages:
+      </p>
       <ul>
-        <li><strong>Precision:</strong> 32-bit fractional significand with an implied <code>1.</code> (similar to IEEE-754)</li>
-        <li><strong>Exponent:</strong> 8-bit, excess-128</li>
-        <li><strong>Registers:</strong> Uses two main zero-page registers, <code>FP0</code> and <code>FP1</code>, with <code>FPX</code> extending <code>FP0</code> to 64-bit precision for intermediate calculations</li>
-        <li><strong>Operations:</strong> Includes a full suite of unary (SIN, LOG, EXP, etc.) and binary (FADD, FMUL, etc.) operations</li>
+        <li>
+          <strong>Precision:</strong> It allows the use of the <strong>implied 1-bit</strong>. Since 
+          the leading bit of a normalized non-zero number is always 1, it does not need to 
+          be stored in memory, providing an extra bit of precision to the fractional part.
+        </li>
+        <li>
+          <strong>Uniqueness:</strong> Normalization ensures that every non-zero number has a 
+          unique representation. Without it, a value like 1.0 could be represented in 
+          multiple ways (e.g., 1.0 &times; 2<sup>0</sup>, 0.5 &times; 2<sup>1</sup>, 2 &times; 2<sup>-1</sup>), 
+          which would complicate equality testing.
+        </li>
+        <li>
+          <strong>Comparison Efficiency:</strong> Because the MSB is always 1, the magnitude of 
+          two normalized numbers can be compared by simply looking at their exponents first. 
+          If the exponents are equal, a direct bitwise comparison of the significands determines 
+          which value is larger.
+        </li>
+        <li>
+          <strong>Relative Error:</strong> By keeping the significand as "full" as possible, 
+          normalization ensures that the maximum number of bits are used to represent the 
+          available precision, minimizing the relative error across the entire range of values.
+        </li>
       </ul>
+      <p>
+        The <code>normalize</code> routine runs
+        after every operation to ensure the MSB of the resulting significand is 1. If an 
+        operation results in an overflow or a leading zero, the routine shifts the significand 
+        and adjusts the exponent accordingly.
+      </p>
+      <p>
+        During the normalization process, the system implements a <strong>round-half-up</strong> algorithm. 
+        It inspects the bits shifted into <strong>FPX</strong> and an internal rounding byte. 
+        If the fractional remainder is 0.5 or greater, the significand is incremented. If 
+        this increment causes a "carry out," the system performs a final right-shift and 
+        exponent adjustment to maintain perfect normalization.
+      </p>
+
+      <h3>Arithmetic and Transcendental Functions</h3>
+      <p>
+        VC83 BASIC provides a complete set of standard arithmetic and higher-level mathematical 
+        functions. Arithmetic functions like <code>fadd</code>, <code>fsub</code>,
+        and <code>fmul</code> expect their operands to be loaded into the FP registers and yield their
+        results in <strong>FP0</strong>. Comparison (<code>fcmp</code>) is designed to return flags that 
+        are compatible with standard 6502 branch instructions (<code>BEQ</code>, <code>BCS</code>, 
+        etc.), allowing for efficient conditional logic in the interpreter.
+      </p>
+      <p>
+        The library includes advanced transcendental support for logarithmic and trigonometric 
+        calculations:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Function</th>
+            <th>Category</th>
+            <th>Description / Internal Logic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>fadd</code></td>
+            <td>Arithmetic</td>
+            <td>Adds the value in <strong>FP1</strong> into <strong>FP0</strong>.</td>
+          </tr>
+          <tr>
+            <td><code>fsub</code></td>
+            <td>Arithmetic</td>
+            <td>Subtracts the value in <strong>FP1</strong> from <strong>FP0</strong>.</td>
+          </tr>
+          <tr>
+            <td><code>fmul</code></td>
+            <td>Arithmetic</td>
+            <td>Multiplies <strong>FP0</strong> by <strong>FP1</strong>.</td>
+          </tr>
+          <tr>
+            <td><code>fdiv</code></td>
+            <td>Arithmetic</td>
+            <td>Divides <strong>FP0</strong> by <strong>FP1</strong>; raises <code>DIVIDE BY ZERO</code> error if necessary.</td>
+          </tr>
+          <tr>
+            <td><code>fcmp</code></td>
+            <td>Arithmetic</td>
+            <td>Compares <strong>FP0</strong> and <strong>FP1</strong>; set Z and C flags for 6502 branches.</td>
+          </tr>
+          <tr>
+            <td><code>fneg</code></td>
+            <td>Arithmetic</td>
+            <td>Negates the value in <strong>FP0</strong> by toggling the sign bit.</td>
+          </tr>
+          <tr>
+            <td><code>floor</code></td>
+            <td>Rounding</td>
+            <td>Calculates the largest integer less than or equal to <strong>FP0</strong>.</td>
+          </tr>
+          <tr>
+            <td><code>round</code></td>
+            <td>Rounding</td>
+            <td>Rounds <strong>FP0</strong> to the nearest integer (round-half-up).</td>
+          </tr>
+          <tr>
+            <td><code>fsin</code></td>
+            <td>Trigonometry</td>
+            <td>Calculates sine in radians using a Chebyshev polynomial fit for [-&pi;/2, &pi;/2].</td>
+          </tr>
+          <tr>
+            <td><code>fcos</code></td>
+            <td>Trigonometry</td>
+            <td>Calculates cosine by shifting the argument and invoking the <code>fsin</code> routine.</td>
+          </tr>
+          <tr>
+            <td><code>ftan</code></td>
+            <td>Trigonometry</td>
+            <td>Calculates tangent as the ratio of <code>fsin</code> to <code>fcos</code>.</td>
+          </tr>
+          <tr>
+            <td><code>fatn</code></td>
+            <td>Trigonometry</td>
+            <td>Calculates arctangent using a polynomial approximation over the range [0, 1].</td>
+          </tr>
+          <tr>
+            <td><code>flog</code></td>
+            <td>Exponential</td>
+            <td>Calculates the natural logarithm (ln) using a polynomial approximation and range reduction.</td>
+          </tr>
+          <tr>
+            <td><code>fexp</code></td>
+            <td>Exponential</td>
+            <td>Calculates <i>e</i><sup>x</sup> using the Taylor series expansion.</td>
+          </tr>
+          <tr>
+            <td><code>fpow</code></td>
+            <td>Exponential</td>
+            <td>General exponentiation (x<sup>y</sup>), calculated as <code>fexp(y * flog(x))</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Polynomial Evaluation</h3>
+      <p>
+        Transcendental functions are computed using two optimized evaluation
+        routines: <code>fpoly</code> and <code>fpoly_odd</code>. The <code>fpoly</code> function implements 
+        Horner's Method, iterating through a table of coefficients to solve polynomials 
+        efficiently with minimal multiplications.
+      </p>
+      <p>
+        The <code>fpoly_odd</code> variant is a specialized optimization for functions containing 
+        only odd powers (such as the Taylor series for <code>fsin</code>). It squares the 
+        input argument once to generate all even powers, then multiplies by the input, raising the power of each term by one
+        and making them all odd.
+      </p>
 
       <h2>String Handling</h2>
       <p>Strings are managed via a robust garbage collection system:</p>
