@@ -655,3 +655,123 @@ footer p {
     top: 100px;
   }
 }
+
+/* Memory Map */
+.memory-map-container {
+  width: 100%;
+  margin: 2.5rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.memory-map-svg {
+  filter: drop-shadow(0 0 10px rgba(51, 255, 51, 0.1));
+}
+
+.memory-block {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.memory-block rect.outline {
+  fill: #1a1a1a;
+  stroke: var(--retro-border);
+  stroke-width: 1.5;
+  transition: all 0.3s;
+}
+
+.memory-block.is-system rect.outline {
+  fill: url(#systemGrad);
+}
+
+.memory-block:hover rect.outline {
+  fill: #222 !important;
+  stroke: var(--retro-green) !important;
+  filter: drop-shadow(0 0 5px var(--retro-green-dim));
+}
+
+.memory-block.is-system:hover rect.outline {
+  fill: #3a2e00 !important;
+}
+
+.memory-block .hover-highlight {
+  fill: transparent;
+  stroke: var(--retro-green);
+  stroke-width: 2;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.memory-block:hover .hover-highlight {
+  opacity: 1 !important;
+}
+
+.memory-block .address-label {
+  fill: var(--retro-gray-dim);
+  font-size: 13px;
+  font-family: 'Courier New', monospace;
+  transition: fill 0.3s;
+}
+
+.memory-block:hover .address-label {
+  fill: var(--retro-green) !important;
+}
+
+.memory-block .block-name {
+  fill: var(--retro-gray);
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  transition: all 0.3s;
+}
+
+.memory-block.is-system .block-name {
+  fill: var(--retro-amber);
+}
+
+.memory-block:hover .block-name {
+  fill: #fff !important;
+  font-weight: 600 !important;
+}
+
+@keyframes fadeInRect {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.memory-block {
+  animation: fadeInRect 0.5s ease backwards;
+}
+
+/* Modal refinements for Memory Map */
+.memory-modal .sample-browser-header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.memory-modal .sample-browser-header code {
+  color: var(--retro-amber);
+  font-size: 1.1rem;
+  font-family: 'Courier New', monospace;
+}
+
+.memory-modal .sample-browser-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: var(--retro-green);
+}
+
+.memory-modal .description-container {
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+.memory-modal .description-text {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--retro-gray);
+}
