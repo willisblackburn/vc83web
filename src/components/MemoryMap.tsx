@@ -62,7 +62,7 @@ const MemoryMap: React.FC<MemoryMapProps> = ({
                 key={index} 
                 className={`memory-block ${block.isSystem ? 'is-system' : ''}`}
                 style={{ animationDelay: `${index * 0.05}s` }}
-                onClick={() => setSelectedBlock(block)}
+                onClick={() => !block.isSystem && setSelectedBlock(block)}
               >
                 {/* Address Label */}
                 <text

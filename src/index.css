@@ -474,8 +474,6 @@ table.pvm-table td:first-child {
   font-weight: 600;
 }
 
-
-
 .reference-see-also a {
   color: var(--retro-amber);
   text-decoration: underline;
@@ -680,14 +678,14 @@ footer p {
   fill: url(#systemGrad);
 }
 
-.memory-block:hover rect.outline {
+.memory-block:not(.is-system):hover rect.outline {
   fill: #222 !important;
   stroke: var(--retro-green) !important;
   filter: drop-shadow(0 0 5px var(--retro-green-dim));
 }
 
-.memory-block.is-system:hover rect.outline {
-  fill: #3a2e00 !important;
+.memory-block.is-system {
+  cursor: default;
 }
 
 .memory-block .hover-highlight {
@@ -699,7 +697,7 @@ footer p {
   pointer-events: none;
 }
 
-.memory-block:hover .hover-highlight {
+.memory-block:not(.is-system):hover .hover-highlight {
   opacity: 1 !important;
 }
 
@@ -709,7 +707,7 @@ footer p {
   transition: fill 0.3s;
 }
 
-.memory-block:hover .address-label {
+.memory-block:not(.is-system):hover .address-label {
   fill: var(--retro-green) !important;
 }
 
@@ -725,7 +723,7 @@ footer p {
   fill: var(--retro-amber);
 }
 
-.memory-block:hover .block-name {
+.memory-block:not(.is-system):hover .block-name {
   fill: #fff !important;
   font-weight: 600 !important;
 }

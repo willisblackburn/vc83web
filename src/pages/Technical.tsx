@@ -7,14 +7,12 @@ const vc83MemoryBlocks: MemoryBlockData[] = [
     name: 'Zero page variables', 
     height: 0.5, 
     isSystem: true,
-    description: "Zero page variables reserved for the BASIC interpreter and 6502 system routines. This includes critical pointers like program_ptr and the floating-point registers FP0 and FP1."
   },
   { 
     address: '$0100', 
     name: '6502 stack', 
     height: 0.5, 
     isSystem: true,
-    description: "The standard 6502 hardware stack, used for JSR/RTS return addresses, status flags, and temporary register storage."
   },
   { 
     address: '$0200', 
@@ -27,7 +25,6 @@ const vc83MemoryBlocks: MemoryBlockData[] = [
     name: 'Text mode screen RAM', 
     height: 0.75, 
     isSystem: true,
-    description: "Mapped directly to the Apple II text mode screen memory. Writing characters to this range updates the display instantly."
   },
   { 
     address: '$0800', 
@@ -76,7 +73,6 @@ const vc83MemoryBlocks: MemoryBlockData[] = [
     name: 'OS ROM', 
     height: 0.5, 
     isSystem: true,
-    description: "The core Operating System (OS) routines, including I/O handlers, interrupt vectors, and hardware initialization code."
   },
 ];
 
