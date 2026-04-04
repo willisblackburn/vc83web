@@ -570,7 +570,7 @@ const Manual: React.FC = () => {
         args={[
           { name: "line_number", desc: "the starting line of the subroutine" }
         ]}
-        example={<>10 GOSUB 500<br />20 PRINT "RETURNED"<br />30 END<br />500 PRINT "IN SUB": RETURN</>}
+        example={<>10 GOSUB 500<br />20 PRINT "RETURNED"<br />30 END<br />500 PRINT "IN SUB":RETURN</>}
       >
         <code>GOSUB</code> jumps to the specified line number and saves its current position 
         on the internal stack. When the program later encounters a <code>RETURN</code>, 
@@ -599,7 +599,7 @@ const Manual: React.FC = () => {
           { name: "condition", desc: "a numeric expression (non-zero is true)" },
           { name: "statement", desc: "the action to perform if true" }
         ]}
-        example={<>10 INPUT X<br />20 IF X &gt; 10 THEN PRINT "BIG"</>}
+        example={<>10 INPUT X<br />20 IF X&gt;10 THEN PRINT "BIG"</>}
       >
         The <code>IF</code> statement evaluates a condition. If the result is true (non-zero), 
         the code following <code>THEN</code> is executed. If false (zero), BASIC ignores 
@@ -614,7 +614,7 @@ const Manual: React.FC = () => {
           { name: "prompt", desc: "(optional) text to display to the user; if not provided, the prompt is \"?\"" },
           { name: "variable", desc: "the variable(s) to store the result in" }
         ]}
-        example={<>10 INPUT "WHAT IS YOUR NAME? "; N$<br />20 PRINT "HELLO "; N$</>}
+        example={<>10 INPUT "WHAT IS YOUR NAME? ";N$<br />20 PRINT "HELLO ";N$</>}
       >
         <code>INPUT</code> pauses the program and displays a question mark (plus any optional 
         prompt text) to the user. The values typed by the user are assigned to the 
@@ -668,7 +668,7 @@ const Manual: React.FC = () => {
         args={[
           { name: "variable", desc: "(optional) the counter variable of the loop" }
         ]}
-        example={<>10 FOR I=1 TO 10: PRINT I: NEXT I</>}
+        example={<>10 FOR I=1 TO 10:PRINT I:NEXT I</>}
       >
         <code>NEXT</code> marks the end of a <code>FOR</code> loop block. It increments the 
         loop counter and returns execution to the corresponding <code>FOR</code> statement 
@@ -710,7 +710,7 @@ const Manual: React.FC = () => {
         keyword="POP"
         synopsis="removes an entry from the stack"
         syntax="POP"
-        example={<>10 GOSUB 100<br />20 END<br />100 POP: GOTO 20</>}
+        example={<>10 GOSUB 100<br />20 END<br />100 POP:GOTO 20</>}
       >
         <code>POP</code> removes the most recent <code>GOSUB</code> or <code>FOR</code> return 
         address from the internal stack. This is necessary if you intend to exit 
@@ -763,7 +763,7 @@ const Manual: React.FC = () => {
         keyword="RESTORE"
         synopsis="resets the DATA pointer"
         syntax="RESTORE"
-        example={<>10 DATA 1, 2<br />20 READ A: RESTORE: READ B</>}
+        example={<>10 DATA 1, 2<br />20 READ A:RESTORE:READ B</>}
       >
         <code>RESTORE</code> resets the program's internal <code>DATA</code> pointer to 
         the very first <code>DATA</code> statement in the program. This allows you 
@@ -774,7 +774,7 @@ const Manual: React.FC = () => {
         keyword="RETURN"
         synopsis="returns from a subroutine"
         syntax="RETURN"
-        example={<>100 PRINT "SUBROUTINE": RETURN</>}
+        example={<>100 PRINT "SUBROUTINE":RETURN</>}
       >
         <code>RETURN</code> marks the end of a subroutine. It retrieves the return 
         address from the stack and jumps back to the statement immediately 
@@ -798,7 +798,7 @@ const Manual: React.FC = () => {
         keyword="STOP"
         synopsis="pauses program execution"
         syntax="STOP"
-        example={<>10 PRINT "PAUSING": STOP</>}
+        example={<>10 PRINT "PAUSING":STOP</>}
       >
         <code>STOP</code> halts the program and prints a "BREAK IN LINE" message. Unlike 
         <code>END</code>, it is intended for debugging, and you can resume execution 
@@ -825,7 +825,7 @@ const Manual: React.FC = () => {
         syntax="ADR(string_variable)"
         args={[{ name: "string_variable", desc: "the string to inspect" }]}
         returns="The memory address where the string data is stored."
-        example={<>10 A$="CAT": PRINT ADR(A$)</>}
+        example={<>10 A$="CAT":PRINT ADR(A$)</>}
       >
         Returns the actual memory address pointing to the start of the string's character data. 
         This is useful for passing string data to machine language routines.
@@ -920,7 +920,7 @@ const Manual: React.FC = () => {
           { name: "numeric_expression", desc: "number of characters to take" }
         ]}
         returns="A string containing the characters from the left side."
-        example={<>PRINT LEFT$("BASIC", 2)<br />BA</>}
+        example={<>PRINT LEFT$("BASIC",2)<br />BA</>}
       >
         Extracts a specific number of characters starting from the far left of 
         the string.
@@ -957,7 +957,7 @@ const Manual: React.FC = () => {
           { name: "count", desc: "(optional) number of characters to take" }
         ]}
         returns="A substring from the middle of the source string."
-        example={<>PRINT MID$("COMPUTER", 4, 3)<br />PUT</>}
+        example={<>PRINT MID$("COMPUTER",4,3)<br />PUT</>}
       >
         Returns a portion of a string starting from a specific position. If 
         the count argument is omitted, all characters until the end of 
@@ -1041,7 +1041,7 @@ const Manual: React.FC = () => {
         syntax="STR$(numeric_expression)"
         args={[{ name: "numeric_expression", desc: "the number to convert" }]}
         returns="A string representation of the number."
-        example={<>10 A$=STR$(42): PRINT A$</>}
+        example={<>10 A$=STR$(42):PRINT A$</>}
       >
         Converts a numeric value into a string of text characters.
       </FunctionReference>
