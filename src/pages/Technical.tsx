@@ -338,19 +338,14 @@ pvm_name:
 
       <h3>Normalization and Rounding</h3>
       <p>
-        The <code>normalize</code> routine is used after every operation to ensure the most-significant bit (MSB) 
-        of the resulting significand is 1. If an operation results in an overflow or a leading zero, 
-        the routine shifts the significand and adjusts the exponent accordingly.
-      </p>
-      <p>
-        A floating-point value is considered <strong>normalized</strong> when the MSB of
-        its significand is 1. This characteristic ensures:
+        A floating-point value is considered <strong>normalized</strong> when the most-significant bit (MSB) of
+        its significand is 1. Storing floating-point number in normalized form has significant advantages:
       </p>
       <ul>
         <li>
           <strong>Precision:</strong> It allows the use of an <strong>implied 1-bit</strong>. Because 
           the leading bit of a normalized non-zero number is always 1, it does not need to 
-          be stored in memory.
+          be stored in memory, effectively giving the significand an extra bit of precision.
         </li>
         <li>
           <strong>Uniqueness:</strong> Normalization ensures that every non-zero number has a 
@@ -361,14 +356,21 @@ pvm_name:
           two normalized numbers can be compared by their exponents first.
         </li>
         <li>
-          <strong>Relative Error:</strong> By maintaining the significand at maximum capacity, 
-          normalization ensures that the maximum number of bits represent the available precision.
+          <strong>Relative Error:</strong> By eliminating leading zeros, 
+          normalization ensures that all of the availble bits of the significand are used to
+          increase precision.
         </li>
       </ul>
       <p>
-        During normalization, the system implements a <strong>round-half-up</strong> algorithm. 
-        It inspects the bits shifted into <strong>FPX</strong> and an internal rounding byte. 
-        If the fractional remainder is 0.5 or greater, the significand is incremented. If 
+        The <code>normalize</code> routine is used after every operation to ensure that the MSB
+        of the resulting significand is 1. If an operation results in an overflow or a leading zero, 
+        the routine shifts the significand and adjusts the exponent accordingly.
+      </p>
+      <p>
+        During normalization, the system implements a <strong>round-half-up</strong> algorithm.
+        Operations that shift the significand right, such as <strong>fadd</strong> and <strong>fmul</strong>, move the
+        bits that were shifted out of the significand into the B register.
+        If the most-significant bit of B is set, it means that the fractional remainder is 0.5 or greater, so the significand is incremented. If 
         this increment causes an overflow, the system performs a final right-shift and 
         exponent adjustment.
       </p>
@@ -501,28 +503,32 @@ pvm_name:
         VC83 BASIC manages strings using a heap at the top of system memory. 
         Data is stored downward from <code>himem_ptr</code> 
         toward the program's <code>free_ptr</code>, allowing the heap to expand and contract as 
-        needed. This geometry provides the boundary between executable code and 
-        string data.
+        needed. 
+      </p>
+      <p>
+        Strings are stored with a length byte followed by the string data, and two extra 
+        bytes used for address relocation information: 
+        <code>[Length Byte] [Data...] [Relocation Offset (2 bytes)]</code>. 
+        This geometry provides the boundary between executable code and string data.
       </p>
       
       <h3>The Garbage Collector</h3>
       <p>
-        Memory is managed using a <strong>Mark-Sweep-Compact</strong> 
-        garbage collector. This routine reclaims memory and 
-        eliminates fragmentation. The collector 
-        executes in six phases:
+        Memory is managed using a <strong>Mark-Sweep-Compact</strong> garbage collector. This routine reclaims memory and 
+        eliminates fragmentation. The collector executes in six phases:
       </p>
-      <div className="example">{`Phase 1: Clear mark bits for all strings in the heap.
-Phase 2: Scan variable tables, arrays, and the stack to identify referenced strings.
-Phase 3: Calculate relocation offsets for each marked string.
-Phase 4: Update all pointers to reflect the relocation.
-Phase 5: Physically relocate string data to the bottom of free space.
-Phase 6: Shift the entire block back to the top of memory.`}</div>
+      <ul>
+        <li><strong>Phase 1:</strong> Clear marks for all strings in the heap by setting high byte of each string's relocation field to <code>$FF</code> (unmarked).</li>
+        <li><strong>Phase 2:</strong> Scan variables, arrays, and the stack to identify referenced strings. Set the high byte of the relocation field to <code>$00</code> (marked) for any live strings.</li>
+        <li><strong>Phase 3:</strong> Calculate relocation offsets for each marked string.</li>
+        <li><strong>Phase 4:</strong> Update all string pointers in variables, arrays, and the stack to reflect the relocation.</li>
+        <li><strong>Phase 5:</strong> Physically relocate the data for each marked string to the bottom of free space.</li>
+        <li><strong>Phase 6:</strong> Shift the entire block of marked strings back to the top of memory.</li>
+      </ul>
       <p>
-        This two-pass relocation strategy is used to maintain a contiguous heap. By first 
-        compacting referenced strings at the bottom of the free space (near <code>free_ptr</code>) 
-        and then shifting the block back to <code>himem_ptr</code>, the interpreter ensures 
-        that all recovered space is available for the program code and new allocations.
+        The garbage collector has to compact all the referenced strings to the bottom of the free space because it can only
+        walk the string heap from the lowest address upward. In the last phase it moves all the referenced 
+        strings back to the top of the free space.
       </p>
 
       <h3>Core String Routines</h3>
@@ -531,21 +537,21 @@ Phase 6: Shift the entire block back to the top of memory.`}</div>
         checks for available memory before reserving space. If a 
         request exceeds available RAM, <code>string_alloc</code> triggers the 
         garbage collector. If memory is insufficient after compaction, the interpreter 
-        raises an <code>ERR_OUT_OF_MEMORY</code> exception.
+        raises an ERR_OUT_OF_MEMORY exception.
       </p>
       <p>
         Input and parsing are handled by <code>read_string</code>. This parser 
         uses different termination rules based on the input. If a string starts with a 
         double quote, it is treated as quoted; in this mode, two consecutive double 
-        quotes (<code>""</code>) are interpreted as a single literal quote mark. 
+        quotes (<code>""</code>) are interpreted as a single literal double quote. 
         Unquoted strings are treated as comma-delimited, stopping at the first comma.
       </p>
       <p>
         To access data from the heap, the interpreter uses the <code>load_s</code> family 
-        of routines. These map a string descriptor on the heap to one of 
-        the 16-bit Zero Page registers (such as <code>S0</code> or <code>S1</code>) 
-        and return the string's length in the <strong>A</strong> register. This 
-        allows the interpreter to process strings using indirect indexed addressing.
+        of routines. These set one of the two zero page string pointers, <code>S0</code> or <code>S1</code>,
+        to point to the string's data, and return the string's length in the <strong>A</strong> register.
+        Note that <code>S0</code> and <code>S1</code> occupy the same address space as 
+        the <code>FPX</code> floating point register.
       </p>
 
       <h2>VC83 vs. Microsoft BASIC</h2>
