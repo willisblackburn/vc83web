@@ -62,15 +62,24 @@ const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
           {page.label}
         </button>
       ))}
-      <a 
-        href="https://github.com/willisblackburn/vc83basic" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="github-link"
-        title="VC83BASIC on GitHub"
-      >
-        <i className="fa-brands fa-github github-icon" aria-hidden="true"></i>
-      </a>
+      <div className="nav-social-links">
+        <a 
+          href="https://github.com/willisblackburn/vc83basic" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="social-link"
+          title="VC83BASIC on GitHub"
+        >
+          <i className="fa-brands fa-github social-icon" aria-hidden="true"></i>
+        </a>
+        <a 
+          href="mailto:info@vc83.org" 
+          className="social-link"
+          title="Email info@vc83.org"
+        >
+          <i className="fa-solid fa-envelope social-icon" aria-hidden="true"></i>
+        </a>
+      </div>
     </nav>
   );
 };

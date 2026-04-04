@@ -203,7 +203,16 @@ h3 {
   background: linear-gradient(to top, rgba(51, 255, 51, 0.15), transparent);
 }
 
-.github-link {
+/* Social Links - Horizontal Row */
+.nav-social-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.social-link {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -213,11 +222,11 @@ h3 {
   padding: 0.4rem;
 }
 
-.github-link:hover {
+.social-link:hover {
   color: #fff;
 }
 
-.github-icon {
+.social-icon {
   font-size: 1.8rem;
   color: inherit;
 }
@@ -468,8 +477,7 @@ table.pvm-table td:first-child {
   font-weight: 600;
 }
 
-.reference-arg-desc {
-}
+
 
 .reference-see-also a {
   color: var(--retro-green);

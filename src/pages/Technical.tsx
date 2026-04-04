@@ -44,9 +44,10 @@ const Technical: React.FC = () => {
       <h3>Usage and Pointers</h3>
       <p>
         The parser utilizes these tables to identify keywords during tokenization. While the 
-        Variable Name Table (VNT) and Array Name Table (ANT) map identifiers to their memory 
+        Variable Name Table (VNT) and Array Name Table (ANT) map identifiers to their 
         values, the built-in statement name table is unique because its data payload contains 
         the PVM opcodes required to parse that specific statement.
+        (See the <a href="/technical#parser">Parser</a> section for more information about PVM opcodes.)
       </p>
       <p>
         Pointer management is handled through two zero-page registers: <code>name_ptr</code>, which 
@@ -64,7 +65,7 @@ const Technical: React.FC = () => {
         numerical index.
       </p>
 
-      <h2>Parser</h2>
+      <h2 id="parser">Parser</h2>
       <p>
         The parser converts the BASIC source code into a tokenized representation that is stored in memory.
         It reads input from <code>buffer</code> and outputs the tokenized program line to <code>line_buffer</code>.
@@ -604,40 +605,6 @@ pvm_name:
         to point to the string's data, and return the string's length in the <strong>A</strong> register.
         Note that <code>S0</code> and <code>S1</code> occupy the same address space as 
         the <code>FPX</code> floating point register.
-      </p>
-
-      <h2>VC83 vs. Microsoft BASIC</h2>
-      <p>
-        While VC83 BASIC draws its heritage from the 6502-based Microsoft BASIC implementations of 
-        the late 1970s, its architecture reflects several improvements in parser design 
-        and memory management.
-      </p>
-      
-      <p>
-        <strong>Parser Architecture:</strong> Traditional Microsoft BASIC dialects perform a 
-        simple keyword substitution during line entry, replacing recognized statement names 
-        with 1-byte tokens without performing a full syntax validation. This means that syntax 
-        errors are not detected until the program is executed. VC83 BASIC instead 
-        uses a dedicated <strong>Parser Virtual Machine (PVM)</strong> with a grammar is defined in a compact domain-specific 
-        language (DSL) to perform a complete syntax check at the time of entry. This enables early
-        detection of errors and eliminates the need to handle invalid syntax at runtime.
-      </p>
-
-      <p>
-        <strong>Variable Names:</strong> A limitation of Microsoft BASIC 
-        is that only the first two characters of a variable name are significant. 
-        In Microsoft BASIC, <code>VARIABLE1</code> and <code>VARIABLE2</code> are treated as the 
-        same variable. VC83 BASIC honors the entire length of a variable name, improving 
-        code readability and preventing accidental naming collisions.
-      </p>
-
-      <p>
-        <strong>Garbage Collection Strategy:</strong> The Microsoft BASIC garbage collector 
-        famously causes long "pauses" during execution. This occurs because the collector 
-        uses an <i>O</i>(<i>n</i><sup>2</sup>) algorithm that repeatedly scans the variable table to find the 
-        next string to relocate. VC83's mark-sweep-compact collector has linear 
-        (<i>O</i>(<i>n</i>)) complexity, providing more consistent performance even as the string 
-        heap fills.
       </p>
     </>
   );
