@@ -34,7 +34,7 @@ const Platforms: React.FC = () => {
 
       <h3>2. Memory &amp; Zero-Page Utilization</h3>
       <ul>
-        <li><strong>Zero-Page:</strong> VC83 requires approximately 128 bytes of contiguous zero-page space. This is where the virtual registers (<code>FP0</code>, <code>FP1</code>, <code>BC</code>, <code>DE</code>) and interpreter state pointers reside.</li>
+        <li><strong>Zero-Page:</strong> VC83 requires approximately 128 bytes of contiguous zero page space. This is where the virtual registers (<code>FP0</code>, <code>FP1</code>, <code>BC</code>, <code>DE</code>) and interpreter state pointers reside.</li>
         <li><strong>Buffers:</strong>
           <ul>
             <li><code>line_buffer</code>: A 256-byte area for storing a single line of BASIC text</li>

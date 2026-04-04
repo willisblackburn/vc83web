@@ -27,7 +27,7 @@ button {
 .page-content code,
 .page-content .example,
 .memory-block .address-label,
-.memory-modal .sample-browser-header code,
+.memory-modal-header code,
 .memory-regions-table td:first-child,
 .pvm-table td:first-child,
 .fp-bits-table td:first-child,
@@ -734,30 +734,50 @@ footer p {
   animation: fadeInRect 0.5s ease backwards;
 }
 
-/* Modal refinements for Memory Map */
-.memory-modal .sample-browser-header {
+/* Modal for Memory Map Details */
+.memory-modal-content {
+  background: #111;
+  border: 2px solid var(--retro-amber);
+  width: 550px;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.memory-modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #333;
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.5rem;
 }
 
-.memory-modal .sample-browser-header code {
+.memory-modal-top-bar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.memory-modal-header code {
   color: var(--retro-amber);
   font-size: 1.1rem;
 }
 
-.memory-modal .sample-browser-header h1 {
+.memory-modal-header h1 {
   margin: 0;
   font-size: 1.8rem;
   color: var(--retro-green);
+  font-family: 'Permanent Marker', sans-serif; /* Keep same font as browser header */
 }
 
-.memory-modal .description-container {
+.memory-modal-content .description-container {
   padding: 1.5rem;
   overflow: hidden;
 }
 
-.memory-modal .description-text {
+.memory-modal-content .description-text {
   margin: 0;
   font-size: 1.05rem;
   line-height: 1.6;

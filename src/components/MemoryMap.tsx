@@ -5,7 +5,7 @@ export interface MemoryBlockData {
   name: string;
   height: number; // Factor of unitHeight (e.g., 1.0 = unitHeight)
   isSystem?: boolean;
-  description?: string;
+  description?: React.ReactNode;
 }
 
 interface MemoryMapProps {
@@ -136,22 +136,18 @@ const MemoryMap: React.FC<MemoryMapProps> = ({
 
       {selectedBlock && (
         <div className="modal-overlay" onClick={() => setSelectedBlock(null)}>
-          <div className="sample-browser memory-modal" style={{ width: '550px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="sample-browser-header">
-              <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <code>
-                  {selectedBlock.address}
-                </code>
+          <div className="memory-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="memory-modal-header">
+              <div className="memory-modal-top-bar">
+                <h1>{selectedBlock.address}</h1>
                 <button className="close-button" onClick={() => setSelectedBlock(null)}>&times;</button>
               </div>
-              <h1>
-                {selectedBlock.name}
-              </h1>
+              <h2>{selectedBlock.name}</h2>
             </div>
             <div className="description-container">
-              <p className="description-text">
+              <div className="description-text">
                 {selectedBlock.description || "Detailed information about this memory section will be added soon."}
-              </p>
+              </div>
             </div>
           </div>
         </div>

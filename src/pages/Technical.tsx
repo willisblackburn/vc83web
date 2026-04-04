@@ -18,7 +18,13 @@ const vc83MemoryBlocks: MemoryBlockData[] = [
     address: '$0200', 
     name: 'buffer/line_buffer', 
     height: 0.5,
-    description: "Contains the 256-byte input buffer used by the parser to read lines from the user, and the line_buffer where tokenized output is temporarily stored before being copied to the program space."
+    description: (
+      <>
+        Often a hardware platform will set aside memory in pages 2-7 for I/O buffers and other uses. 
+        These are often a good place to put the 256-byte input buffer used by the parser to read lines from the user, 
+        and the <code>line_buffer</code> where tokenized output is temporarily stored before being copied to the program space.
+      </>
+    )
   },
   { 
     address: '$0400', 
@@ -30,43 +36,89 @@ const vc83MemoryBlocks: MemoryBlockData[] = [
     address: '$0800', 
     name: 'Expression stack, FP scratch space, etc.', 
     height: 0.5,
-    description: "Temporary storage used for the BASIC expression evaluation stack and scratch space for complex floating-point calculations."
+    description: (
+      <>
+        The remainder of memory needed by the BASIC interpreter goes at the first available RAM address. 
+        These are the variables and buffers defined in the <code>BSS</code> segment in the source code.
+      </>
+    )
   },
   { 
     address: 'program_ptr', 
     name: 'BASIC user program', 
     height: 2,
-    description: "The start of the user's BASIC program. Code is stored in a tokenized format, where each line consists of a length byte, a line number (2 bytes), and a sequence of tokens terminated by a zero byte."
+    description: (
+      <>
+        The start of the user's BASIC program. Code is stored in a tokenized format, where each line consists 
+        of a length byte, a line number (2 bytes), and a sequence of tokens terminated by a zero byte.
+      </>
+    )
   },
   { 
     address: 'variable_name_table_ptr', 
     name: 'Variables', 
     height: 1,
-    description: "The Variable Name Table (VNT) stores the identifiers for all scalar numeric variables defined by the user. Each entry contains the name and its current 5-byte floating-point value."
+    description: (
+      <>
+        The Variable Name Table (VNT) stores the identifiers for all scalar numeric variables defined by the user. 
+        Each entry contains the name and its current value.
+      </>
+    )
   },
   { 
     address: 'array_name_table_ptr', 
     name: 'Array variables', 
     height: 1,
-    description: "The Array Name Table (ANT) stores definitions for dimensioned arrays. Each entry includes the array name, dimensions, and the sequence of 5-byte floating-point values that make up the array elements."
+    description: (
+      <>
+        The Array Name Table (ANT) stores definitions for dimensioned arrays. Each entry includes the array name, 
+        dimensions, and the sequence of values that make up the array elements.
+      </>
+    )
   },
   { 
     address: 'free_ptr', 
     name: 'Free space', 
     height: 2,
-    description: "The start of the 'free space' area. This section of memory shrinks dynamically as the BASIC program grows upward or as more variables and arrays are defined."
+    description: (
+      <>
+        The start of free space. This section of memory shrinks dynamically as the BASIC program grows 
+        or as more variables and arrays are defined.
+      </>
+    )
   },
   { 
     address: 'string_ptr', 
     name: 'String storage', 
     height: 1,
-    description: "The bottom of the string heap. Strings are stored at the very top of free memory (near himem_ptr) and grow downwards toward free_ptr. This area is periodically compacted by the garbage collector."
+    description: (
+      <>
+        The bottom of the string heap. Strings are stored at the very top of free memory (near <code>himem_ptr</code>) 
+        and grow downwards toward <code>free_ptr</code>. This area is periodically compacted by the garbage collector.
+      </>
+    )
   },
   { 
     address: 'himem_ptr', 
+    name: 'Platform-specific data', 
+    height: 0.5,
+    description: (
+      <>
+        VC83 BASIC, or the user program, can reserve RAM above <code>himem_ptr</code> for platform-specific needs. 
+        For example, on the Atari 800, video RAM goes here.
+      </>
+    )
+  },
+  { 
+    address: '$C000', 
     name: 'BASIC ROM', 
     height: 0.5,
-    description: "The code for the BASIC interpreter itself. This ROM contains the parser, the floating-point library, and the statement execution logic."
+    description: (
+      <>
+        The code for the BASIC interpreter itself. This ROM contains the parser, the floating-point library, 
+        and the statement execution logic.
+      </>
+    )
   },
   { 
     address: '$E000', 
@@ -81,14 +133,20 @@ const Technical: React.FC = () => {
     <>
       <h2 id="architecture">Architecture &amp; Memory Map</h2>
       <p>
-        The VC83 BASIC memory map is structured to provide a flexible environment for both 
-        system routines and user programs. Below is a graphical representation of the memory 
-        layout.
+        The VC83 BASIC memory map will vary from platform to platform, so what is presented here is a typical
+        case.
+      </p>
+      <p>
+        VC83 BASIC manages five blocks of memory, the boundaries of which are defined by six zero page pointers.
+        These blocks contain the BASIC program, variables, arrays, and strings, with the fifth block being the free space
+        between the first three blocks, which grow upward into the free space, and the string block, which grows down.
+        The interpreter adjusts the size of the first three blocks by using the <code>grow</code> and <code>shrink</code> routines
+        to move one of the pointers up or down, which moves the other blocks up to the free space as well. The string block
+        grows down as strings are allocated and (probably) moves up during the garbage collection process.
       </p>
 
       <MemoryMap blocks={vc83MemoryBlocks} unitWidth={400} unitHeight={60} />
 
-      <p>The following table lists the dynamic memory regions and pointers used by the interpreter:</p>
       <table className="memory-regions-table">
         <thead>
           <tr>
@@ -144,7 +202,7 @@ const Technical: React.FC = () => {
         (See the <a href="/technical#parser">Parser</a> section for more information about PVM opcodes.)
       </p>
       <p>
-        Pointer management is handled through two zero-page registers: <code>name_ptr</code>, which 
+        Pointer management is handled through two zero page registers: <code>name_ptr</code>, which 
         points into the current entry, and <code>next_name_ptr</code>, which tracks the start of 
         the following entry. The routine <code>advance_name_ptr</code> manages the transition 
         between entries by copying <code>next_name_ptr</code> to <code>name_ptr</code> and then 
@@ -525,7 +583,7 @@ pvm_name:
         exponent adjustment.
       </p>
 
-      <h3>Arithmetic and Transcendental Functions</h3>
+      <h3>Floating Point Functions</h3>
       <p>
         VC83 BASIC provides standard arithmetic and higher-level mathematical 
         functions. Arithmetic functions like <code>fadd</code>, <code>fsub</code>,
@@ -655,27 +713,8 @@ pvm_name:
       </p>
       <p>
         Strings are stored with a length byte followed by the string data, and two extra 
-        bytes used for address relocation information: 
-        <code>[Length Byte] [Data...] [Relocation Offset (2 bytes)]</code>. 
-      </p>
-      
-      <h3>The Garbage Collector</h3>
-      <p>
-        Memory is managed using a <strong>Mark-Sweep-Compact</strong> garbage collector. This routine reclaims memory and 
-        eliminates fragmentation. The collector executes in six phases:
-      </p>
-      <ul>
-        <li><strong>Phase 1:</strong> Clear marks for all strings in the heap by setting high byte of each string's relocation field to <code>$FF</code> (unmarked).</li>
-        <li><strong>Phase 2:</strong> Scan variables, arrays, and the stack to identify referenced strings. Set the high byte of the relocation field to <code>$00</code> (marked) for any live strings.</li>
-        <li><strong>Phase 3:</strong> Calculate relocation offsets for each marked string.</li>
-        <li><strong>Phase 4:</strong> Update all string pointers in variables, arrays, and the stack to reflect the relocation.</li>
-        <li><strong>Phase 5:</strong> Physically relocate the data for each marked string to the bottom of free space.</li>
-        <li><strong>Phase 6:</strong> Shift the entire block of marked strings back to the top of memory.</li>
-      </ul>
-      <p>
-        The garbage collector has to compact all the referenced strings to the bottom of the free space because it can only
-        walk the string heap from the lowest address upward. In the last phase it moves all the referenced 
-        strings back to the top of the free space.
+        bytes used for address relocation information. Each string therefore carries three
+        bytes of overhead, the value of the constant <code>STRING_EXTRA</code>.
       </p>
 
       <h3>Core String Routines</h3>
@@ -699,6 +738,25 @@ pvm_name:
         to point to the string's data, and return the string's length in the <strong>A</strong> register.
         Note that <code>S0</code> and <code>S1</code> occupy the same address space as 
         the <code>FPX</code> floating point register.
+      </p>
+      
+      <h3>The Garbage Collector</h3>
+      <p>
+        Memory is managed using a <strong>Mark-Sweep-Compact</strong> garbage collector. This routine reclaims memory and 
+        eliminates fragmentation. The collector executes in six phases:
+      </p>
+      <ul>
+        <li><strong>Phase 1:</strong> Clear marks for all strings in the heap by setting high byte of each string's relocation field to <code>$FF</code> (unmarked).</li>
+        <li><strong>Phase 2:</strong> Scan variables, arrays, and the stack to identify referenced strings. Set the high byte of the relocation field to <code>$00</code> (marked) for any live strings.</li>
+        <li><strong>Phase 3:</strong> Calculate relocation offsets for each marked string.</li>
+        <li><strong>Phase 4:</strong> Update all string pointers in variables, arrays, and the stack to reflect the relocation.</li>
+        <li><strong>Phase 5:</strong> Physically relocate the data for each marked string to the bottom of free space.</li>
+        <li><strong>Phase 6:</strong> Shift the entire block of marked strings back to the top of memory.</li>
+      </ul>
+      <p>
+        The garbage collector has to compact all the referenced strings to the bottom of the free space because it can only
+        walk the string heap from the lowest address upward. In the last phase it moves all the referenced 
+        strings back to the top of the free space.
       </p>
     </>
   );
