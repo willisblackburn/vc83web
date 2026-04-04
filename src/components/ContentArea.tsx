@@ -1,12 +1,10 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { navigationPages } from './Navigation';
 
-interface ContentAreaProps {
-  activeTab: string;
-}
-
-const ContentArea: React.FC<ContentAreaProps> = ({ activeTab }) => {
-  const page = navigationPages.find((p) => p.id === activeTab);
+const ContentArea: React.FC = () => {
+  const { pageId } = useParams<{ pageId: string }>();
+  const page = navigationPages.find((p) => p.id === pageId);
 
   if (!page) return null;
 

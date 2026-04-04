@@ -142,7 +142,22 @@ const FAQ_ITEMS: FaqItem[] = [
         This is probably a simple change that we'd be happy to include in the core interpreter. Probably the
         best way would to add a TOUPPER opcode to the PVM and just invoke it in the <code>pvm_name</code> rule.
         This would convert keywords and variable names to uppercase while leaving strings 
-        and <code>DATA</code>/<code>REM</code> lines alone.
+        and <code>DATA</code>/<code>REM</code> lines alone. This is the advantage of having a syntax-aware
+        parser!
+      </p>
+    )
+  },
+  {
+    question: "Why are there separate name tables for variables and arrays?",
+    answer: (
+      <p>
+        If we combined variables and arrays into a single namespace, we'd have to include some way to distinguish
+        between them. This would probably have to be part of the name, because it's legal in BASIC to have a regular
+        variable and an array with the same name, so maybe all arrays could include a <code>(</code> at the end, i.e., the
+        stored name for an array <code>A</code> would be <code>A(</code>. But now the parsing and <code>LIST</code>ing
+        of array names and function names is totally different, because we don't want to include <code>(</code> in
+        the function names; it would just be a waste of space. We'd rather treat array names and function names
+        the same, and also avoid using an extra byte for every array name, so we have a separate name table for arrays.
       </p>
     )
   }

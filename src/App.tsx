@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import './index.css';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -10,8 +11,6 @@ import ContentArea from './components/ContentArea';
 import type { SampleProgram } from './data/samples';
 
 const App: React.FC = () => {
-
-  const [activeTab, setActiveTab] = useState('manual');
   const [isSampleBrowserOpen, setIsSampleBrowserOpen] = useState(false);
   const emulatorRef = useRef<EmulatorHandle>(null);
 
@@ -19,7 +18,6 @@ const App: React.FC = () => {
     if (emulatorRef.current) {
       const fullText = `NEW\n${sample.code.trim()}\nRUN\n`;
       emulatorRef.current.pasteText(fullText);
-      // Removed scrolling as layout is more static now
     }
   };
 
@@ -30,12 +28,7 @@ const App: React.FC = () => {
       
       <aside className="sidebar">
         <Header />
-        
-        <Navigation 
-          activeTab={activeTab} 
-          onTabChange={setActiveTab} 
-        />
-
+        <Navigation />
       </aside>
 
       <main className="emulator-section">
@@ -73,7 +66,10 @@ const App: React.FC = () => {
       </main>
 
       <section className="main-content">
-        <ContentArea activeTab={activeTab} />
+        <Routes>
+          <Route path="/" element={<Navigate to="/manual" replace />} />
+          <Route path="/:pageId" element={<ContentArea />} />
+        </Routes>
       </section>
 
       <div className="app-footer">
