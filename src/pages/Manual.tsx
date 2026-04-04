@@ -288,7 +288,7 @@ const Manual: React.FC = () => {
       </p>
       <ul>
         <li><strong>Numbers</strong> are used for any numeric value, including integers and 
-          decimal (floating-point) numbers. Example: <code>X=42</code>.</li>
+          decimal (floating point) numbers. Example: <code>X=42</code>.</li>
         <li><strong>Strings</strong> are used for text. String variable names must always end 
           with a dollar sign (<code>$</code>), which is pronounced "string." Example: <code>A$="HELLO"</code>.
           Strings can be up to 255 characters in length.</li>
@@ -732,8 +732,7 @@ const Manual: React.FC = () => {
         <code>PRINT</code> (which can be abbreviated as <code>?</code>) displays information 
         on the screen. A semicolon (<code>;</code>) keeps the cursor at the end 
         of the current item, while a comma (<code>,</code>) moves it to the 
-        next tab stop (usually every 10 characters). A question mark (<code>?</code>) may be
-        used an abbreviation for <code>PRINT</code>.
+        next tab stop (usually every 10 characters).
       </StatementReference>
 
       <StatementReference
@@ -997,7 +996,7 @@ const Manual: React.FC = () => {
         synopsis="random number"
         syntax="RND(numeric_expression)"
         args={[{ name: "numeric_expression", desc: "seed value" }]}
-        returns="A floating-point number between 0 and 1."
+        returns="A floating point number between 0 and 1."
         example={<>PRINT RND(1)</>}
       >
         Returns a pseudo-random decimal number. The behavior varies slightly 

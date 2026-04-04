@@ -21,7 +21,7 @@ const FAQ_ITEMS: FaqItem[] = [
     answer: (
       <p>
         No. While VC83 uses a similar syntax, it is built from the ground up with 
-        different internal logic and a more modern floating-point unit. Some 
+        different internal logic and a more modern floating point unit. Some 
         specialized Applesoft-only commands may not be present, but the core 
         instruction set will be very familiar.
       </p>

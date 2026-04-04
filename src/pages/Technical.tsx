@@ -49,7 +49,7 @@ const Technical: React.FC = () => {
       </p>
       <p>
         The <code>ACCEPT</code> opcode is used within a series of alternatives to accept the current alternative and skip over the others.
-        It clears the savepoint so that subsequently failures will not cause the PVM to discard the already-validated input.
+        It clears the savepoint so that subsequent failures will not cause the PVM to discard the already-validated input.
         Returning from a subrule implicitly <code>ACCEPT</code>s the input. Note that <code>ACCEPT</code>ing syntax in a rule does
         not prevent another rule higher in the call chain from failing and causing the PVM to backtrack and discard the <code>ACCEPT</code>ed
         input.
@@ -62,12 +62,13 @@ const Technical: React.FC = () => {
         executes them in sequence.
       </p>
       <p>
-        PVM opcodes are designed to be as compact as possible, with each one being one or two bytes in length, except the
-        <code>MATCH_RANGE</code> opcode, which requires two bytes plus two additional byte for each range. All addresses
+        PVM opcodes are designed to be as compact as possible, with each one being one or two bytes in length, except 
+        the <code>MATCH_RANGE</code> opcode, which requires two bytes plus two additional bytes for each range. All addresses
         in the DSL are offsets relative to <code>pvm_program_ptr</code> and are limited to 6 bits
         (<code>TRY</code>, <code>ACCEPT</code>) or
-        12 bits (<code>JUMP</code>, <code>CALL</code>, <code>TOKENIZE</code>). The 6-bit addresses are adequate because
-        <code>TRY</code> and <code>ACCEPT</code> are used for implemneting alternative syntax paths within a single rule.
+        12 bits (<code>JUMP</code>, <code>CALL</code>, <code>TOKENIZE</code>). The 6-bit offsets supported
+        by <code>TRY</code> and <code>ACCEPT</code> are adequate
+        because those opcodes are used for implementing alternative syntax paths within a single rule.
       </p>
       <table className="pvm-table">
         <thead>
@@ -89,7 +90,7 @@ const Technical: React.FC = () => {
           <tr>
             <td>MATCH s</td>
             <td>
-              Matches a entire string <code>s</code>.
+              Matches an entire string <code>s</code>.
               Exactly equivalent to a sequence of <code>MATCH char</code> opcodes for each character in <code>s</code>.
             </td>
           </tr>
@@ -129,16 +130,16 @@ const Technical: React.FC = () => {
           <tr>
             <td>FAIL</td>
             <td>
-              Fails the current parsing attempt. If the current rule has a TRY handler, the PVM restores the savepoint and resumes
-              execution from the TRY handler. Otherwise, the PVM abandons the current rule and looks for a TRY handler in the caller
-              rule, and then the caller's caller, and so on, up the call stack. If no TRY handler is found, the statement fails to parse.
+              Fails the current parsing attempt. If the current rule has a savepoint, the PVM restores the savepoint and resumes
+              execution from the <code>TRY</code> handler. Otherwise, the PVM abandons the current rule and looks for a savepoint in the caller
+              rule, and then the caller's caller, and so on, up the call stack. If no savepoint is found, the statement fails to parse.
             </td>
           </tr>
           <tr>
             <td>TRY address</td>
             <td>
-              Creates a savepoint for the current rule by recording the current values of <code>buffer_pos</code> and <code>line_pos</code>, and setting the TRY handler
-              to <code>address</code>. If the rule fails, the PVM restores the savepoint and resumes execution from the TRY handler.
+              Creates a savepoint for the current rule by recording the current values of <code>buffer_pos</code> and <code>line_pos</code>, and setting the <code>TRY</code> handler
+              to <code>address</code>. If the rule fails, the PVM restores the savepoint and resumes execution from the <code>TRY</code> handler.
             </td>
           </tr>
           <tr>
@@ -146,7 +147,7 @@ const Technical: React.FC = () => {
             <td>
               Accepts the input up to the current position by discarding the current rule's savepoint (if any), then
               performs <code>JUMP</code> to <code>address</code>.
-              Using <code>ACCEPT</code> ensures that any subsequent parsing failures will cause the rule to fail rather than invoke the TRY handler.
+              Using <code>ACCEPT</code> ensures that any subsequent parsing failures will cause the rule to fail rather than invoke the <code>TRY</code> handler.
             </td>
           </tr>
           <tr>
@@ -187,8 +188,8 @@ const Technical: React.FC = () => {
             <td>
               If the name table entry matched by a previous <code>TOKENIZE</code> operation contains data
               following the name, then perform a <code>JUMP</code> to the first byte of that data. If the name table entry does not
-              contain any data following the name, then <code>RETURN</code>. Note that, either way, the opcode following <code>DISPATCH</code>
-              is not reached.
+              contain any data following the name, then <code>RETURN</code>. Note that, either way, the opcode
+              following <code>DISPATCH</code> is not reached.
             </td>
           </tr>
         </tbody>
@@ -198,8 +199,8 @@ const Technical: React.FC = () => {
       <p>
         The following example implements the rule for parsing a statement name. It attempts to 
         match a literal question mark (a shortcut for the <code>PRINT</code> statement). If that 
-        fails, it backtracks to the savepoint created by <code>TRY</code> and invokes the 
-        <code>pvm_name</code> subrule to match an alphanumeric name.
+        fails, it backtracks to the savepoint created by <code>TRY</code> and invokes 
+        the <code>pvm_name</code> subrule to match an alphanumeric name.
       </p>
       <div className="example">{`pvm_statement_name:
     TRY pvm_name
@@ -218,32 +219,36 @@ pvm_name:
       <p>
         The <code>pvm_name</code> subrule uses a loop for matching an alphanumeric 
         identifier. It mandates that the identifier starts with a letter using <code>MATCH_RANGE</code>. 
-        Then, it uses a <code>TRY-ACCEPT</code> loop to repeatedly match characters (A-Z, 0-9, or _) 
-        until a non-name character is encountered. When matching fails, the PVM backtracks to the 
-        <code>@done</code> handler to return, terminating the loop.
+        Then, it uses a <code>TRY-ACCEPT</code> loop to repeatedly match characters (A-Z, 0-9, or underscore) 
+        until a non-name character is encountered. When matching fails, the PVM backtracks to
+        the <code>@done</code> handler to return, terminating the loop.
       </p>
       
       <p>
         In this second example, a simplified version of the main statement parser uses 
-        a savepoint to capture a potential keyword. The <code>TOKENIZE</code> opcode matches the 
-        captured text against a name table and replaces it with a 1-byte token. Finally, 
-        a fictitious <code>pvm_args</code> rule is called to handle the rest of the statement.
+        a savepoint to capture and tokenize keyword. The <code>TOKENIZE</code> opcode matches the 
+        text captured by <code>pvm_statement_name</code> against a name table of statement keywords and replaces it with a one-byte token. Finally, 
+        the rule jumps to a fictitious <code>pvm_args</code> rule to handle the rest of the statement.
+        If the PVM fails to parse a statement name, or the name isn't found in the name table, the parse
+        fails, invoking the <code>TRY</code> handler <code>@fail</code> and failing the rule.
+        Although the <code>TRY</code> handler simply invokes <code>FAIL</code>, creating the savepoint
+        was necessary to set the start of the statement name for the <code>TOKENIZE</code> operation.
       </p>
       <div className="example">{`pvm_simple_statement:
     WS
     TRY @fail
     CALL pvm_statement_name
     TOKENIZE keyword_table
-    CALL pvm_args
+    JUMP pvm_args
 @fail:
-    RETURN`}</div>
+    FAIL`}</div>
 
       <h2>Floating Point Support</h2>
       <p>
-        VC83 BASIC utilizes a custom 5-byte (40-bit) floating-point format designed for a balance 
+        VC83 BASIC utilizes a custom 5-byte (40-bit) floating point format designed for a balance 
         of precision and performance on 8-bit hardware. This format is conceptually similar to 
         that of a IEEE-754 32-bit single-precision float, but increases the size of the
-        signifcand to 40 bits to support 9 decimal digits of precision, and swaps the ordering of the sign bit and exponent
+        significand to 32 bits to support 9 decimal digits of precision, and swaps the ordering of the sign bit and exponent
         fields so that the 8-bit exponent can occupy one full byte in memory. VC83 BASIC floats
         do not support subnormal, NaN, or infinity values.
       </p>
@@ -286,7 +291,7 @@ pvm_name:
 
       <h3>Internal Registers: FP0, FP1, and FPX</h3>
       <p>
-        The interpreter maintains two primary 5-byte registers in zero page: <strong>FP0</strong> (the accumulator) 
+        The interpreter maintains two primary floating point registers in zero page: <strong>FP0</strong> (the accumulator) 
         and <strong>FP1</strong> (the operand). Operations in the floating point module typically 
         follow a standard convention where unary functions (like <code>SQR</code> or <code>LOG</code>) 
         operate directly on <strong>FP0</strong>, while binary operations (like <code>FADD</code> 
@@ -304,7 +309,7 @@ pvm_name:
       <p>
         Data movement between the interpreter's registers and system memory is handled
         by <code>load_fp</code> and <code>store_fp</code>. These functions convert between the 40-bit, implied-1 memory format
-        and the expande format of the FP0 and FP1 registers.
+        and the expanded format of the FP0 and FP1 registers.
       </p>
       <table>
         <thead>
@@ -338,8 +343,8 @@ pvm_name:
 
       <h3>Normalization and Rounding</h3>
       <p>
-        A floating-point value is considered <strong>normalized</strong> when the most-significant bit (MSB) of
-        its significand is 1. Storing floating-point number in normalized form has significant advantages:
+        A floating point value is considered <strong>normalized</strong> when the most-significant bit (MSB) of
+        its significand is 1. Storing floating point number in normalized form has significant advantages:
       </p>
       <ul>
         <li>
@@ -380,9 +385,8 @@ pvm_name:
         VC83 BASIC provides standard arithmetic and higher-level mathematical 
         functions. Arithmetic functions like <code>fadd</code>, <code>fsub</code>,
         and <code>fmul</code> expect their operands to be loaded into the FP registers and yield their
-        results in <strong>FP0</strong>. Comparison (<code>fcmp</code>) returns flags that 
-        are compatible with 6502 branch instructions (<code>BEQ</code>, <code>BCS</code>, 
-        etc.) for conditional logic in the interpreter.
+        results in <strong>FP0</strong>. Comparison (<code>fcmp</code>) returns flags in the 
+        same manner as the 6502 <code>CMP</code> instruction in order to enable the use of the 6502's conditional branch instructions (<code>BEQ</code>, <code>BCS</code>, etc.).
       </p>
       <p>
         The library includes support for logarithmic and trigonometric 
@@ -501,15 +505,13 @@ pvm_name:
       <h2>String Handling</h2>
       <p>
         VC83 BASIC manages strings using a heap at the top of system memory. 
-        Data is stored downward from <code>himem_ptr</code> 
-        toward the program's <code>free_ptr</code>, allowing the heap to expand and contract as 
+        Data is stored downward from <code>himem_ptr</code> toward the program's <code>free_ptr</code>, allowing the heap to expand and contract as 
         needed. 
       </p>
       <p>
         Strings are stored with a length byte followed by the string data, and two extra 
         bytes used for address relocation information: 
         <code>[Length Byte] [Data...] [Relocation Offset (2 bytes)]</code>. 
-        This geometry provides the boundary between executable code and string data.
       </p>
       
       <h3>The Garbage Collector</h3>
@@ -555,10 +557,38 @@ pvm_name:
       </p>
 
       <h2>VC83 vs. Microsoft BASIC</h2>
-      <ul>
-        <li><strong>Variable Names:</strong> Can be any length (standard BASIC is often limited to 2 characters).</li>
-        <li><strong>Efficiency:</strong> The string garbage collector is designed to minimize pauses during execution.</li>
-      </ul>
+      <p>
+        While VC83 BASIC draws its heritage from the 6502-based Microsoft BASIC implementations of 
+        the late 1970s, its architecture reflects several improvements in parser design 
+        and memory management.
+      </p>
+      
+      <p>
+        <strong>Parser Architecture:</strong> Traditional Microsoft BASIC dialects perform a 
+        simple keyword substitution during line entry, replacing recognized statement names 
+        with 1-byte tokens without performing a full syntax validation. This means that syntax 
+        errors are not detected until the program is executed. VC83 BASIC instead 
+        uses a dedicated <strong>Parser Virtual Machine (PVM)</strong> with a grammar is defined in a compact domain-specific 
+        language (DSL) to perform a complete syntax check at the time of entry. This enables early
+        detection of errors and eliminates the need to handle invalid syntax at runtime.
+      </p>
+
+      <p>
+        <strong>Variable Names:</strong> A limitation of Microsoft BASIC 
+        is that only the first two characters of a variable name are significant. 
+        In Microsoft BASIC, <code>VARIABLE1</code> and <code>VARIABLE2</code> are treated as the 
+        same variable. VC83 BASIC honors the entire length of a variable name, improving 
+        code readability and preventing accidental naming collisions.
+      </p>
+
+      <p>
+        <strong>Garbage Collection Strategy:</strong> The Microsoft BASIC garbage collector 
+        famously causes long "pauses" during execution. This occurs because the collector 
+        uses an <i>O</i>(<i>n</i><sup>2</sup>) algorithm that repeatedly scans the variable table to find the 
+        next string to relocate. VC83's mark-sweep-compact collector has linear 
+        (<i>O</i>(<i>n</i>)) complexity, providing more consistent performance even as the string 
+        heap fills.
+      </p>
     </>
   );
 };
