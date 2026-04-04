@@ -14,6 +14,56 @@ const Technical: React.FC = () => {
         <li><code>himem_ptr</code>: The highest address used; ceiling for the string space</li>
       </ul>
 
+      <h2>Name Tables</h2>
+      <p>
+        The interpreter uses a specialized structure called a <strong>Name Table</strong> to store 
+        and look up strings of characters associated with data. This structure is used for everything 
+        from built-in statement keywords and function names to the variables and arrays defined 
+        by the user. 
+      </p>
+
+      <h3>Entry Format</h3>
+      <p>
+        Each entry in a Name Table starts with a variable-length field that defines the total 
+        size of the entry (including the length prefix itself). This prefix can be either 
+        one or two bytes:
+      </p>
+      <ul>
+        <li>If the high bit of the first byte is clear, the length is stored as a single byte (0–127).</li>
+        <li>If the high bit is set, the length is a 16-bit value. The first byte 
+          (with the high bit masked out) is the high byte of the length, followed by a low-byte byte.</li>
+      </ul>
+      <p>
+        Following the length is the name itself, stored as a sequence of ASCII characters. The 
+        <strong>last character</strong> of the name is marked by having its 
+        high bit (bit 7) set. Any technical data associated with the name (such as PVM opcodes 
+        for a statement or the 40-bit value of a numeric variable) immediately follows the 
+        terminated name string.
+      </p>
+
+      <h3>Usage and Pointers</h3>
+      <p>
+        The parser utilizes these tables to identify keywords during tokenization. While the 
+        Variable Name Table (VNT) and Array Name Table (ANT) map identifiers to their memory 
+        values, the built-in statement name table is unique because its data payload contains 
+        the PVM opcodes required to parse that specific statement.
+      </p>
+      <p>
+        Pointer management is handled through two zero-page registers: <code>name_ptr</code>, which 
+        points into the current entry, and <code>next_name_ptr</code>, which tracks the start of 
+        the following entry. The routine <code>advance_name_ptr</code> manages the transition 
+        between entries by copying <code>next_name_ptr</code> to <code>name_ptr</code> and then 
+        calculating the next entry's address based on the current length prefix. Once an entry is active, the 
+        interpreter no longer needs the length metadata and is free to move <code>name_ptr</code> 
+        within the entry to access the name or data fields.
+      </p>
+      <p>
+        The system provides two primary routines for interacting with these tables: 
+        <code>find_name</code>, which searches a table for a match against the current 
+        input buffer, and <code>get_name</code>, which retrieves an entry at a specific 
+        numerical index.
+      </p>
+
       <h2>Parser</h2>
       <p>
         The parser converts the BASIC source code into a tokenized representation that is stored in memory.
