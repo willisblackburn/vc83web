@@ -89,7 +89,7 @@ const Technical: React.FC = () => {
       <MemoryMap blocks={vc83MemoryBlocks} unitWidth={400} unitHeight={60} />
 
       <p>The following table lists the dynamic memory regions and pointers used by the interpreter:</p>
-      <table>
+      <table className="memory-regions-table">
         <thead>
           <tr>
             <th>Pointer/Address</th>
@@ -100,7 +100,7 @@ const Technical: React.FC = () => {
         <tbody>
           {vc83MemoryBlocks.filter(b => !b.isSystem).map(block => (
             <tr key={block.address}>
-              <td><code>{block.address}</code></td>
+              <td>{block.address}</td>
               <td>{block.name}</td>
               <td>{block.description}</td>
             </tr>
@@ -397,7 +397,7 @@ pvm_name:
         fields so that the 8-bit exponent can occupy one full byte in memory. VC83 BASIC floats
         do not support subnormal, NaN, or infinity values.
       </p>
-      <table>
+      <table className="fp-bits-table">
         <thead>
           <tr>
             <th>Bits</th>
@@ -456,7 +456,7 @@ pvm_name:
         by <code>load_fp</code> and <code>store_fp</code>. These functions convert between the 40-bit, implied-1 memory format
         and the expanded format of the FP0 and FP1 registers.
       </p>
-      <table>
+      <table className="fp-ops-table">
         <thead>
           <tr>
             <th>Operation</th>
@@ -467,13 +467,13 @@ pvm_name:
         </thead>
         <tbody>
           <tr>
-            <td><code>load_fp</code></td>
+            <td>load_fp</td>
             <td>Source address</td>
             <td>FP0 or FP1</td>
             <td>Unpacks the 5-byte memory format, restores the implied 1 bit, and breaks out the sign into a separate byte.</td>
           </tr>
           <tr>
-            <td><code>store_fp</code></td>
+            <td>store_fp</td>
             <td>Destination address</td>
             <td>FP0 or FP1</td>
             <td>Re-packs the significand by hiding the implied 1 bit and merging the sign bit back into the 4th significand byte.</td>
@@ -537,7 +537,7 @@ pvm_name:
         The library includes support for logarithmic and trigonometric 
         calculations.
       </p>
-      <table>
+      <table className="fp-functions-table">
         <thead>
           <tr>
             <th>Function</th>
@@ -547,87 +547,87 @@ pvm_name:
         </thead>
         <tbody>
           <tr>
-            <td><code>fadd</code></td>
+            <td>fadd</td>
             <td>Arithmetic</td>
             <td>Adds the value in <strong>FP1</strong> into <strong>FP0</strong>.</td>
           </tr>
           <tr>
-            <td><code>fsub</code></td>
+            <td>fsub</td>
             <td>Arithmetic</td>
             <td>Subtracts the value in <strong>FP1</strong> from <strong>FP0</strong>.</td>
           </tr>
           <tr>
-            <td><code>fmul</code></td>
+            <td>fmul</td>
             <td>Arithmetic</td>
             <td>Multiplies <strong>FP0</strong> by <strong>FP1</strong>.</td>
           </tr>
           <tr>
-            <td><code>fdiv</code></td>
+            <td>fdiv</td>
             <td>Arithmetic</td>
             <td>Divides <strong>FP0</strong> by <strong>FP1</strong>; raises ERR_DIVIDE_BY_ZERO error if necessary.</td>
           </tr>
           <tr>
-            <td><code>fcmp</code></td>
+            <td>fcmp</td>
             <td>Arithmetic</td>
             <td>Compares <strong>FP0</strong> and <strong>FP1</strong>; set Z and C flags for 6502 branches.</td>
           </tr>
           <tr>
-            <td><code>fneg</code></td>
+            <td>fneg</td>
             <td>Arithmetic</td>
             <td>Negates the value in <strong>FP0</strong> by toggling the sign bit.</td>
           </tr>
           <tr>
-            <td><code>floor</code></td>
+            <td>floor</td>
             <td>Rounding</td>
             <td>Calculates the largest integer less than or equal to <strong>FP0</strong>.</td>
           </tr>
           <tr>
-            <td><code>round</code></td>
+            <td>round</td>
             <td>Rounding</td>
             <td>Rounds <strong>FP0</strong> to the nearest integer (round-half-up).</td>
           </tr>
           <tr>
-            <td><code>int_to_fp</code></td>
+            <td>int_to_fp</td>
             <td>Conversion</td>
             <td>Converts a 16-bit signed integer (passed in <strong>AX</strong>) into <strong>FP0</strong>.</td>
           </tr>
           <tr>
-            <td><code>truncate_fp_to_int</code></td>
+            <td>truncate_fp_to_int</td>
             <td>Conversion</td>
             <td>Truncates <strong>FP0</strong> to a 16-bit signed integer and returns it in <strong>AX</strong>.</td>
           </tr>
           <tr>
-            <td><code>fsin</code></td>
+            <td>fsin</td>
             <td>Trigonometry</td>
             <td>Calculates sine in radians using a Chebyshev polynomial fit for [-&pi;/2, &pi;/2].</td>
           </tr>
           <tr>
-            <td><code>fcos</code></td>
+            <td>fcos</td>
             <td>Trigonometry</td>
             <td>Calculates cosine by shifting the argument and invoking the <code>fsin</code> routine.</td>
           </tr>
           <tr>
-            <td><code>ftan</code></td>
+            <td>ftan</td>
             <td>Trigonometry</td>
             <td>Calculates tangent as the ratio of <code>fsin</code> to <code>fcos</code>.</td>
           </tr>
           <tr>
-            <td><code>fatn</code></td>
+            <td>fatn</td>
             <td>Trigonometry</td>
             <td>Calculates arctangent using a polynomial approximation over the range [0, 1].</td>
           </tr>
           <tr>
-            <td><code>flog</code></td>
+            <td>flog</td>
             <td>Exponential</td>
             <td>Calculates the natural logarithm (ln) using a polynomial approximation and range reduction.</td>
           </tr>
           <tr>
-            <td><code>fexp</code></td>
+            <td>fexp</td>
             <td>Exponential</td>
             <td>Calculates <i>e</i><sup>x</sup> using the Taylor series expansion.</td>
           </tr>
           <tr>
-            <td><code>fpow</code></td>
+            <td>fpow</td>
             <td>Exponential</td>
             <td>General exponentiation (x<sup>y</sup>), calculated as <code>fexp(y * flog(x))</code>.</td>
           </tr>

@@ -28,6 +28,11 @@ button {
 .page-content .example,
 .memory-block .address-label,
 .memory-modal .sample-browser-header code,
+.memory-regions-table td:first-child,
+.pvm-table td:first-child,
+.fp-bits-table td:first-child,
+.fp-ops-table td:first-child,
+.fp-functions-table td:first-child,
 .reference-syntax {
   font-family: 'Courier New', Courier, monospace;
 }
