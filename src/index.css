@@ -14,7 +14,7 @@
   src: url('/emulator/assets/PrintChar21.woff2') format('woff2');
 }
 
-/* Set fonts everywhere. */
+/* Fonts */
 
 body,
 button {
@@ -26,17 +26,14 @@ button {
 
 .page-content code,
 .page-content .example,
+.memory-block .address-label,
+.memory-modal .sample-browser-header code,
 .reference-syntax {
   font-family: 'Courier New', Courier, monospace;
 }
 
 .content-area-panel h1 {
   font-family: 'Permanent Marker', sans-serif;
-}
-
-.statement-keyword,
-.function-keyword {
-  font-family: 'Inter', sans-serif;
 }
 
 .retro-button {
@@ -480,9 +477,8 @@ table.pvm-table td:first-child {
 
 
 .reference-see-also a {
-  color: var(--retro-green);
+  color: var(--retro-amber);
   text-decoration: underline;
-  font-weight: 600;
 }
 
 .reference-see-also a:hover {
@@ -710,7 +706,6 @@ footer p {
 .memory-block .address-label {
   fill: var(--retro-gray-dim);
   font-size: 13px;
-  font-family: 'Courier New', monospace;
   transition: fill 0.3s;
 }
 
@@ -721,7 +716,6 @@ footer p {
 .memory-block .block-name {
   fill: var(--retro-gray);
   font-size: 14px;
-  font-family: 'Inter', sans-serif;
   letter-spacing: 0.02em;
   pointer-events: none;
   transition: all 0.3s;
@@ -755,7 +749,6 @@ footer p {
 .memory-modal .sample-browser-header code {
   color: var(--retro-amber);
   font-size: 1.1rem;
-  font-family: 'Courier New', monospace;
 }
 
 .memory-modal .sample-browser-header h1 {
