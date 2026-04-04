@@ -88,13 +88,13 @@ const FAQ_ITEMS: FaqItem[] = [
           into 8K; choosing to include some features necessarily means sacrificing others. We chose to include
           a couple of features, a more sophisticated parser and a fast string garbage collector, that take up more
           space than their simpler Microsoft BASIC counterparts, so we had to cut a few things from the core
-          interpreter that Microsoft supports, such as <code>DEF FN</code>.
+          interpreter that Microsoft supports, such as <code>DEF&nbsp;FN</code>.
         </p>
         <p>
           While the core interpreter is designed to fit in 8K, platform extensions can be any size,
           so you can build a richer 12K or 16K BASIC for your own project. This is what motivated the decisions about
           including the better parser and garbage collector in the core interpreter: these would have been harder
-          to add later as platform-specific features, whereas implementing <code>DEF FN</code> as
+          to add later as platform-specific features, whereas implementing <code>DEF&nbsp;FN</code> as
           a platform-specific statement is more straightforward. If you want to add a feature
           that isn't just an extra statement or function, e.g., support for integer variables,
           let us know so we can work out how to enable that as an optional core feature.
