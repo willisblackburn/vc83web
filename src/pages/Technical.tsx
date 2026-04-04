@@ -1,9 +1,97 @@
 import React from 'react';
+import MemoryMap, { type MemoryBlockData } from '../components/MemoryMap';
+
+const vc83MemoryBlocks: MemoryBlockData[] = [
+  { 
+    address: '$0000', 
+    name: 'Zero page variables', 
+    height: 0.25, 
+    isSystem: true,
+    description: "Zero page variables reserved for the BASIC interpreter and 6502 system routines. This includes critical pointers like program_ptr and the floating-point registers FP0 and FP1."
+  },
+  { 
+    address: '$0100', 
+    name: '6502 stack', 
+    height: 0.5, 
+    isSystem: true,
+    description: "The standard 6502 hardware stack, used for JSR/RTS return addresses, status flags, and temporary register storage."
+  },
+  { 
+    address: '$0200', 
+    name: 'buffer/line_buffer', 
+    height: 0.5,
+    description: "Contains the 256-byte input buffer used by the parser to read lines from the user, and the line_buffer where tokenized output is temporarily stored before being copied to the program space."
+  },
+  { 
+    address: '$0400', 
+    name: 'Text mode screen RAM', 
+    height: 0.8, 
+    isSystem: true,
+    description: "Mapped directly to the Apple II text mode screen memory. Writing characters to this range updates the display instantly."
+  },
+  { 
+    address: '$0800', 
+    name: 'expression stack, FP scratch space, etc.', 
+    height: 1.0,
+    description: "Temporary storage used for the BASIC expression evaluation stack and scratch space for complex floating-point calculations."
+  },
+  { 
+    address: 'program_ptr', 
+    name: 'BASIC user program', 
+    height: 2.5,
+    description: "The start of the user's BASIC program. Code is stored in a tokenized format, where each line consists of a length byte, a line number (2 bytes), and a sequence of tokens terminated by a zero byte."
+  },
+  { 
+    address: 'variable_name_table_ptr', 
+    name: 'Variables', 
+    height: 1.2,
+    description: "The Variable Name Table (VNT) stores the identifiers for all scalar numeric variables defined by the user. Each entry contains the name and its current 5-byte floating-point value."
+  },
+  { 
+    address: 'array_name_table_ptr', 
+    name: 'Array variables', 
+    height: 1.2,
+    description: "The Array Name Table (ANT) stores definitions for dimensioned arrays. Each entry includes the array name, dimensions, and the sequence of 5-byte floating-point values that make up the array elements."
+  },
+  { 
+    address: 'free_ptr', 
+    name: 'Free space: shrinks as other sections grow', 
+    height: 2.5,
+    description: "The start of the 'free space' area. This section of memory shrinks dynamically as the BASIC program grows upward or as more variables and arrays are defined."
+  },
+  { 
+    address: 'string_ptr', 
+    name: 'String storage: grows down', 
+    height: 1.5,
+    description: "The bottom of the string heap. Strings are stored at the very top of free memory (near himem_ptr) and grow downwards toward free_ptr. This area is periodically compacted by the garbage collector."
+  },
+  { 
+    address: 'himem_ptr', 
+    name: 'BASIC ROM', 
+    height: 0.8,
+    description: "The code for the BASIC interpreter itself. This ROM contains the parser, the floating-point library, and the statement execution logic."
+  },
+  { 
+    address: '$E000', 
+    name: 'OS ROM', 
+    height: 1.2, 
+    isSystem: true,
+    description: "The core Operating System (OS) routines, including I/O handlers, interrupt vectors, and hardware initialization code."
+  },
+];
 
 const Technical: React.FC = () => {
   return (
     <>
-      <h2>Architecture &amp; Memory Map</h2>
+      <h2 id="architecture">Architecture &amp; Memory Map</h2>
+      <p>
+        The VC83 BASIC memory map is structured to provide a flexible environment for both 
+        system routines and user programs. Below is a graphical representation of the memory 
+        layout.
+      </p>
+
+      <MemoryMap blocks={vc83MemoryBlocks} unitWidth={400} unitHeight={80} />
+
       <p>The interpreter uses several zero-page pointers to manage dynamic structures:</p>
       <ul>
         <li><code>program_ptr</code>: Start of the BASIC program (sequentially stored line records)</li>
