@@ -362,7 +362,7 @@ const Manual: React.FC = () => {
       </p>
       <div className="example">
         A$="HELLO":B$="WORLD"<br />
-        PRINT A$ &amp; " " &amp; B$
+        PRINT A$&amp;" "&amp;B$
       </div>
 
       <h3>Relational Operators</h3>
