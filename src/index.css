@@ -680,26 +680,22 @@ footer p {
 
 .memory-block:not(.is-system):hover rect.outline {
   fill: #222 !important;
-  stroke: var(--retro-green) !important;
-  filter: drop-shadow(0 0 5px var(--retro-green-dim));
 }
 
 .memory-block.is-system {
   cursor: default;
 }
 
-.memory-block .hover-highlight {
+/* Moved highlight to a dedicated overlay in the component for perfect Z-order */
+.memory-highlight-overlay {
   fill: transparent;
   stroke: var(--retro-green);
-  stroke-width: 2;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  stroke-width: 2.5;
   pointer-events: none;
+  filter: drop-shadow(0 0 5px var(--retro-green-dim));
+  transition: opacity 0.2s ease;
 }
 
-.memory-block:not(.is-system):hover .hover-highlight {
-  opacity: 1 !important;
-}
 
 .memory-block .address-label {
   fill: var(--retro-gray-dim);
@@ -717,10 +713,6 @@ footer p {
   letter-spacing: 0.02em;
   pointer-events: none;
   transition: all 0.3s;
-}
-
-.memory-block.is-system .block-name {
-  fill: var(--retro-amber);
 }
 
 .memory-block:not(.is-system):hover .block-name {

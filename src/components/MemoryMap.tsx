@@ -20,6 +20,7 @@ const MemoryMap: React.FC<MemoryMapProps> = ({
   unitHeight = 80,
 }) => {
   const [selectedBlock, setSelectedBlock] = React.useState<MemoryBlockData | null>(null);
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
   const totalHeight = blocks.reduce((acc, block) => acc + block.height * unitHeight, 0);
   
   // We'll use a fixed internal coordinate system and scale the SVG
@@ -63,6 +64,8 @@ const MemoryMap: React.FC<MemoryMapProps> = ({
                 className={`memory-block ${block.isSystem ? 'is-system' : ''}`}
                 style={{ animationDelay: `${index * 0.05}s` }}
                 onClick={() => !block.isSystem && setSelectedBlock(block)}
+                onMouseEnter={() => !block.isSystem && setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
               >
                 {/* Address Label */}
                 <text
@@ -82,15 +85,6 @@ const MemoryMap: React.FC<MemoryMapProps> = ({
                   width={unitWidth}
                   height={blockHeight}
                   className="outline"
-                />
-
-                {/* Inset Hover Highlight */}
-                <rect
-                  x={blockX + 2}
-                  y={y + 2}
-                  width={unitWidth - 4}
-                  height={blockHeight - 4}
-                  className="hover-highlight"
                 />
 
                 {block.isSystem && (
@@ -117,6 +111,26 @@ const MemoryMap: React.FC<MemoryMapProps> = ({
               </g>
             );
           })}
+
+          {/* Render highlight overlay last for perfect Z-order */}
+          {hoveredIndex !== null && (() => {
+            const block = blocks[hoveredIndex];
+            const previousBlocksHeight = blocks
+              .slice(0, hoveredIndex)
+              .reduce((acc, b) => acc + b.height * unitHeight, 0);
+            const blockHeight = block.height * unitHeight;
+            const y = 20 + previousBlocksHeight;
+
+            return (
+              <rect
+                x={blockX}
+                y={y}
+                width={unitWidth}
+                height={blockHeight}
+                className="memory-highlight-overlay"
+              />
+            );
+          })()}
         </svg>
       </div>
 

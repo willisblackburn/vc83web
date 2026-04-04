@@ -86,17 +86,27 @@ const Technical: React.FC = () => {
         layout.
       </p>
 
-      <MemoryMap blocks={vc83MemoryBlocks} unitWidth={400} unitHeight={80} />
+      <MemoryMap blocks={vc83MemoryBlocks} unitWidth={400} unitHeight={60} />
 
-      <p>The interpreter uses several zero-page pointers to manage dynamic structures:</p>
-      <ul>
-        <li><code>program_ptr</code>: Start of the BASIC program (sequentially stored line records)</li>
-        <li><code>variable_name_table_ptr</code>: Start of the Variable Name Table (VNT)</li>
-        <li><code>array_name_table_ptr</code>: Points to the Array Name Table (ANT)</li>
-        <li><code>free_ptr</code>: First byte of free memory after the ANT</li>
-        <li><code>string_ptr</code>: Bottom of the string space (grows downwards from himem_ptr)</li>
-        <li><code>himem_ptr</code>: The highest address used; ceiling for the string space</li>
-      </ul>
+      <p>The following table lists the dynamic memory regions and pointers used by the interpreter:</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Pointer/Address</th>
+            <th>Region Name</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {vc83MemoryBlocks.filter(b => !b.isSystem).map(block => (
+            <tr key={block.address}>
+              <td><code>{block.address}</code></td>
+              <td>{block.name}</td>
+              <td>{block.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       <h2>Name Tables</h2>
       <p>
