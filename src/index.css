@@ -51,12 +51,16 @@ button {
 
 /* Positioning, colors, etc. */
 
+html,
 body {
+  overflow-x: hidden;
   margin: 0;
   padding: 0;
+}
+
+body {
   background-color: var(--retro-bg);
   color: var(--retro-gray);
-  overflow-x: hidden;
   min-height: 100vh;
 }
 
