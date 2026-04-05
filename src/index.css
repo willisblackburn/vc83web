@@ -382,6 +382,7 @@ h3 {
   padding: 1rem; 
   background: rgba(128, 128, 128, 0.1); 
   white-space: pre-wrap;
+  line-height: 1.2rem;
 }
 
 .page-content .example {

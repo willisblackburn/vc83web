@@ -186,7 +186,8 @@ const Manual: React.FC = () => {
         For example, you can perform quick calculations or test commands without writing a full program.
       </p>
       <div className="example">
-        PRINT 12 * (3 + 4)      
+        PRINT 12*(3+4)<br/>
+        84     
       </div>
       <p>
         You can even string multiple commands together on a single line by separating them 
@@ -194,7 +195,9 @@ const Manual: React.FC = () => {
         instantly:
       </p>
       <div className="example">
-        INPUT "WHAT IS YOUR NAME? ";A$:PRINT "HELLO ";A$
+        INPUT "WHAT IS YOUR NAME? ";A$:PRINT "HELLO ";A$<br/>
+        WHAT IS YOUR NAME? STEVE JOBS<br/>
+        HELLO STEVE JOBS
       </div>
       <p>
         Any variables you create in immediate mode will remain in the computer's memory, 
@@ -208,6 +211,10 @@ const Manual: React.FC = () => {
         doesn't execute the statement immediately; instead, it stores it in memory. The line
         numbers determine the ordering of the program lines in memory and their execution order.
       </p>
+      <div className="example">
+        10 PRINT "THIS LINE EXECUTES FIRST"<br/>
+        20 PRINT "THIS LINE EXECUTES SECOND"
+      </div>
       <p>
         When entering programs in BASIC, it is common to use line numbers that are multiples of 10.
         This leaves some extra line numbers "between" the lines in case you need to insert a new line later.
@@ -226,11 +233,14 @@ const Manual: React.FC = () => {
         typing <code>LIST</code>, or display a specific line:
       </p>
       <div className="example">
-        LIST 100
+        LIST 10<br/>
+        10 PRINT "THIS LINE EXECUTES FIRST"
       </div>
       <p>or a range of lines:</p>
       <div className="example">
-        LIST 10,100
+        LIST 10,20<br/>
+        10 PRINT "THIS LINE EXECUTES FIRST"<br/>
+        20 PRINT "THIS LINE EXECUTES SECOND"
       </div>
       <p>
         When you are finished with one project and ready to start something completely fresh, 
@@ -244,7 +254,9 @@ const Manual: React.FC = () => {
         Execution always starts at the lowest line number and proceeds sequentially.
       </p>
       <div className="example">
-        RUN
+        RUN<br/>
+        THIS LINE EXECUTES FIRST<br/>
+        THIS LINE EXECUTES SECOND
       </div>
       <p>
         <code>RUN</code> automatically performs <code>CLR</code>, which wipes all variables 
@@ -255,7 +267,8 @@ const Manual: React.FC = () => {
         clearing your variables, you can use the <code>GOTO</code> command in immediate mode:
       </p>
       <div className="example">
-        GOTO 500
+        GOTO 20<br/>
+        THIS LINE EXECUTES SECOND
       </div>
       <p>
         Unlike modern environments where variables often have limited "scope" or are cleared when a function ends, 
@@ -298,8 +311,8 @@ const Manual: React.FC = () => {
         simply omit it for a more concise syntax:
       </p>
       <div className="example">
-        10 LET A=100<br />
-        20 B$="VC83"
+        LET A=100<br />
+        B$="VC83"
       </div>
 
       <h3>Array Variables</h3>
@@ -310,8 +323,8 @@ const Manual: React.FC = () => {
       </p>
       <p>For example, to create and assign an array of strings:</p>
       <div className="example">
-        10 DIM NAMES$(50)<br/>
-        20 NAMES$(1)="CHRIS"
+        DIM NAMES$(50)<br/>
+        NAMES$(1)="CHRIS"
       </div>
       <p>
         <code>NAME$</code> is a string array with a maximum index of 50. Becuase indices start at 
@@ -321,8 +334,8 @@ const Manual: React.FC = () => {
         although is rare to need more than 2 or 3.
         In this example, <code>GRID</code> is an array of 121 (not 100) numbers.</p>
       <div className="example">
-        10 DIM GRID(10,10)<br/>
-        20 GRID(1,1)=10:GRID(1,2)=20:GRID(2,1)=30:GRID(2,2)=40
+        DIM GRID(10,10)<br/>
+        GRID(1,1)=10:GRID(1,2)=20:GRID(2,1)=30:GRID(2,2)=40
       </div>
       <p>
         If you use an array without a <code>DIM</code> statement, VC83 BASIC will 
@@ -362,7 +375,8 @@ const Manual: React.FC = () => {
       </p>
       <div className="example">
         A$="HELLO":B$="WORLD"<br />
-        PRINT A$&amp;" "&amp;B$
+        PRINT A$&amp;" "&amp;B$<br />
+        HELLO WORLD
       </div>
 
       <h3>Relational Operators</h3>
@@ -382,7 +396,9 @@ const Manual: React.FC = () => {
         for complex conditions.
       </p>
       <div className="example">
-        IF X&gt;0 AND X&lt;10 THEN PRINT "IN RANGE"
+        X=3<br/>
+        IF X&gt;0 AND X&lt;10 THEN PRINT "IN RANGE"<br/>
+        IN RANGE
       </div>
       <p>
         When used with numbers, <code>AND</code> and <code>OR</code> perform bitwise operations 
@@ -399,7 +415,10 @@ const Manual: React.FC = () => {
       </p>
       <div className="example">
         PRINT 2+3*4<br/>
-        PRINT (2+3)*4
+        14<br/>
+        <br/>
+        PRINT (2+3)*4<br/>
+        20
       </div>
 
       <h2>6. Controlling Program Flow</h2>
