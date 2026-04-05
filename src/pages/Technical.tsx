@@ -21,7 +21,7 @@ const vc83MemoryBlocks: MemoryBlockData[] = [
     description: (
       <>
         Often a hardware platform will set aside memory in pages 2-7 for I/O buffers and other uses. 
-        These are often a good place to put the 256-byte input buffer used by the parser to read lines from the user, 
+        This is often a good place to put the 256-byte input buffer used by the parser to read lines from the user, 
         and the <code>line_buffer</code> where tokenized output is temporarily stored before being copied to the program space.
       </>
     )
@@ -60,8 +60,10 @@ const vc83MemoryBlocks: MemoryBlockData[] = [
     height: 1,
     description: (
       <>
-        The Variable Name Table (VNT) stores the identifiers for all scalar numeric variables defined by the user. 
+        The Variable Name Table (VNT) stores the values of all non-array variables defined by the user. 
         Each entry contains the name and its current value.
+        Numeric values consume 5 bytes, while string values, which are pointers into
+        the string space, consume 2 bytes.
       </>
     )
   },
@@ -72,7 +74,9 @@ const vc83MemoryBlocks: MemoryBlockData[] = [
     description: (
       <>
         The Array Name Table (ANT) stores definitions for dimensioned arrays. Each entry includes the array name, 
-        dimensions, and the sequence of values that make up the array elements.
+        arity (the number of dimensions, 1 byte), dimension lengths (2 bytes per dimension),
+        and the sequence of values that make up the array elements (the
+        base element size times the number of values in the array).
       </>
     )
   },
@@ -83,7 +87,7 @@ const vc83MemoryBlocks: MemoryBlockData[] = [
     description: (
       <>
         The start of free space. This section of memory shrinks dynamically as the BASIC program grows 
-        or as more variables and arrays are defined.
+        and as more variables, arrays, and strings are defined.
       </>
     )
   },
