@@ -254,8 +254,6 @@ h3 {
   overflow: hidden;
   position: relative;
   z-index: 20; /* Ensures it sits tightly "on top" of extended-bars which has z-index 10 */
-  background-image: url('/emulator/assets/crt.jpg');
-  background-size: 100% 100%;
   border-radius: 20px;
 }
 
@@ -265,7 +263,6 @@ h3 {
   height: 100%;
   border: none;
   background: transparent;
-  padding: 5.15% 7.5%; /* Correct vertical padding for aspect ratio: 0.075 * 494/720 */
 }
 
 /* Color Bars Extension */
