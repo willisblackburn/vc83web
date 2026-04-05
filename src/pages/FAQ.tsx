@@ -79,7 +79,7 @@ const FAQ_ITEMS: FaqItem[] = [
     )
   },
   {
-    question: "Why don't you have (some feature)?",
+    question: "Why don't you have ________?",
     answer: (
       <>
         <p>
@@ -108,7 +108,7 @@ const FAQ_ITEMS: FaqItem[] = [
       <>
         <p>
           The main reason is that VC83 BASIC is attempting to recreate
-          the experience of using a computer in the early 1980s (thus "83"). All of the home computers of that
+          the experience of using a computer in the early 1980s (specifically, 1983). All of the home computers of that
           era had line-number based BASICs: think Apple II+ and IIe, Commodore 64, Atari 400/800, TRS-80, Sinclair Spectrum,
           etc. Even the BBC Micro, which had a famously powerful BASIC, still used line numbers, as did the
           BASIC that came with the original IBM PC. Full screen BASIC editors were more a late-1980s thing,
