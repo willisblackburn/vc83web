@@ -1,5 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { logEvent } from 'firebase/analytics';
+import { analytics } from './firebase';
 import './index.css';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -13,6 +15,14 @@ import type { SampleProgram } from './data/samples';
 const App: React.FC = () => {
   const [isSampleBrowserOpen, setIsSampleBrowserOpen] = useState(false);
   const emulatorRef = useRef<EmulatorHandle>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    logEvent(analytics, 'page_view', {
+      page_path: location.pathname + location.search,
+      window_location: window.location.href,
+    });
+  }, [location]);
 
   const handleSampleClick = (sample: SampleProgram) => {
     if (emulatorRef.current) {
