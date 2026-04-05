@@ -337,13 +337,12 @@ h3 {
   flex: 1;
   background: var(--panel-bg);
   padding: 0.5rem 3rem;
-  border-radius: 4px;
   max-width: 100%;
 }
 
 .content-area-panel h1.retro-title {
   color: var(--retro-amber);
-  margin-top: 0;
+  margin-top: 1rem;
   font-size: 2rem;
 }
 
