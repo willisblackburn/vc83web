@@ -13,16 +13,15 @@ const SamplePrograms: React.FC<SampleProgramsProps> = ({ isOpen, onClose, onSamp
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="sample-browser" onClick={(e) => e.stopPropagation()}>
-        <div className="sample-browser-header">
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <header>
           <h1>Select Sample Program</h1>
           <button className="close-button" onClick={onClose}>&times;</button>
-        </div>
-        <div className="sample-list">
+        </header>
+        <main>
           {samples.map((sample) => (
-            <div 
+            <section 
               key={sample.id} 
-              className="sample-item"
               onClick={() => {
                 onSampleClick(sample);
                 onClose();
@@ -30,9 +29,9 @@ const SamplePrograms: React.FC<SampleProgramsProps> = ({ isOpen, onClose, onSamp
             >
               <h2>{sample.title}</h2>
               <p>{sample.description}</p>
-            </div>
+            </section>
           ))}
-        </div>
+        </main>
       </div>
     </div>
   );

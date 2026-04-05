@@ -136,19 +136,17 @@ const MemoryMap: React.FC<MemoryMapProps> = ({
 
       {selectedBlock && (
         <div className="modal-overlay" onClick={() => setSelectedBlock(null)}>
-          <div className="memory-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="memory-modal-header">
-              <div className="memory-modal-top-bar">
-                <h1>{selectedBlock.address}</h1>
-                <button className="close-button" onClick={() => setSelectedBlock(null)}>&times;</button>
-              </div>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <header>
+              <h1>{selectedBlock.address}</h1>
+              <button className="close-button" onClick={() => setSelectedBlock(null)}>&times;</button>
               <h2>{selectedBlock.name}</h2>
-            </div>
-            <div className="description-container">
-              <div className="description-text">
+            </header>
+            <main>
+              <p>
                 {selectedBlock.description || "Detailed information about this memory section will be added soon."}
-              </div>
-            </div>
+              </p>
+            </main>
           </div>
         </div>
       )}

@@ -37,8 +37,12 @@ button {
   font-family: 'Courier New', Courier, monospace;
 }
 
-.content-area-panel h1 {
+.content-area-panel h1.retro-title {
   font-family: 'Permanent Marker', sans-serif;
+}
+
+.modal {
+  font-family: 'Inter', sans-serif;
 }
 
 .retro-button {
@@ -337,7 +341,7 @@ h3 {
   max-width: 100%;
 }
 
-.content-area-panel h1 {
+.content-area-panel h1.retro-title {
   color: var(--retro-amber);
   margin-top: 0;
   font-size: 2rem;
@@ -501,74 +505,131 @@ table.pvm-table td:first-child {
   flex: 1;
 }
 
-/* Sample Browser Modal */
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 2000;
+  backdrop-filter: blur(4px);
 }
 
-.sample-browser {
-  background: #111;
-  border: 2px solid var(--retro-amber);
-  width: 500px;
-  max-height: 600px;
+.modal {
+  background: #0a0a0a;
+  border: 1px solid var(--retro-amber);
+  width: 550px;
+  max-width: 90vw;
+  max-height: 85vh;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 0 10px rgba(255, 204, 0, 0.1);
+  animation: modalAppear 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.sample-browser-header {
-  padding: 1rem;
-  border-bottom: 1px solid #333;
-  display: flex;
-  justify-content: space-between;
+@keyframes modalAppear {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal header {
+  padding: 1.25rem;
+  border-bottom: 1px solid #222;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 204, 0, 0.03);
 }
 
-.sample-browser-header h1 {
+.modal header h1 {
   margin: 0;
   color: var(--retro-amber);
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
-.close-button {
-  background: transparent;
-  border: none;
-  color: #888;
-  font-size: 1.5rem;
-  cursor: pointer;
+.modal header h2 {
+  margin: 0.25rem 0 0;
+  color: var(--retro-green);
+  font-size: 1rem;
+  font-weight: 500;
+  grid-column: 1 / span 2;
 }
 
-.sample-list {
+.modal main {
+  padding: 0;
   overflow-y: auto;
   flex: 1;
 }
 
-.sample-item {
-  padding: 1rem;
-  border-bottom: 1px solid #222;
+.modal main > p {
+  padding: 1.25rem;
+  margin: 0;
+  color: var(--retro-gray);
+  line-height: 1.6;
+}
+
+/* Close button styling */
+.modal .close-button {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 1.75rem;
+  line-height: 1;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: color 0.2s, transform 0.2s;
+  padding: 0 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.sample-item:hover {
-  background: #333;
+.modal .close-button:hover {
+  color: var(--retro-amber);
+  transform: scale(1.1);
 }
 
-.sample-item h2 {
+/* Modal Content Sections (e.g. sample items) */
+.modal section {
+  padding: 1.25rem;
+  border-bottom: 1px solid #1a1a1a;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal section:hover {
+  background: #151515;
+}
+
+.modal section:last-child {
+  border-bottom: none;
+}
+
+.modal section h2 {
   margin: 0;
   color: var(--retro-green);
+  font-size: 1.1rem;
+  transition: color 0.2s;
 }
 
-.sample-item p {
+.modal section:hover h2 {
+  color: #fff;
+}
+
+.modal section p {
   margin: 0.5rem 0 0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  color: var(--retro-gray-dim);
+  line-height: 1.5;
+}
+
+.modal section:hover p {
   color: var(--retro-gray);
 }
 
@@ -740,52 +801,4 @@ footer p {
   animation: fadeInRect 0.5s ease backwards;
 }
 
-/* Modal for Memory Map Details */
-.memory-modal-content {
-  background: #111;
-  border: 2px solid var(--retro-amber);
-  width: 550px;
-  max-height: 600px;
-  display: flex;
-  flex-direction: column;
-}
-
-.memory-modal-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #333;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
-}
-
-.memory-modal-top-bar {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.memory-modal-header code {
-  color: var(--retro-amber);
-  font-size: 1.1rem;
-}
-
-.memory-modal-header h1 {
-  margin: 0;
-  font-size: 1.8rem;
-  color: var(--retro-green);
-  font-family: 'Permanent Marker', sans-serif; /* Keep same font as browser header */
-}
-
-.memory-modal-content .description-container {
-  padding: 1.5rem;
-  overflow: hidden;
-}
-
-.memory-modal-content .description-text {
-  margin: 0;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: var(--retro-gray);
-}
+/* Removed redundant memory-modal styles - now using .modal */
