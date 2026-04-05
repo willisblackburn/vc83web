@@ -52,10 +52,12 @@ button {
 /* Positioning, colors, etc. */
 
 html,
-body {
+body,
+#root {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
+  width: 100%;
 }
 
 body {

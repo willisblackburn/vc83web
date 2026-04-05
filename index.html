@@ -12,11 +12,18 @@
     <script>
       (function() {
         const viewport = document.getElementById('viewport-meta');
-        if (window.screen.width < 768) {
-          viewport.setAttribute('content', 'width=640, initial-scale=' + (window.screen.width / 640));
-        } else {
-          viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
-        }
+        const setViewport = () => {
+          const width = (window.outerWidth > 0) ? window.outerWidth : screen.width;
+          if (width < 640) {
+            // Force 640px viewport to trigger browser-side scaling
+            viewport.setAttribute('content', 'width=640, user-scalable=yes');
+          } else {
+            // Standard behavior for tablets (768px) and desktop (1024px)
+            viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
+          }
+        };
+        setViewport();
+        window.addEventListener('resize', setViewport);
       })();
     </script>
     <title>VC83</title>
