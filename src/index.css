@@ -630,14 +630,14 @@ table.pvm-table td:first-child {
   color: #fff;
 }
 
-.modal section p {
+.modal section .description {
   margin: 0.5rem 0 0;
   font-size: 0.95rem;
   color: var(--retro-gray-dim);
   line-height: 1.5;
 }
 
-.modal section:hover p {
+.modal section:hover .description {
   color: var(--retro-gray);
 }
 

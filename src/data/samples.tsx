@@ -1,7 +1,9 @@
+import type { ReactNode } from 'react';
+
 export interface SampleProgram {
   id: string;
   title: string;
-  description: string;
+  description: ReactNode;
   code: string;
 }
 
@@ -78,5 +80,43 @@ export const samples: SampleProgram[] = [
 50 NEXT I
 60 PRINT N;"! = ";F
 `
+  },
+  {
+    id: "baxter",
+    title: "Baxter Permutations",
+    description: (
+      <>
+        Calculates the number of Baxter permutations of length N. See <a href="https://oeis.org/A001181">OEIS A001181</a>;
+        W. M. Boyce, <a href="https://oeis.org/A001181/a001181_1.pdf">Generation of a class of permutations associated with commuting functions</a>,
+        and F. R. K. Chung, et al, <a href="https://doi.org/10.1016/0097-3165(78)90068-7">The Number of Baxter Permutations</a>.
+      </>
+    ),
+    code: `
+10 PRINT "BAXTER PERMUTATION CALCULATOR"
+20 INPUT "N? ";N
+30 IF N<1 THEN END
+40 M=N+1:S=0
+50 FOR K=1 TO N
+60 REM GET BINOMIALS FOR K-1, K, AND K+1
+70 L=K-1:GOSUB 200:C1=C
+80 L=K:GOSUB 200:C2=C
+90 L=K+1:GOSUB 200:C3=C
+100 S=S+(C1*C2*C3)
+110 NEXT K
+120 REM APPLY THE FINAL MULTIPLIER 2/(N*(N+1)^2)
+130 B=2*S/(N*M*M)
+140 PRINT "B(";N;") = ";B
+150 PRINT : GOTO 20
+160 END
+200 REM --- SUBROUTINE: BINOMIAL (M CHOOSE L) ---
+210 C=1:IF L<0 OR L>M THEN C=0:RETURN
+220 IF L=0 OR L=M THEN RETURN
+230 IF L>M/2 THEN L=M-L
+240 FOR I=1 TO L
+250 C=C*(M-I+1)/I
+260 NEXT I
+270 RETURN
+`
   }
 ];
+

@@ -28,7 +28,7 @@ const SamplePrograms: React.FC<SampleProgramsProps> = ({ isOpen, onClose, onSamp
               }}
             >
               <h2>{sample.title}</h2>
-              <p>{sample.description}</p>
+              <div className="description">{sample.description}</div>
             </section>
           ))}
         </main>
