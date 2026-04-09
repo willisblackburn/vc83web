@@ -87,7 +87,7 @@ export const samples: SampleProgram[] = [
     description: (
       <>
         Calculates the number of Baxter permutations of length N. See <a href="https://oeis.org/A001181">OEIS A001181</a>;
-        W. M. Boyce, <a href="https://oeis.org/A001181/a001181_1.pdf">Generation of a class of permutations associated with commuting functions</a>,
+        W. M. Boyce, <a href="https://oeis.org/A001181/a001181_1.pdf">Generation of a class of permutations associated with commuting functions</a>;
         and F. R. K. Chung, et al, <a href="https://doi.org/10.1016/0097-3165(78)90068-7">The Number of Baxter Permutations</a>.
       </>
     ),
