@@ -155,7 +155,6 @@ const Technical: React.FC = () => {
         <thead>
           <tr>
             <th>Pointer/Address</th>
-            <th>Region Name</th>
             <th>Description</th>
           </tr>
         </thead>
@@ -163,8 +162,10 @@ const Technical: React.FC = () => {
           {vc83MemoryBlocks.filter(b => !b.isSystem).map(block => (
             <tr key={block.address}>
               <td>{block.address}</td>
-              <td>{block.name}</td>
-              <td>{block.description}</td>
+              <td>
+                <h3 style={{ marginTop: 0, marginBottom: '0.5rem' }}>{block.name}</h3>
+                {block.description}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -308,7 +309,7 @@ const Technical: React.FC = () => {
             </td>
           </tr>
           <tr>
-            <td>MATCH_RANGE r1, r2, ...</td>
+            <td>MATCH_RANGE<br/>&nbsp;&nbsp;r1, r2, ...</td>
             <td>
               Each of <code>r1</code>, <code>r2</code>, etc. is a range of characters, written as <code>{'{'}start, end{'}'}</code>, where <code>start</code> and <code>end</code> are characters.
               If the character at <code>buffer_pos</code> is within any of the specified ranges, copy it to the tokenized line and increment both pointers; else <code>FAIL</code>.
@@ -603,94 +604,76 @@ pvm_name:
         <thead>
           <tr>
             <th>Function</th>
-            <th>Category</th>
-            <th>Description / Internal Logic</th>
+            <th>Description</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>fadd</td>
-            <td>Arithmetic</td>
             <td>Adds the value in <strong>FP1</strong> into <strong>FP0</strong>.</td>
           </tr>
           <tr>
             <td>fsub</td>
-            <td>Arithmetic</td>
             <td>Subtracts the value in <strong>FP1</strong> from <strong>FP0</strong>.</td>
           </tr>
           <tr>
             <td>fmul</td>
-            <td>Arithmetic</td>
             <td>Multiplies <strong>FP0</strong> by <strong>FP1</strong>.</td>
           </tr>
           <tr>
             <td>fdiv</td>
-            <td>Arithmetic</td>
             <td>Divides <strong>FP0</strong> by <strong>FP1</strong>; raises ERR_DIVIDE_BY_ZERO error if necessary.</td>
           </tr>
           <tr>
             <td>fcmp</td>
-            <td>Arithmetic</td>
             <td>Compares <strong>FP0</strong> and <strong>FP1</strong>; set Z and C flags for 6502 branches.</td>
           </tr>
           <tr>
             <td>fneg</td>
-            <td>Arithmetic</td>
             <td>Negates the value in <strong>FP0</strong> by toggling the sign bit.</td>
           </tr>
           <tr>
             <td>floor</td>
-            <td>Rounding</td>
             <td>Calculates the largest integer less than or equal to <strong>FP0</strong>.</td>
           </tr>
           <tr>
             <td>round</td>
-            <td>Rounding</td>
             <td>Rounds <strong>FP0</strong> to the nearest integer (round-half-up).</td>
           </tr>
           <tr>
             <td>int_to_fp</td>
-            <td>Conversion</td>
             <td>Converts a 16-bit signed integer (passed in <strong>AX</strong>) into <strong>FP0</strong>.</td>
           </tr>
           <tr>
             <td>truncate_fp_to_int</td>
-            <td>Conversion</td>
             <td>Truncates <strong>FP0</strong> to a 16-bit signed integer and returns it in <strong>AX</strong>.</td>
           </tr>
           <tr>
             <td>fsin</td>
-            <td>Trigonometry</td>
             <td>Calculates sine in radians using a Chebyshev polynomial fit for [-&pi;/2, &pi;/2].</td>
           </tr>
           <tr>
             <td>fcos</td>
-            <td>Trigonometry</td>
             <td>Calculates cosine by shifting the argument and invoking the <code>fsin</code> routine.</td>
           </tr>
           <tr>
             <td>ftan</td>
-            <td>Trigonometry</td>
             <td>Calculates tangent as the ratio of <code>fsin</code> to <code>fcos</code>.</td>
           </tr>
           <tr>
             <td>fatn</td>
-            <td>Trigonometry</td>
             <td>Calculates arctangent using a polynomial approximation over the range [0, 1].</td>
           </tr>
           <tr>
             <td>flog</td>
-            <td>Exponential</td>
             <td>Calculates the natural logarithm (ln) using a polynomial approximation and range reduction.</td>
           </tr>
           <tr>
             <td>fexp</td>
-            <td>Exponential</td>
             <td>Calculates <i>e</i><sup>x</sup> using the Taylor series expansion.</td>
           </tr>
           <tr>
             <td>fpow</td>
-            <td>Exponential</td>
             <td>General exponentiation (x<sup>y</sup>), calculated as <code>fexp(y * flog(x))</code>.</td>
           </tr>
         </tbody>
