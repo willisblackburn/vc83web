@@ -149,7 +149,7 @@ export const samples: SampleProgram[] = [
 180 NEXT J
 190 NEXT I
 200 PRINT "THE VALUE OF THE (";M;",";P;") URN IS:":PRINT "  ";V(P)
-210 GOTO 20
+210 CLR:GOTO 20
 220 END
 `
   }
