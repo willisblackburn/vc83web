@@ -9,11 +9,14 @@ import Emulator from './components/Emulator';
 import type { EmulatorHandle } from './components/Emulator';
 import Navigation from './components/Navigation';
 import SamplePrograms from './components/SamplePrograms';
+import Editor from './components/Editor';
 import ContentArea from './components/ContentArea';
 import type { SampleProgram } from './data/samples';
 
 const App: React.FC = () => {
   const [isSampleBrowserOpen, setIsSampleBrowserOpen] = useState(false);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editorCode, setEditorCode] = useState(() => localStorage.getItem('vc83_editor_code') || '');
   const emulatorRef = useRef<EmulatorHandle>(null);
   const location = useLocation();
 
@@ -28,6 +31,26 @@ const App: React.FC = () => {
     if (emulatorRef.current) {
       const fullText = `NEW\n${sample.code.trim()}\nRUN\n`;
       emulatorRef.current.pasteText(fullText);
+    }
+  };
+
+  const handleEditorChange = (code: string) => {
+    setEditorCode(code);
+    localStorage.setItem('vc83_editor_code', code);
+  };
+
+  const handleEditorUpload = () => {
+    if (emulatorRef.current && editorCode.trim()) {
+      const fullText = `NEW\n${editorCode.trim()}\n`;
+      emulatorRef.current.pasteText(fullText);
+    }
+  };
+
+  const handleEditorRun = () => {
+    if (emulatorRef.current && editorCode.trim()) {
+      const fullText = `NEW\n${editorCode.trim()}\nRUN\n`;
+      emulatorRef.current.pasteText(fullText);
+      setIsEditorOpen(false);
     }
   };
 
@@ -62,12 +85,20 @@ const App: React.FC = () => {
                 RESET
               </button>
             </div>
-            <button 
-              className="retro-button samples-trigger" 
-              onClick={() => setIsSampleBrowserOpen(true)}
-            >
-              Load sample...
-            </button>
+            <div className="software-buttons">
+              <button 
+                className="retro-button editor-trigger" 
+                onClick={() => setIsEditorOpen(true)}
+              >
+                <i className="fa-solid fa-edit"></i>
+              </button>
+              <button 
+                className="retro-button samples-trigger" 
+                onClick={() => setIsSampleBrowserOpen(true)}
+              >
+                Load sample...
+              </button>
+            </div>
           </div>
           
         <div className="attribution">
@@ -90,6 +121,15 @@ const App: React.FC = () => {
         isOpen={isSampleBrowserOpen}
         onClose={() => setIsSampleBrowserOpen(false)}
         onSampleClick={handleSampleClick} 
+      />
+
+      <Editor 
+        isOpen={isEditorOpen}
+        onClose={() => setIsEditorOpen(false)}
+        code={editorCode}
+        onChange={handleEditorChange}
+        onUpload={handleEditorUpload}
+        onRun={handleEditorRun}
       />
     </div>
   );
