@@ -191,8 +191,8 @@ const Technical: React.FC = () => {
           (with the high bit masked out) is the high byte of the length, followed by a low-byte byte.</li>
       </ul>
       <p>
-        Following the length is the name itself, stored as a sequence of ASCII characters. The 
-        <strong>last character</strong> of the name is marked by having its 
+        Following the length is the name itself, stored as a sequence of ASCII characters.
+        The <strong>last character</strong> of the name is marked by having its 
         high bit (bit 7) set. Any technical data associated with the name (such as PVM opcodes 
         for a statement or the 40-bit value of a numeric variable) immediately follows the 
         terminated name string.

@@ -92,7 +92,7 @@ export const samples: SampleProgram[] = [
       </>
     ),
     code: `
-10 PRINT "BAXTER PERMUTATION CALCULATOR"
+10 PRINT "BAXTER PERMUTATION CALCULATOR":PRINT "(BOYCE, 1967)"
 20 INPUT "N? ";N
 30 IF N<1 THEN END
 40 M=N+1:S=0
@@ -106,9 +106,9 @@ export const samples: SampleProgram[] = [
 120 REM APPLY THE FINAL MULTIPLIER 2/(N*(N+1)^2)
 130 B=2*S/(N*M*M)
 140 PRINT "B(";N;") = ";B
-150 PRINT : GOTO 20
+150 PRINT:GOTO 20
 160 END
-200 REM --- SUBROUTINE: BINOMIAL (M CHOOSE L) ---
+200 REM SUBROUTINE: BINOMIAL (M CHOOSE L)
 210 C=1:IF L<0 OR L>M THEN C=0:RETURN
 220 IF L=0 OR L=M THEN RETURN
 230 IF L>M/2 THEN L=M-L
@@ -116,6 +116,41 @@ export const samples: SampleProgram[] = [
 250 C=C*(M-I+1)/I
 260 NEXT I
 270 RETURN
+`
+  },
+  {
+    id: "urn",
+    title: "Urn Valuation",
+    description: (
+      <>
+        Calculates the maximum expected value of an urn containing M negative and P positive balls
+        by determining the optimal stopping strategy for a player trying to maximize their total score.
+        See W. M. Boyce, <a href="https://doi.org/10.1016/0012-365X(73)90123-4">On a Simple Optimal Stopping Problem</a>.
+      </>
+    ),
+    code: `
+10 PRINT "URN VALUE CALCULATOR":PRINT "(BOYCE, 1973)"
+20 INPUT "NUMBER OF MINUS BALLS (M)? ";M
+30 INPUT "NUMBER OF PLUS BALLS (P)? ";P
+40 DIM V(P)
+50 REM INITIAL STATE: 0 MINUS BALLS. VALUE IS THE NUMBER OF PLUS BALLS.
+60 FOR J=0 TO P
+70 V(J)=J
+80 NEXT J
+90 REM ITERATE THROUGH MINUS BALLS (I) AND PLUS BALLS (J)
+100 FOR I=1 TO M
+110 V(0)=0
+120 FOR J=1 TO P
+130 REM E=PROB(PLUS)*(1+V_NEXT)+PROB(MINUS)*(-1+V_PREV_ROW)
+140 E=(J/(I+J))*(1+V(J-1))+(I/(I+J))*(V(J)-1)
+150 REM IF EXPECTED VALUE IS NEGATIVE, STOP (VALUE=0)
+160 IF E<0 THEN V(J)=0:GOTO 180
+170 V(J)=E
+180 NEXT J
+190 NEXT I
+200 PRINT "THE VALUE OF THE (";M;",";P;") URN IS:":PRINT "  ";V(P)
+210 GOTO 20
+220 END
 `
   }
 ];
