@@ -295,9 +295,9 @@ const Manual: React.FC = () => {
 
       <h2>4. Variables and Types</h2>
 
-      <h3>Single Variables</h3>
+      <h3>Scalar Variables</h3>
       <p>
-        VC83 BASIC supports two fundamental types of data: <strong>numbers</strong> and <strong>strings</strong>.
+        VC83 BASIC supports two data types: <strong>numbers</strong> and <strong>strings</strong>.
       </p>
       <ul>
         <li><strong>Numbers</strong> are used for any numeric value, including integers and 

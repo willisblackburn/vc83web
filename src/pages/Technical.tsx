@@ -482,7 +482,7 @@ pvm_name:
           <tr>
             <td>32–39</td>
             <td>Exponent</td>
-            <td>8-bit biased exponent (excess-127). An exponent of 0 represents a value of zero.</td>
+            <td>8-bit biased exponent (excess-128). An exponent of 0 represents a value of zero.</td>
           </tr>
         </tbody>
       </table>

@@ -5,10 +5,9 @@ const Platforms: React.FC = () => {
     <>
       <h2>Porting to a New Platform</h2>
       <p>
-        VC83 BASIC is designed to be portable. To port the interpreter to a 
-        new 6502-based platform, follow these technical requirements.
+        We designed VC83 BASIC to be easy to adapt to new platforms, and, during development,
+        tested it on two, the sim6502 simulator, and the Apple II.
       </p>
-
       <h3>1. Linker Configuration (.cfg)</h3>
       <p>Create a custom <code>ld65</code> configuration file (e.g., <code>platform/platform.cfg</code>).</p>
       <ul>
