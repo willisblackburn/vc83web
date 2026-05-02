@@ -30,12 +30,12 @@ const Project: React.FC = () => {
         on the GitHub repository.
       </p>
       <p>
-        By contributing code to this project, you agree to license your contribution under the MIT License.
-      </p>
-      <p>
         Pull requests are welcome, but we can't guarantee that we'll merge them.
         To improve the chance of your contribution being accepted,
         please reach out or open an issue to discuss your proposed changes before starting work.
+      </p>
+      <p>
+        By contributing code to this project, you agree to license your contribution under the MIT License.
       </p>
     </>
   );
