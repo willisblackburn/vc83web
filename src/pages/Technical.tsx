@@ -491,7 +491,7 @@ pvm_name:
         the second byte contains bits 8-15, and so on. The exponent byte therefore occupies the last byte in memory.
       </p>
       <p>
-        For any non-zero exponent <code>e</code>, the actual mathematical exponent is <code>e-127</code>. 
+        For any non-zero exponent <code>e</code>, the actual mathematical exponent is <code>e-128</code>. 
         The actual significand includes an <strong>implied 1 bit</strong> to the left of the binary 
         point (e.g., <code>1.[fraction]</code>). This hidden bit allows the 31 bits of stored data 
         to provide 32 bits of precision.
