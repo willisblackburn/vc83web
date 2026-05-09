@@ -160,6 +160,38 @@ export const samples: SampleProgram[] = [
 210 CLR:GOTO 20
 220 END
 `
+  },
+  {
+    id: "mandelbrot",
+    title: "Mandelbrot Set",
+    description: "Plots the Mandelbrot set using Apple II low-resolution graphics.",
+    code: `
+10  GR:HOME
+20  PRINT "MANDELBROT SET (LO-RES)"
+30  MAXIT = 15:REM MAXIMUM ITERATIONS
+40  FOR PY = 0 TO 39
+50  FOR PX = 0 TO 39
+60  REM MAP SCREEN TO COMPLEX PLANE
+70  CA=(PX/39)*2.5-2.0
+80  CB=(PY/39)*2.4-1.2
+90  ZA=0:ZB=0
+100 FOR I=1 TO MAXIT
+110 REM Z=Z^2+C
+120 TZA=ZA*ZA-ZB*ZB+CA
+130 ZB=2*ZA*ZB+CB
+140 ZA=TZA
+150 REM CHECK IF MAGNITUDE > 2 (R^2 > 4)
+160 IF (ZA*ZA+ZB*ZB)>4 THEN POP:GOTO 200
+170 NEXT I
+180 COLOR 0:REM INSIDE SET = BLACK
+190 GOTO 210
+200 COLOR (I-INT(I/15)*15)+1:REM ESCAPED = COLOR
+210 PLOT PX,PY
+220 NEXT PX
+230 NEXT PY
+240 PRINT "DONE"
+250 END
+`
   }
 ];
 
