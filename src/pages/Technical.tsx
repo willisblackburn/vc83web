@@ -174,9 +174,8 @@ const Technical: React.FC = () => {
       <h2>Name Tables</h2>
       <p>
         The interpreter uses a specialized structure called a <strong>Name Table</strong> to store 
-        and look up strings of characters associated with data. This structure is used for everything 
-        from built-in statement keywords and function names to the variables and arrays defined 
-        by the user. 
+        and look up strings of characters associated with data. This structure is used for the 
+        Variable Name Table (VNT), Array Name Table (ANT), and the lexer's built-in keyword table.
       </p>
 
       <h3>Entry Format</h3>
@@ -188,23 +187,21 @@ const Technical: React.FC = () => {
       <ul>
         <li>If the high bit of the first byte is clear, the length is stored as a single byte (0–127).</li>
         <li>If the high bit is set, the length is a 16-bit value. The first byte 
-          (with the high bit masked out) is the high byte of the length, followed by a low-byte byte.</li>
+          (with the high bit masked out) is the high byte of the length, followed by a low byte.</li>
       </ul>
       <p>
         Following the length is the name itself, stored as a sequence of ASCII characters.
         The <strong>last character</strong> of the name is marked by having its 
-        high bit (bit 7) set. Any technical data associated with the name (such as PVM opcodes 
-        for a statement or the 40-bit value of a numeric variable) immediately follows the 
+        high bit (bit 7) set. Any data payload associated with the name (such as the 40-bit 
+        floating-point value of a numeric variable or a 16-bit string descriptor) immediately follows the 
         terminated name string.
       </p>
 
       <h3>Usage and Pointers</h3>
       <p>
-        The parser utilizes these tables to identify keywords during tokenization. While the 
-        Variable Name Table (VNT) and Array Name Table (ANT) map identifiers to their 
-        values, the built-in statement name table is unique because its data payload contains 
-        the PVM opcodes required to parse that specific statement.
-        (See the <a href="/technical#parser">Parser</a> section for more information about PVM opcodes.)
+        While the Variable Name Table (VNT) and Array Name Table (ANT) map identifiers to their 
+        current runtime values and dimension metadata, the lexer's <code>keywords</code> table maps statement, 
+        operator, and function names to single-byte token IDs based on their offsets within token blocks.
       </p>
       <p>
         Pointer management is handled through two zero page registers: <code>name_ptr</code>, which 
@@ -222,234 +219,325 @@ const Technical: React.FC = () => {
         numerical index.
       </p>
 
-      <h2 id="parser">Parser</h2>
+      <h2 id="lexer">Lexer (DFA Tokenization)</h2>
       <p>
-        The parser converts the BASIC source code into a tokenized representation that is stored in memory.
-        It reads input from <code>buffer</code> and outputs the tokenized program line to <code>line_buffer</code>.
-        The size of both buffers is 256 bytes, and the parser raises ERR_LINE_TOO_LONG if the parser tries to write
-        past the end of <code>line_buffer</code>. The input buffer is terminated by a 0 byte.
-        While parsing, the parser maintains two pointers:
+        Line processing begins with a dedicated, high-performance lexer (<code>lexer.s</code>). 
+        The lexer converts raw ASCII input characters in <code>buffer</code> into a stream of 
+        compact token codes and formatted literal values in <code>line_buffer</code>.
+      </p>
+      <p>
+        The lexer is powered by Deterministic Finite Automaton (DFA) state tables that are generated 
+        ahead of time from regular expression specifications using a Python build script 
+        (<code>generate_lexer_data.py</code>). The script uses Thompson's construction to build an NFA 
+        and powerset subset construction to compile it into an optimized DFA table (<code>lexer_data.inc</code>).
+      </p>
+
+      <h3>Token Ranges</h3>
+      <p>
+        Tokens are organized into contiguous classes to facilitate fast range checking in both the 
+        lexer and the parser:
+      </p>
+      <table className="pvm-table">
+        <thead>
+          <tr>
+            <th>Hex Range</th>
+            <th>Category</th>
+            <th>Description &amp; Examples</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>$00</code></td>
+            <td>End of Line</td>
+            <td><code>TOK_EOL</code> (statement/line terminator)</td>
+          </tr>
+          <tr>
+            <td><code>$01–$1F</code></td>
+            <td>Structural &amp; Values</td>
+            <td>
+              Delimiters (<code>,</code>, <code>;</code>, <code>(</code>, <code>)</code>, <code>:</code>, <code>NOT</code>, <code>THEN</code>, <code>TO</code>, <code>STEP</code>), 
+              value tokens (<code>TOK_NUM</code>, <code>TOK_SYMBOL</code>, <code>TOK_NAME</code>, <code>TOK_STRING</code>), 
+              and target-specific custom syntax keywords (e.g., <code>AT</code> at <code>$15</code>).
+            </td>
+          </tr>
+          <tr>
+            <td><code>$20–$2F</code></td>
+            <td>Binary Operators</td>
+            <td>
+              <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code>, <code>&amp;</code>, <code>=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>AND</code>, <code>OR</code>
+            </td>
+          </tr>
+          <tr>
+            <td><code>$30–$37</code></td>
+            <td>I/O Channels</td>
+            <td>Channel specifiers <code>#0</code> through <code>#7</code> (when I/O channels are enabled)</td>
+          </tr>
+          <tr>
+            <td><code>$40–$7F</code></td>
+            <td>Statements</td>
+            <td>
+              Core statement keywords (<code>PRINT</code>, <code>LET</code>, <code>FOR</code>, <code>NEXT</code>, <code>IF</code>, <code>INPUT</code>, <code>GOTO</code>, <code>DIM</code>, <code>DATA</code>, <code>POKE</code>, <code>RUN</code>, etc.) 
+              and platform extension statements (e.g., <code>CLS</code>, <code>GR</code>, <code>SOUND</code>).
+            </td>
+          </tr>
+          <tr>
+            <td><code>$80–$BF</code></td>
+            <td>Functions</td>
+            <td>
+              Built-in functions (<code>LEN</code>, <code>STR$</code>, <code>CHR$</code>, <code>ASC</code>, <code>VAL</code>, <code>PEEK</code>, <code>SIN</code>, <code>COS</code>, <code>RND</code>, <code>MID$</code>, <code>FRE</code>, <code>INKEY$</code>, etc.) 
+              and platform extension functions (e.g., <code>JOY</code>, <code>PDL</code>).
+            </td>
+          </tr>
+          <tr>
+            <td><code>$C0–$FF</code></td>
+            <td>PVM Opcodes</td>
+            <td>Parser Virtual Machine instructions (<code>MATCH</code>, <code>CALL</code>, <code>BRANCH_IF</code>, <code>RETURN</code>, etc.)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>DFA State Table Encoding</h3>
+      <p>
+        The state tables in <code>lexer_data.inc</code> are encoded compactly for the 6502:
       </p>
       <ul>
-        <li><code>buffer_pos</code>: The read position in <code>buffer</code></li>
-        <li><code>line_pos</code>: The write position in <code>line_buffer</code></li>
+        <li><strong>Byte 0:</strong> Terminal token tag. If the high bit (<code>CASE_INSENSITIVE = $80</code>) is set, 
+        the lexer automatically folds input characters <code>'a'..'z'</code> to uppercase <code>'A'..'Z'</code> before matching.</li>
+        <li><strong>Byte 1:</strong> Number of transition records (<em>N</em>) out of this state.</li>
+        <li><strong>N Transition Triplets (3 bytes each):</strong>
+          <ul>
+            <li><code>min_char</code>: Inclusive start ASCII character of the matching range.</li>
+            <li><code>count_chars</code>: Number of contiguous ASCII characters in the range.</li>
+            <li><code>target_state_id</code>: Byte offset of the destination state relative to <code>state_0</code>.</li>
+          </ul>
+        </li>
       </ul>
+
+      <h3>Token Value Formatting</h3>
       <p>
-        The entry point of the parser is <code>parse_line</code>, which handles the line number and statement separators.
-        Most of the work is done by <code>parse_statement,</code> which uses the Parser Virtual Machine (PVM) and a 
-        domain-specific language (DSL) to parse complete statements.
+        When <code>next_token</code> executes, it advances past whitespace, walks the DFA states matching input characters, 
+        and writes the output token and values into <code>line_buffer</code>:
+      </p>
+      <ul>
+        <li><strong>Numbers (<code>TOK_NUM</code>):</strong> Digits and optional decimal points/exponents are copied directly into the line buffer, with bit 7 set on the final character.</li>
+        <li><strong>Strings (<code>TOK_STRING</code>):</strong> The opening quote is replaced with a single-byte length prefix. The trailing quote is retained with bit 7 set, making <code>LIST</code> fast to execute.</li>
+        <li><strong>Keywords &amp; Identifiers (<code>TOK_NAME</code>, <code>TOK_SYMBOL</code>):</strong> The lexer searches the <code>keywords</code> name table using <code>find_name</code>. If a match is found, the token and characters in the buffer are replaced with the single-byte keyword token. If unmatched, it remains as a variable name or unresolved symbol with bit 7 set on the last character.</li>
+      </ul>
+
+      <h2 id="parser">Parser Virtual Machine (PVM)</h2>
+      <p>
+        Once a line is tokenized by the lexer, it is parsed by the <strong>Parser Virtual Machine (PVM)</strong>. 
+        The PVM is an <strong>LL(1) predictive recursive-descent parser</strong> that operates on the token stream.
       </p>
       <p>
-        Functions written in the PVM DSL are called rules. The PVM begins parsing at the <code>pvm_statement</code> rule.
-        PVM rules can invoke subrules using the <code>CALL</code> opcode, which is analogous to the 6502 <code>JSR</code> instruction.
-        When a rule completes, it returns to the caller using the <code>RETURN</code> opcode (analogous to <code>RTS</code>).
+        Because the dedicated lexer resolves keywords and operators into unambiguous single-byte tokens up front, 
+        the grammar of BASIC is LL(1). The PVM therefore operates <strong>without backtracking</strong> or savepoints. 
+        Parsing decisions are made deterministically by inspecting a single lookahead token held in CPU register <code>C</code>.
       </p>
-      <h3>Backtracking</h3>
+
+      <h3>PVM Execution Model</h3>
       <p>
-        The PVM supports backtracking, that is, abandoning a rule, or a stack of them, and returning to an earlier point to try an
-        alternative syntax path. The <code>TRY</code> opcode creates a savepoint for the current rule and sets an alternative
-        syntax handler.
-        If the rule fails, the PVM restores the savepoint and resumes execution from the <code>TRY</code> handler.
-        If the current rule doesn't have a savepoint, then the rule fails, but that failure may cause the invocation of 
-        a <code>TRY</code> handler in the calling rule, or any rule in the call chain above that.
-        Each rule can support only one savepoint at a time, so a single rule cannot have nested <code>TRY</code> blocks.
-        The program must use a subrule to manage the inner try block.
+        The parser entry point is <code>parse_line</code>, which reads optional line numbers and iteratively invokes 
+        <code>pvm_statement</code> for each colon-separated statement.
       </p>
       <p>
-        The <code>ACCEPT</code> opcode is used within a series of alternatives to accept the current alternative and skip over the others.
-        It clears the savepoint so that subsequent failures will not cause the PVM to discard the already-validated input.
-        Returning from a subrule implicitly <code>ACCEPT</code>s the input. Note that <code>ACCEPT</code>ing syntax in a rule does
-        not prevent another rule higher in the call chain from failing and causing the PVM to backtrack and discard the <code>ACCEPT</code>ed
-        input.
+        PVM rules are compact bytecode subroutines embedded in the assembly source. The interpreter loop (<code>run_pvm</code>) 
+        fetches opcodes from <code>pvm_program_ptr</code>:
       </p>
-      <h3>PVM Opcodes</h3>
+      <ul>
+        <li><strong>Single-Token Lookahead:</strong> <code>run_pvm_next_token</code> reads the next token from the lexer into register <code>C</code> and records buffer positions in <code>D</code> and <code>E</code> so unconsumed lookahead tokens can be preserved across rules.</li>
+        <li><strong>Rule Calls:</strong> The <code>CALL</code> opcode pushes the 16-bit PVM return address onto the 6502 hardware stack and jumps to a subrule. <code>RETURN</code> pops the return address and clears the carry flag to signal success.</li>
+        <li><strong>Deterministic Failure:</strong> If a syntax mismatch occurs, the PVM immediately fails the rule by setting the carry flag (<code>sec ; rts</code>). The failure propagates up the call stack, raising <code>ERR_SYNTAX_ERROR</code>.</li>
+      </ul>
+
+      <h3>PVM Opcode Reference</h3>
       <p>
-        The PVM DSL consists of opcodes defined as assembler macros and embedded in the assembly language source.
-        Opcodes instruct the parser to match characters in the input and copy them to the tokenized program line, apply transformations
-        to the tokenized program, and resolve alternative syntax paths. The PVM reads opcodes from <code>pvm_program_ptr</code> and
-        executes them in sequence.
-      </p>
-      <p>
-        PVM opcodes are designed to be as compact as possible, with each one being one or two bytes in length, except 
-        the <code>MATCH_RANGE</code> opcode, which requires two bytes plus two additional bytes for each range. All addresses
-        in the DSL are offsets relative to <code>pvm_program_ptr</code> and are limited to 6 bits
-        (<code>TRY</code>, <code>ACCEPT</code>) or
-        12 bits (<code>JUMP</code>, <code>CALL</code>, <code>TOKENIZE</code>). The 6-bit offsets supported
-        by <code>TRY</code> and <code>ACCEPT</code> are adequate
-        because those opcodes are used for implementing alternative syntax paths within a single rule.
+        PVM opcodes are designed for maximum density. Instruction jump targets use 10-bit signed relative offsets 
+        (−512 to +511 bytes relative to the instruction), allowing compact 2-byte branch and call instructions:
       </p>
       <table className="pvm-table">
         <thead>
           <tr>
             <th>Opcode</th>
+            <th>Encoding</th>
+            <th>Bytes</th>
             <th>Description</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>MATCH char</td>
+            <td><code>MATCH token</code></td>
+            <td><code>$00–$BF</code></td>
+            <td>1</td>
             <td>
-              If the character at <code>buffer_pos</code> matches <code>char</code>, 
-              copy it to the tokenized line and increment both pointers; 
-              else <code>FAIL</code>.
-              The 0 at the end of the input buffer never matches.
+              Matches lookahead token <code>C</code> against <code>token</code>. If it matches, advances to the next token via <code>next_token</code>. If it does not match, fails the rule (sets carry and returns).
             </td>
           </tr>
           <tr>
-            <td>MATCH s</td>
+            <td><code>MATCH_RANGE min, count</code></td>
+            <td><code>$C0–$CF, min</code></td>
+            <td>2</td>
             <td>
-              Matches an entire string <code>s</code>.
-              Exactly equivalent to a sequence of <code>MATCH char</code> opcodes for each character in <code>s</code>.
+              Matches lookahead token <code>C</code> if <code>min &le; C &lt; min + count</code> (count 1–16). On match, advances to the next token; otherwise fails the rule.
             </td>
           </tr>
           <tr>
-            <td>MATCH *</td>
+            <td><code>CALL address</code></td>
+            <td><code>$D0–$D3, offset_lo</code></td>
+            <td>2</td>
             <td>
-              Matches any character except the 0 at the end of the input buffer.
+              Pushes the next PVM address onto the 6502 CPU stack and jumps to <code>address</code> (10-bit signed relative offset). If the called rule returns failure (carry set), the caller immediately fails.
             </td>
           </tr>
           <tr>
-            <td>MATCH_RANGE<br/>&nbsp;&nbsp;r1, r2, ...</td>
+            <td><code>JUMP address</code></td>
+            <td><code>$D4–$D7, offset_lo</code></td>
+            <td>2</td>
             <td>
-              Each of <code>r1</code>, <code>r2</code>, etc. is a range of characters, written as <code>{'{'}start, end{'}'}</code>, where <code>start</code> and <code>end</code> are characters.
-              If the character at <code>buffer_pos</code> is within any of the specified ranges, copy it to the tokenized line and increment both pointers; else <code>FAIL</code>.
+              Unconditionally jumps to <code>address</code> (10-bit signed relative offset) and resumes execution.
             </td>
           </tr>
           <tr>
-            <td>JUMP address</td>
+            <td><code>BRANCH_IF token, address</code></td>
+            <td><code>$D8–$DB, offset_lo, token</code></td>
+            <td>3</td>
             <td>
-              Unconditionally sets <code>pvm_program_ptr</code> to <code>address</code> and resumes execution from that point.
+              If lookahead token <code>C</code> matches <code>token</code>, consumes the token (advances to next token) and branches to <code>address</code>. Otherwise, does not consume the token and continues to the next PVM instruction.
             </td>
           </tr>
           <tr>
-            <td>CALL address</td>
+            <td><code>BRANCH_IF_RANGE min, count, address</code></td>
+            <td><code>$D8–$DB, offset_lo, range_byte, min</code></td>
+            <td>4</td>
             <td>
-              Invokes a subrule by pushing the address of the next opcode onto the stack, then performing <code>JUMP</code> to <code>address</code>.
-              The PVM resumes execution from that point, until reaching a <code>RETURN</code> opcode.
+              Range variant of <code>BRANCH_IF</code>. If lookahead token <code>C</code> is within the specified range, consumes the token and branches to <code>address</code>.
             </td>
           </tr>
           <tr>
-            <td>RETURN</td>
+            <td><code>RETURN</code></td>
+            <td><code>$F0</code></td>
+            <td>1</td>
             <td>
-              Returns from a <code>CALL</code> opcode by popping the return address from the stack and resuming execution from that point.
-              Returning from the initial PVM rule accepts the statement.
+              Returns from a subrule with success (clears carry and executes <code>rts</code>).
             </td>
           </tr>
           <tr>
-            <td>FAIL</td>
+            <td><code>GUARD token</code></td>
+            <td><code>$F1, token</code></td>
+            <td>2</td>
             <td>
-              Fails the current parsing attempt. If the current rule has a savepoint, the PVM restores the savepoint and resumes
-              execution from the <code>TRY</code> handler. Otherwise, the PVM abandons the current rule and looks for a savepoint in the caller
-              rule, and then the caller's caller, and so on, up the call stack. If no savepoint is found, the statement fails to parse.
+              If lookahead token <code>C</code> matches <code>token</code>, terminates the current rule and returns success (carry clear) <strong>without</strong> consuming the token. Otherwise continues to the next instruction.
             </td>
           </tr>
           <tr>
-            <td>TRY address</td>
+            <td><code>GUARD_RANGE min, count</code></td>
+            <td><code>$F1, range_byte, min</code></td>
+            <td>3</td>
             <td>
-              Creates a savepoint for the current rule by recording the current values of <code>buffer_pos</code> and <code>line_pos</code>, and setting the <code>TRY</code> handler
-              to <code>address</code>. If the rule fails, the PVM restores the savepoint and resumes execution from the <code>TRY</code> handler.
+              Range variant of <code>GUARD</code>. Returns success without consuming if <code>C</code> falls within the range.
             </td>
           </tr>
           <tr>
-            <td>ACCEPT address</td>
+            <td><code>SLURP</code></td>
+            <td><code>$F2</code></td>
+            <td>1</td>
             <td>
-              Accepts the input up to the current position by discarding the current rule's savepoint (if any), then
-              performs <code>JUMP</code> to <code>address</code>.
-              Using <code>ACCEPT</code> ensures that any subsequent parsing failures will cause the rule to fail rather than invoke the <code>TRY</code> handler.
+              Directly copies raw un-tokenized characters from <code>buffer</code> to <code>line_buffer</code> until a NUL byte is reached. Used by <code>REM</code> and <code>DATA</code> statements to bypass the lexer.
             </td>
           </tr>
           <tr>
-            <td>EMIT char</td>
+            <td><code>FAIL</code></td>
+            <td><code>$FF</code></td>
+            <td>1</td>
             <td>
-              Writes <code>char</code> to the output buffer.
-            </td>
-          </tr>
-          <tr>
-            <td>COMPOSE char</td>
-            <td>
-              ORs <code>char</code> with the most recently written byte in the output buffer.
-            </td>
-          </tr>
-          <tr>
-            <td>WS</td>
-            <td>
-              Reads and discards whitespace from the input buffer.
-            </td>
-          </tr>
-          <tr>
-            <td>ARGSEP</td>
-            <td>
-              Matches optional whitespace followed by a comma (<code>,</code>).
-            </td>
-          </tr>
-          <tr>
-            <td>TOKENIZE address</td>
-            <td>
-              Matches a previously-parsed sequence of characters against the contents of the name table at <code>address</code>.
-              The start of the sequence is determined by the current rule's savepoint, therefore, the rule must 
-              use <code>TRY</code> to set up the savepoint before parsing the sequence to be tokenized. If the sequence matches a name in the table, 
-              the PVM replaces the sequence in the output buffer with the index number of the matched name table entry.               
-            </td>
-          </tr>
-          <tr>
-            <td>DISPATCH</td>
-            <td>
-              If the name table entry matched by a previous <code>TOKENIZE</code> operation contains data
-              following the name, then perform a <code>JUMP</code> to the first byte of that data. If the name table entry does not
-              contain any data following the name, then <code>RETURN</code>. Note that, either way, the opcode
-              following <code>DISPATCH</code> is not reached.
+              Unconditionally sets the carry flag and returns, failing the current parse.
             </td>
           </tr>
         </tbody>
       </table>
 
-      <h3>PVM Examples</h3>
+      <h3>PVM Grammar Examples</h3>
       <p>
-        The following example implements the rule for parsing a statement name. It attempts to 
-        match a literal question mark (a shortcut for the <code>PRINT</code> statement). If that 
-        fails, it backtracks to the savepoint created by <code>TRY</code> and invokes 
-        the <code>pvm_name</code> subrule to match an alphanumeric name.
+        The following excerpt from <code>parser.s</code> illustrates how <code>pvm_statement</code> dispatches 
+        statements deterministically using <code>BRANCH_IF</code>:
       </p>
-      <div className="example">{`pvm_statement_name:
-    TRY pvm_name
-    MATCH '?'
-    RETURN
-
-pvm_name:
-    MATCH_RANGE {'A', 'Z'}
-@next:
-    TRY @done
-    MATCH_RANGE {'A', 'Z'}, {'0', '9'}, {'_', '_'}
-    ACCEPT @next
+      <div className="example">{`pvm_statement:
+        BRANCH_IF TOK_PRINT, pvm_print
+        BRANCH_IF TOK_ALT_PRINT, pvm_print
+        BRANCH_IF TOK_LET, pvm_let
+        BRANCH_IF TOK_NAME, pvm_impl_let        ; Implied LET: name followed by '='
+        BRANCH_IF TOK_FOR, pvm_for
+        BRANCH_IF TOK_NEXT, pvm_next
+        BRANCH_IF TOK_IF, pvm_if
+        BRANCH_IF TOK_INPUT, pvm_input
+        BRANCH_IF TOK_READ, pvm_read
+        BRANCH_IF TOK_ON, pvm_on
+        BRANCH_IF TOK_GOTO, pvm_goto
+        BRANCH_IF TOK_GOSUB, pvm_gosub
+        BRANCH_IF TOK_LIST, pvm_list
+        BRANCH_IF TOK_POKE, pvm_arg_2
+        BRANCH_IF TOK_DPOKE, pvm_arg_2
+        BRANCH_IF TOK_DIM, pvm_read
+        BRANCH_IF TOK_DATA, pvm_data
+        BRANCH_IF TOK_REM, pvm_rem
+        BRANCH_IF TOK_RESTORE, pvm_restore
+        BRANCH_IF_RANGE TOK_RUN, 8, @done       ; Any no-arg statement (RUN..POP)
+        ...
+        invoke_if_defined extension_pvm_statements
+        FAIL
 @done:
-    RETURN`}</div>
+        RETURN`}</div>
 
       <p>
-        The <code>pvm_name</code> subrule uses a loop for matching an alphanumeric 
-        identifier. It mandates that the identifier starts with a letter using <code>MATCH_RANGE</code>. 
-        Then, it uses a <code>TRY-ACCEPT</code> loop to repeatedly match characters (A-Z, 0-9, or underscore) 
-        until a non-name character is encountered. When matching fails, the PVM backtracks to
-        the <code>@done</code> handler to return, terminating the loop.
+        Statement rules invoke subrules for argument validation. For example, <code>pvm_for</code> verifies the 
+        <code>variable = expr TO expr [STEP expr]</code> structure:
       </p>
-      
+      <div className="example">{`pvm_for:
+        MATCH TOK_NAME
+        MATCH TOK_EQ
+        CALL pvm_expression
+        MATCH TOK_TO
+        CALL pvm_expression
+        BRANCH_IF TOK_STEP, pvm_expression
+        RETURN`}</div>
+
       <p>
-        In this second example, a simplified version of the main statement parser uses 
-        a savepoint to capture and tokenize keyword. The <code>TOKENIZE</code> opcode matches the 
-        text captured by <code>pvm_statement_name</code> against a name table of statement keywords and replaces it with a one-byte token. Finally, 
-        the rule jumps to a fictitious <code>pvm_args</code> rule to handle the rest of the statement.
-        If the PVM fails to parse a statement name, or the name isn't found in the name table, the parse
-        fails, invoking the <code>TRY</code> handler <code>@fail</code> and failing the rule.
-        Although the <code>TRY</code> handler simply invokes <code>FAIL</code>, creating the savepoint
-        was necessary to set the start of the statement name for the <code>TOKENIZE</code> operation.
+        The <code>PRINT</code> statement demonstrates how <code>GUARD</code> allows cleanly exiting a repetition loop 
+        when a statement delimiter (<code>:</code> or <code>EOL</code>) is encountered without consuming it:
       </p>
-      <div className="example">{`pvm_simple_statement:
-    WS
-    TRY @fail
-    CALL pvm_statement_name
-    TOKENIZE keyword_table
-    JUMP pvm_args
-@fail:
-    FAIL`}</div>
+      <div className="example">{`pvm_print:
+.ifdef enable_io_channels
+        CALL pvm_channel
+.endif
+@loop:
+        BRANCH_IF TOK_SEMI, @loop
+        BRANCH_IF TOK_COMMA, @loop
+        GUARD TOK_COLON                 ; Exit PRINT without consuming ':'
+        GUARD TOK_EOL                   ; Exit PRINT without consuming EOL
+        CALL pvm_expression             ; Otherwise it must be an expression
+        BRANCH_IF TOK_SEMI, @loop
+        BRANCH_IF TOK_COMMA, @loop
+        GUARD TOK_COLON
+        GUARD TOK_EOL
+        FAIL`}</div>
+
+      <p>
+        Expressions and helper rules are parsed with tight recursive descent:
+      </p>
+      <div className="example">{`pvm_expression:
+        CALL pvm_primary_expression
+        BRANCH_IF_RANGE TOK_ADD, 14, pvm_expression
+        RETURN
+
+pvm_arg_2:
+        CALL pvm_expression
+        MATCH TOK_COMMA
+        JUMP pvm_expression
+
+pvm_arg_list:
+        CALL pvm_expression
+        BRANCH_IF TOK_COMMA, pvm_arg_list
+        RETURN`}</div>
 
       <h2>Floating Point Support</h2>
       <p>

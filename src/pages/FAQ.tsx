@@ -44,7 +44,7 @@ const FAQ_ITEMS: FaqItem[] = [
           simple keyword substitution during line entry, replacing recognized statement names 
           with 1-byte tokens without performing a full syntax validation. This means that syntax 
           errors are not detected until the program is executed. VC83 BASIC instead 
-          uses a dedicated <strong>Parser Virtual Machine (PVM)</strong> with a grammar is defined in a compact domain-specific 
+          uses a dedicated <strong>Parser Virtual Machine (PVM)</strong> and DFA-based lexer with a grammar defined in a compact domain-specific 
           language (DSL) to perform a complete syntax check at the time of entry. This enables early
           detection of errors and eliminates the need to handle invalid syntax at runtime.
         </p>
@@ -139,11 +139,10 @@ const FAQ_ITEMS: FaqItem[] = [
     question: "Can I make VC83 BASIC accept keywords in lowercase?",
     answer: (
       <p>
-        This is probably a simple change that we'd be happy to include in the core interpreter. Probably the
-        best way would to add a TOUPPER opcode to the PVM and just invoke it in the <code>pvm_name</code> rule.
-        This would convert keywords and variable names to uppercase while leaving strings 
-        and <code>DATA</code>/<code>REM</code> lines alone. This is the advantage of having a syntax-aware
-        parser!
+        VC83 BASIC already accepts keywords and variable names in lowercase! The dedicated 
+        lexer uses DFA state tables generated with a <code>CASE_INSENSITIVE</code> flag that automatically 
+        folds lowercase <code>a-z</code> to uppercase <code>A-Z</code> during identifier and keyword tokenization. 
+        Strings and raw text in <code>DATA</code>/<code>REM</code> statements remain untouched.
       </p>
     )
   },

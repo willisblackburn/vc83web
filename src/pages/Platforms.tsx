@@ -78,7 +78,7 @@ const Platforms: React.FC = () => {
         <li><strong>Linker Configuration:</strong> Create an <code>ld65</code> <code>.cfg</code> file defining memory regions.</li>
         <li><strong>Memory Allocation:</strong> Carve out zero-page space and RAM for buffers/stacks.</li>
         <li><strong>Initialization:</strong> Write a <code>startup</code> routine to handle CPU RESET and invoke the main loop.</li>
-        <li><strong>Mandatory I/O:</strong> Implement <code>readline</code>, <code>write</code>, <code>putch</code>, and <code>newline</code>.</li>
+        <li><strong>Mandatory I/O:</strong> Implement <code>io_get</code>, <code>io_put</code>, <code>io_read_record</code>, <code>io_end_record</code>, <code>io_end_field</code>, <code>io_save</code>, and <code>io_load</code>.</li>
         <li><strong>Makefile Integration:</strong> Add the platform to the build system.</li>
       </ol>
 
@@ -190,82 +190,111 @@ startup:
 initialize_target:
         jmp     display_startup_banner  ; Provided by the core`}</div>
 
-      <h3>Mandatory I/O Functions</h3>
+      <h3>Mandatory Platform I/O Functions</h3>
       <p>
-        To interact with the user, you must implement four mandatory I/O routines. These translate VC83 BASIC's standard I/O 
-        requests into your platform's specific ROM/OS calls or direct hardware manipulation.
+        To interact with hardware and storage, a platform target implements the standard <code>io_*</code> driver routines. 
+        These translate VC83 BASIC's I/O operations into platform ROM calls, memory-mapped device accesses, or simulator traps.
       </p>
 
-      <h4>putch</h4>
+      <h4>io_get</h4>
       <p>
-        Outputs a single character passed in the <code>A</code> register.
+        Reads a single byte or keystroke from the channel specified in the <code>channel</code> variable (where <code>$80</code> represents the default console).
       </p>
+      <ul>
+        <li><code>A = 0</code>: Blocking mode (waits until a character is ready).</li>
+        <li><code>A = 1</code>: Non-blocking mode (used by the <code>INKEY$</code> function; returns immediately if no key is pending).</li>
+      </ul>
       <p>
-        <strong>Break checking:</strong> The <code>putch</code> routine is an excellent place to poll the keyboard 
-        for an interrupt sequence (like <code>CTRL-C</code> or <code>ESC</code>), allowing the user to halt a runaway program. 
-        Break keys are entirely platform-specific. If a break is detected, you should jump to the <code>on_raise</code> error 
-        handler with <code>ERR_STOPPED</code>. Make sure to only poll when a program is actually running (by 
-        checking <code>program_state</code>) to avoid eating characters typed at the <code>READY.</code> prompt!
+        <strong>Returns:</strong> Carry clear (<code>C=0</code>) and the byte in <code>A</code> on success; carry set (<code>C=1</code>) on EOF, error, or if no key was pressed in non-blocking mode.
       </p>
-<div className="example">{`putch:
-        pha                             ; Save character to output
-        lda     program_state           ; Only poll keyboard while a program is running
-        bne     @output                 ; PS_READY (non-zero): skip break check
-        
-        jsr     Chrin                   ; Platform specific: non-blocking keyboard poll
-        bcc     @output                 ; Nothing in the buffer
-        cmp     #CH_ESC                 ; Is it the ESC key?
-        bne     @output                 
-@break:
-        pla                             ; Discard the saved character
-        lda     #ERR_STOPPED
-        jmp     on_raise                ; Halt interpreter
-@output:
-        pla                             ; Restore character
-        jmp     CHROUT                  ; Platform specific: print character`}</div>
-
-      <h4>newline</h4>
-      <p>
-        Outputs a carriage return and/or line feed, advancing the cursor to the next line.
-        Note that VC83 BASIC does not assume that the output device supports any control
-        characters and will always call newline at the end of each line of output.
-      </p>
-<div className="example">{`newline:
-        lda     #CH_CR
-        jsr     putch
-        lda     #CH_LF
-        jmp     putch`}</div>
-
-      <h4>write</h4>
-      <p>
-        Outputs a string of characters of a known length. The address of the string is in <code>AX</code> (A = low byte, 
-        X = high byte), and the length is in <code>Y</code>.
-      </p>
-<div className="example">{`write:
-        stax    BC                      ; Store pointer in zero-page virtual register BC
-        tya
-        tax                             ; X = length counter
-        beq     @done
-        ldy     #0
-@next:
-        lda     (BC),y
-        jsr     putch
-        iny
-        dex
-        bne     @next
-@done:
+<div className="example">{`io_get:
+        cmp     #1                      ; Non-blocking mode (INKEY$)?
+        beq     @non_blocking
+@wait_key:
+        jsr     Chrin                   ; Blocking poll until key pressed
+        bcc     @wait_key
+        clc
+        rts
+@non_blocking:
+        jsr     Chrin                   ; C=1 if char available
+        bcs     @got_key
+        sec                             ; C=1 -> no key
+        rts
+@got_key:
+        clc
         rts`}</div>
 
-      <h4>readline</h4>
+      <h4>io_put</h4>
       <p>
-        Reads a line of text from the user into <code>buffer</code>.
-        It must handle backspaces, ignore unprintable control characters, echo characters to the screen, and null-terminate 
-        the string upon receiving a Carriage Return. It must return the length of the string in the <code>A</code> register.
+        Outputs a single character passed in the <code>A</code> register to the destination in <code>channel</code>.
       </p>
+      <p>
+        <strong>Break Checking:</strong> <code>io_put</code> is an ideal location to poll for break keys 
+        (such as <code>ESC</code> or <code>CTRL-C</code>) while a program is actively running. If detected, 
+        invoke <code>raise ERR_STOPPED</code> to halt execution. Make sure to check that <code>program_state</code> is 
+        <code>PS_RUNNING</code> (0) so break polling does not consume keys typed at the <code>READY.</code> prompt.
+      </p>
+<div className="example">{`io_put:
+        pha                             ; Save character to output
+        lda     program_state           ; Only poll break key while program is running
+        bne     @output                 ; PS_READY (non-zero): skip break check
+        
+        jsr     Chrin                   ; Non-blocking keyboard poll
+        bcc     @output                 ; No key waiting
+        cmp     #CH_ESC
+        beq     @break
+        cmp     #CH_CTRLC
+        bne     @output
+@break:
+        pla                             ; Discard character
+        raise   ERR_STOPPED             ; Halt interpreter
+@output:
+        pla                             ; Restore character
+        jmp     Chrout                  ; Platform-specific character output`}</div>
+
+      <h4>io_read_record</h4>
+      <p>
+        Reads an entire line of text from the console into <code>buffer</code>. 
+        It handles interactive line editing (backspace/delete), echoes typed characters, and terminates the string with a 
+        NUL byte (<code>$00</code>) upon receiving Carriage Return. It returns the string length in <code>A</code> with carry clear (or carry set on EOF).
+      </p>
+
+      <h4>io_end_record</h4>
+      <p>
+        Outputs the record delimiter (Carriage Return and/or Line Feed) on the active channel.
+      </p>
+<div className="example">{`io_end_record:
+        lda     #CH_CR
+        jsr     io_put
+        lda     #CH_LF
+        jmp     io_put`}</div>
+
+      <h4>io_end_field</h4>
+      <p>
+        Outputs a field separator (advancing the cursor to the next 8- or 16-column print zone) on the active channel.
+      </p>
+
+      <h4>io_save and io_load</h4>
+      <p>
+        Persist and load BASIC program memory to and from storage. The filename descriptor is provided in <code>S0</code> (and <code>BC</code>). 
+        The routine returns with carry clear (<code>C=0</code>) on success or carry set (<code>C=1</code>) on I/O error. 
+        If persistent storage is not supported on a platform, simply return with <code>sec ; rts</code>.
+      </p>
+
+      <h4>Optional Channel I/O (enable_io_channels)</h4>
+      <p>
+        When <code>enable_io_channels</code> is enabled, platforms can implement file/device streams:
+      </p>
+      <ul>
+        <li><code>io_open</code>: Opens a channel (<code>channel = 0..7</code>, <code>A = mode</code>, <code>S0 = filename</code>).</li>
+        <li><code>io_close</code>: Closes the specified <code>channel</code>.</li>
+        <li><code>io_close_all</code>: Closes all open channels.</li>
+        <li><code>io_xio</code>: Executes device-specific control commands (<code>A = command</code>, <code>BC = arg1</code>, <code>DE = arg2</code>).</li>
+      </ul>
 
       <h3>Makefile Integration</h3>
       <p>
-        Finally, wire your platform into the root <code>Makefile</code>:
+        Wire your platform into the root <code>Makefile</code>:
       </p>
       <ol>
         <li>Add your platform name to the <code>TARGETS</code> variable.</li>
@@ -283,8 +312,7 @@ basic_myplatform: basic_myplatform.o
 	cl65 -t none -C myplatform/myplatform.cfg $(LDFLAGS) -o $@ $<
 	$(PRINT_SIZE)`}</div>
       <p>
-        Your <code>basic_myplatform.s</code> file is simply a wrapper that includes the core files and your platform files 
-        in the correct order:
+        Your <code>basic_myplatform.s</code> file includes the core files and platform components in order:
       </p>
 <div className="example">{`.include "basic.s"
 .include "main.s"
@@ -297,135 +325,165 @@ basic_myplatform: basic_myplatform.o
 
       <h2>Adding Statements and Functions</h2>
       <p>
-        You can add platform-specific statements (like <code>GR</code> for graphics) 
-        and functions (like <code>PDL(n)</code> to read a paddle).
+        VC83 BASIC provides a clean macro-based plugin system that allows targets to add custom statements 
+        (e.g., <code>SOUND</code>, <code>CLS</code>, <code>PLOT</code>) and functions (e.g., <code>JOY(n)</code>, <code>PDL(n)</code>) 
+        without altering the core codebase.
       </p>
 
-      <h3>The Parsing Architecture</h3>
+      <h3>Architecture Overview</h3>
       <p>
-        The interpreter uses a pseudo-virtual machine (PVM) to parse incoming text into executable bytecode. When the parser 
-        encounters a word it doesn't recognize as a core keyword, it searches the extension tables.
+        Extending the interpreter involves four modular components defined in <code>myplatform_extension.s</code>:
       </p>
+      <ol>
+        <li><strong>Keywords:</strong> Register keyword names into the lexer keyword table.</li>
+        <li><strong>PVM Grammar Rules:</strong> Add LL(1) parsing rules to validate statement and function syntax.</li>
+        <li><strong>Dispatch Vectors:</strong> Register the execution routines in split low/high pointer tables.</li>
+        <li><strong>Dispatch Flags:</strong> Configure automated prolog/epilog stack handling using 4-bit metadata.</li>
+      </ol>
+
+      <h3>Step 1: Register Keywords and Token IDs</h3>
       <p>
-        These tables are defined in your <code>myplatform_extension.s</code> file in the <code>PARSER</code> segment. 
-        You define the string name of the command, followed by a sequence of PVM instructions that describe how its arguments 
-        should be parsed.
+        Define token constants in the target range (<code>$60–$7F</code> for statements, <code>$99–$BF</code> for functions, 
+        or <code>$15–$1F</code> for custom syntax delimiters) and append them to the lexer tables using macros:
       </p>
+<div className="example">{`TOK_SOUND   = $61
+TOK_JOY     = $99
 
-      <h3>Adding a Statement</h3>
+.macro extension_statement_keywords
+:       name_table_entry "SOUND"
+.endmacro
+
+.macro extension_function_keywords
+:       name_table_entry "JOY"
+.endmacro`}</div>
+
+      <h3>Step 2: Define PVM Parser Grammar Rules</h3>
       <p>
-        Let's add a <code>SOUND dur, freq</code> statement.
+        Hook into the LL(1) PVM parser to validate statement argument syntax. The PVM dispatches with <code>BRANCH_IF</code>:
       </p>
+<div className="example">{`.macro extension_pvm_statements
+        BRANCH_IF TOK_SOUND, pvm_arg_3          ; Parses three comma-separated expressions
+.endmacro
+
+.macro extension_pvm_functions
+        BRANCH_IF TOK_JOY, pvm_fun_1            ; Parses 1 argument in parentheses: JOY(n)
+.endmacro`}</div>
       <p>
-        First, add it to the <code>ex_statement_name_table</code>:
+        If your statement requires unique syntax structure, you can add custom PVM helper rules via 
+        the <code>extension_parser_code</code> macro:
       </p>
-<div className="example">{`.segment "PARSER"
+<div className="example">{`.macro extension_parser_code
+pvm_arg_4:
+        CALL    pvm_expression
+        MATCH   TOK_COMMA
+        JUMP    pvm_arg_3
+.endmacro`}</div>
 
-ex_statement_name_table:
-        name_table_entry "SOUND"
-            JUMP pvm_arg_2          ; PVM helper that parses exactly two comma-separated expressions
-:       name_table_end`}</div>
-
+      <h3>Step 3: Define Dispatch Vectors</h3>
       <p>
-        Next, define the execution vector in the <code>XVEC</code> segment. The order of vectors here 
-        <strong>must exactly match</strong> the order of entries in the name table. The vector should point to your implementation routine minus one (as required by 
-        6502 <code>RTS</code> dispatching).
+        Provide split low-byte and high-byte vector tables. Each vector points to your execution routine minus one 
+        (for 6502 <code>RTS</code> dispatching):
       </p>
-<div className="example">{`.segment "XVEC"
+<div className="example">{`.macro extension_statement_vectors_l
+        .byte   <(exec_sound-1)
+.endmacro
 
-ex_statement_vectors:
-        .word   exec_sound-1`}</div>
+.macro extension_statement_vectors_h
+        .byte   >(exec_sound-1)
+.endmacro
 
+.macro extension_function_vectors_l
+        .byte   <(fun_joy-1)
+.endmacro
+
+.macro extension_function_vectors_h
+        .byte   >(fun_joy-1)
+.endmacro`}</div>
+
+      <h3>Step 4: Configure Prolog &amp; Epilog Flags</h3>
       <p>
-        Finally, write the execution routine. Statements are responsible for evaluating their own arguments at runtime. You do 
-        this by calling <code>evaluate_argument_list</code>, which pushes the results onto the operator stack. You then pop 
-        the arguments in reverse order (since it's a stack).
+        VC83 BASIC features an automated stack dispatch mechanism. Each statement and function can configure a 4-bit 
+        metadata nibble (packed two entries per byte) to eliminate argument evaluation and return-value boilerplate:
       </p>
-<div className="example">{`.code
+      <ul>
+        <li><strong>Prolog (Bits 2–3):</strong>
+          <ul>
+            <li><code>PROLOG_NONE</code> (<code>$00</code>): Handler evaluates arguments manually.</li>
+            <li><code>PROLOG_POP_FP</code> (<code>$04</code>): Evaluates expression and pops 40-bit float into <code>FP0</code>.</li>
+            <li><code>PROLOG_POP_INT</code> (<code>$08</code>): Evaluates expression and pops 16-bit integer into <code>AX</code> (A=lo, X=hi).</li>
+            <li><code>PROLOG_POP_STRING</code> (<code>$0C</code>): Evaluates expression and pops string into <code>S0</code>.</li>
+          </ul>
+        </li>
+        <li><strong>Epilog (Bits 0–1):</strong>
+          <ul>
+            <li><code>EPILOG_NONE</code> (<code>$00</code>): No value returned to stack (standard for statements).</li>
+            <li><code>EPILOG_PUSH_FP</code> (<code>$01</code>): Pushes floating-point value in <code>FP0</code> onto the primary stack.</li>
+            <li><code>EPILOG_PUSH_INT</code> (<code>$02</code>): Converts 16-bit integer in <code>AX</code> to float in <code>FP0</code> and pushes it.</li>
+            <li><code>EPILOG_PUSH_STRING</code> (<code>$03</code>): Pushes string in <code>S0</code> onto the primary stack.</li>
+          </ul>
+        </li>
+      </ul>
+<div className="example">{`.macro extension_statement_flags
+        ; SOUND uses PROLOG_POP_INT to automatically pop its last argument into AX
+        .byte   PROLOG_POP_INT | (0 << 4)
+.endmacro
 
+.macro extension_function_flags
+        ; JOY(n) pops integer port 'n' into AX, and pushes the integer result returned in AX
+        .byte   (PROLOG_POP_INT | EPILOG_PUSH_INT) | (0 << 4)
+.endmacro`}</div>
+
+      <h3>Step 5: Write the Implementation Code</h3>
+      <p>
+        Define the execution routines inside the <code>extension_code</code> macro:
+      </p>
+<div className="example">{`.macro extension_code
+
+; SOUND voice, freq, dur
 exec_sound:
-        jsr     evaluate_argument_list
+        ; The last argument (dur) was automatically popped into AX by PROLOG_POP_INT!
+        sta     dur_lo
+        stx     dur_hi
         
-        ; Pop the second argument (freq) into FP0 as an integer
-        jsr     pop_int_fp0
-        sta     D                       ; Save low byte in virtual register D
-        stx     E                       ; Save high byte in virtual register E
+        ; Pop remaining arguments from the primary stack
+        jsr     pop_int_fp0             ; freq -> AX
+        stax    freq
         
-        ; Pop the first argument (dur) into FP0 as an integer
-        jsr     pop_int_fp0
+        jsr     pop_int_fp0             ; voice -> A
         
-        ; AX now contains 'dur' (A=low, X=high)
-        ; DE now contains 'freq'
-        
-        ; ... Call platform specific sound hardware routines using AX and DE ...
-        
-        rts`}</div>
+        ; ... Hardware sound generation ...
+        rts
 
-      <h3>Adding a Function</h3>
-      <p>
-        Functions return a value and are evaluated as part of a mathematical expression (e.g., <code>PRINT JOY(1) * 10</code>).
-      </p>
-      <p>
-        Add the function to the <code>ex_function_name_table</code>. Note that unlike statements, functions do not require PVM 
-        argument parsing instructions here; the parser automatically expects arguments in parentheses based on the function's <em>arity</em>.
-      </p>
-<div className="example">{`.segment "PARSER"
-
-ex_function_name_table:
-        name_table_entry "JOY"
-:       name_table_end`}</div>
-
-      <p>
-        Next, define the function in <code>ex_function_table</code>. Each entry consists of three bytes: the word-aligned handler 
-        address minus one, and a metadata byte.
-      </p>
-<div className="example">{`.segment "XFUNC"
-
-ex_function_table:
-        .word   fun_joy-1
-        ; Arity: 1 argument.
-        ; Automatically pop the evaluated argument as an integer into AX.
-        ; Automatically push the integer result in AX back onto the stack.
-        .byte   1 | PROLOG_POP_INT | EPILOG_PUSH_INT`}</div>
-
-      <p>
-        The lower 4 bits of the metadata byte define the <em>arity</em> (number of expected arguments). 
-        The upper bits are flags that direct the expression evaluator to handle the stack automatically. By 
-        using <code>PROLOG_POP_INT</code> and <code>EPILOG_PUSH_INT</code>, the handler routine receives the argument in 
-        the <code>AX</code> register and returns the result in the <code>AX</code> register.
-      </p>
-<div className="example">{`.code
-
-; JOY(n) -- returns joystick state for port n
+; JOY(port) -> returns joystick state
 fun_joy:
-        ; Thanks to PROLOG_POP_INT, the port number 'n' is already in A
+        ; Port number is already in A thanks to PROLOG_POP_INT
         cmp     #2
-        beq     @port2
+        bcs     @port2
         
-        jsr     ReadJoystick1           ; Read port 1 (returns state in A)
-        ldx     #0                      ; High byte is 0
-        rts                             ; Return! EPILOG_PUSH_INT handles the rest.
-        
+        jsr     ReadJoystick1           ; Read port 1 -> returns byte in A
+        ldx     #0                      ; High byte = 0
+        rts                             ; EPILOG_PUSH_INT automatically converts AX and pushes it!
+
 @port2:
-        jsr     ReadJoystick2           ; Read port 2
+        jsr     ReadJoystick2
         ldx     #0
-        rts`}</div>
+        rts
+
+.endmacro`}</div>
 
       <h3>Error Handling</h3>
       <p>
-        If your extension detects invalid arguments (e.g., <code>JOY(3)</code> when only 2 ports exist), you can gracefully 
-        halt execution and report an error by loading the error code into <code>A</code> and jumping to <code>on_raise</code>.
+        If an extension encounters invalid parameters (such as an out-of-range port or illegal value), 
+        report the error using the <code>raise</code> macro:
       </p>
 <div className="example">{`        cmp     #3
         bcc     @valid
-        
-        lda     #ERR_ILLEGAL_QUANTITY
-        jmp     on_raise
+        raise   ERR_OUT_OF_RANGE        ; Halts execution and reports ?OUT OF RANGE ERROR
 @valid:`}</div>
 
       <p>
-        These patterns allow a 6502 assembly programmer to adapt VC83 BASIC to an 8-bit platform, 
-        providing access to local hardware capabilities through the BASIC interface.
+        This modular architecture provides complete flexibility for tailoring VC83 BASIC to any 
+        6502 hardware target while maintaining full compatibility with the core language.
       </p>
     </>
   );
