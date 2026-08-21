@@ -195,18 +195,21 @@ initialize_target:
         To interact with hardware and storage, a platform target implements the standard <code>io_*</code> driver routines. 
         These translate VC83 BASIC's I/O operations into platform ROM calls, memory-mapped device accesses, or simulator traps.
       </p>
+      <div className="note">
+        <strong>Error Handling Convention:</strong><br/>
+        Platform I/O routines report errors by invoking <code>raise ERR_IO_ERROR</code> directly, rather than returning 
+        status codes or setting the carry flag. The only exception is non-blocking <code>io_get</code>, where carry set 
+        (<code>C=1</code>) indicates that no key is currently waiting (which is not an error).
+      </div>
 
       <h4>io_get</h4>
       <p>
         Reads a single byte or keystroke from the channel specified in the <code>channel</code> variable (where <code>$80</code> represents the default console).
       </p>
       <ul>
-        <li><code>A = 0</code>: Blocking mode (waits until a character is ready).</li>
-        <li><code>A = 1</code>: Non-blocking mode (used by the <code>INKEY$</code> function; returns immediately if no key is pending).</li>
+        <li><code>A = 0</code>: Blocking mode (waits until a character is ready). If a stream or hardware error occurs, it should invoke <code>raise ERR_IO_ERROR</code>.</li>
+        <li><code>A = 1</code>: Non-blocking mode (used by the <code>INKEY$</code> function; returns immediately with carry set <code>C=1</code> if no key is pending, or carry clear <code>C=0</code> with the byte in <code>A</code> if a key was pressed).</li>
       </ul>
-      <p>
-        <strong>Returns:</strong> Carry clear (<code>C=0</code>) and the byte in <code>A</code> on success; carry set (<code>C=1</code>) on EOF, error, or if no key was pressed in non-blocking mode.
-      </p>
 <div className="example">{`io_get:
         cmp     #1                      ; Non-blocking mode (INKEY$)?
         beq     @non_blocking
@@ -218,7 +221,7 @@ initialize_target:
 @non_blocking:
         jsr     Chrin                   ; C=1 if char available
         bcs     @got_key
-        sec                             ; C=1 -> no key
+        sec                             ; C=1 -> no key pressed
         rts
 @got_key:
         clc
@@ -256,7 +259,8 @@ initialize_target:
       <p>
         Reads an entire line of text from the console into <code>buffer</code>. 
         It handles interactive line editing (backspace/delete), echoes typed characters, and terminates the string with a 
-        NUL byte (<code>$00</code>) upon receiving Carriage Return. It returns the string length in <code>A</code> with carry clear (or carry set on EOF).
+        NUL byte (<code>$00</code>) upon receiving Carriage Return. It returns the string length in the <code>A</code> register. 
+        If an unrecoverable read error or end-of-file occurs, invoke <code>raise ERR_IO_ERROR</code>.
       </p>
 
       <h4>io_end_record</h4>
@@ -277,13 +281,13 @@ initialize_target:
       <h4>io_save and io_load</h4>
       <p>
         Persist and load BASIC program memory to and from storage. The filename descriptor is provided in <code>S0</code> (and <code>BC</code>). 
-        The routine returns with carry clear (<code>C=0</code>) on success or carry set (<code>C=1</code>) on I/O error. 
-        If persistent storage is not supported on a platform, simply return with <code>sec ; rts</code>.
+        If saving or loading fails (e.g., file not found, bad media, checksum mismatch, or if storage is unsupported), 
+        the routine must invoke <code>raise ERR_IO_ERROR</code> rather than returning with carry set.
       </p>
 
       <h4>Optional Channel I/O (enable_io_channels)</h4>
       <p>
-        When <code>enable_io_channels</code> is enabled, platforms can implement file/device streams:
+        When <code>enable_io_channels</code> is enabled, platforms can implement file and device streams. On error, these routines should call <code>raise ERR_IO_ERROR</code>:
       </p>
       <ul>
         <li><code>io_open</code>: Opens a channel (<code>channel = 0..7</code>, <code>A = mode</code>, <code>S0 = filename</code>).</li>

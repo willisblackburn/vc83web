@@ -237,7 +237,7 @@ const Technical: React.FC = () => {
         Tokens are organized into contiguous classes to facilitate fast range checking in both the 
         lexer and the parser:
       </p>
-      <table className="pvm-table">
+      <table className="pvm-table token-ranges-table">
         <thead>
           <tr>
             <th>Hex Range</th>
@@ -247,12 +247,12 @@ const Technical: React.FC = () => {
         </thead>
         <tbody>
           <tr>
-            <td><code>$00</code></td>
+            <td>$00</td>
             <td>End of Line</td>
             <td><code>TOK_EOL</code> (statement/line terminator)</td>
           </tr>
           <tr>
-            <td><code>$01–$1F</code></td>
+            <td>$01–$1F</td>
             <td>Structural &amp; Values</td>
             <td>
               Delimiters (<code>,</code>, <code>;</code>, <code>(</code>, <code>)</code>, <code>:</code>, <code>NOT</code>, <code>THEN</code>, <code>TO</code>, <code>STEP</code>), 
@@ -261,19 +261,19 @@ const Technical: React.FC = () => {
             </td>
           </tr>
           <tr>
-            <td><code>$20–$2F</code></td>
+            <td>$20–$2F</td>
             <td>Binary Operators</td>
             <td>
               <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code>, <code>&amp;</code>, <code>=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>AND</code>, <code>OR</code>
             </td>
           </tr>
           <tr>
-            <td><code>$30–$37</code></td>
+            <td>$30–$37</td>
             <td>I/O Channels</td>
             <td>Channel specifiers <code>#0</code> through <code>#7</code> (when I/O channels are enabled)</td>
           </tr>
           <tr>
-            <td><code>$40–$7F</code></td>
+            <td>$40–$7F</td>
             <td>Statements</td>
             <td>
               Core statement keywords (<code>PRINT</code>, <code>LET</code>, <code>FOR</code>, <code>NEXT</code>, <code>IF</code>, <code>INPUT</code>, <code>GOTO</code>, <code>DIM</code>, <code>DATA</code>, <code>POKE</code>, <code>RUN</code>, etc.) 
@@ -281,7 +281,7 @@ const Technical: React.FC = () => {
             </td>
           </tr>
           <tr>
-            <td><code>$80–$BF</code></td>
+            <td>$80–$BF</td>
             <td>Functions</td>
             <td>
               Built-in functions (<code>LEN</code>, <code>STR$</code>, <code>CHR$</code>, <code>ASC</code>, <code>VAL</code>, <code>PEEK</code>, <code>SIN</code>, <code>COS</code>, <code>RND</code>, <code>MID$</code>, <code>FRE</code>, <code>INKEY$</code>, etc.) 
@@ -289,7 +289,7 @@ const Technical: React.FC = () => {
             </td>
           </tr>
           <tr>
-            <td><code>$C0–$FF</code></td>
+            <td>$C0–$FF</td>
             <td>PVM Opcodes</td>
             <td>Parser Virtual Machine instructions (<code>MATCH</code>, <code>CALL</code>, <code>BRANCH_IF</code>, <code>RETURN</code>, etc.)</td>
           </tr>
@@ -355,7 +355,7 @@ const Technical: React.FC = () => {
         PVM opcodes are designed for maximum density. Instruction jump targets use 10-bit signed relative offsets 
         (−512 to +511 bytes relative to the instruction), allowing compact 2-byte branch and call instructions:
       </p>
-      <table className="pvm-table">
+      <table className="pvm-table pvm-opcode-table">
         <thead>
           <tr>
             <th>Opcode</th>
@@ -366,88 +366,88 @@ const Technical: React.FC = () => {
         </thead>
         <tbody>
           <tr>
-            <td><code>MATCH token</code></td>
-            <td><code>$00–$BF</code></td>
+            <td>MATCH token</td>
+            <td>$00–$BF</td>
             <td>1</td>
             <td>
               Matches lookahead token <code>C</code> against <code>token</code>. If it matches, advances to the next token via <code>next_token</code>. If it does not match, fails the rule (sets carry and returns).
             </td>
           </tr>
           <tr>
-            <td><code>MATCH_RANGE min, count</code></td>
-            <td><code>$C0–$CF, min</code></td>
+            <td>MATCH_RANGE min, count</td>
+            <td>$C0–$CF, min</td>
             <td>2</td>
             <td>
               Matches lookahead token <code>C</code> if <code>min &le; C &lt; min + count</code> (count 1–16). On match, advances to the next token; otherwise fails the rule.
             </td>
           </tr>
           <tr>
-            <td><code>CALL address</code></td>
-            <td><code>$D0–$D3, offset_lo</code></td>
+            <td>CALL address</td>
+            <td>$D0–$D3, offset_lo</td>
             <td>2</td>
             <td>
               Pushes the next PVM address onto the 6502 CPU stack and jumps to <code>address</code> (10-bit signed relative offset). If the called rule returns failure (carry set), the caller immediately fails.
             </td>
           </tr>
           <tr>
-            <td><code>JUMP address</code></td>
-            <td><code>$D4–$D7, offset_lo</code></td>
+            <td>JUMP address</td>
+            <td>$D4–$D7, offset_lo</td>
             <td>2</td>
             <td>
               Unconditionally jumps to <code>address</code> (10-bit signed relative offset) and resumes execution.
             </td>
           </tr>
           <tr>
-            <td><code>BRANCH_IF token, address</code></td>
-            <td><code>$D8–$DB, offset_lo, token</code></td>
+            <td>BRANCH_IF token, address</td>
+            <td>$D8–$DB, offset_lo, token</td>
             <td>3</td>
             <td>
               If lookahead token <code>C</code> matches <code>token</code>, consumes the token (advances to next token) and branches to <code>address</code>. Otherwise, does not consume the token and continues to the next PVM instruction.
             </td>
           </tr>
           <tr>
-            <td><code>BRANCH_IF_RANGE min, count, address</code></td>
-            <td><code>$D8–$DB, offset_lo, range_byte, min</code></td>
+            <td>BRANCH_IF_RANGE min, count, address</td>
+            <td>$D8–$DB, offset_lo, range_byte, min</td>
             <td>4</td>
             <td>
               Range variant of <code>BRANCH_IF</code>. If lookahead token <code>C</code> is within the specified range, consumes the token and branches to <code>address</code>.
             </td>
           </tr>
           <tr>
-            <td><code>RETURN</code></td>
-            <td><code>$F0</code></td>
+            <td>RETURN</td>
+            <td>$F0</td>
             <td>1</td>
             <td>
               Returns from a subrule with success (clears carry and executes <code>rts</code>).
             </td>
           </tr>
           <tr>
-            <td><code>GUARD token</code></td>
-            <td><code>$F1, token</code></td>
+            <td>GUARD token</td>
+            <td>$F1, token</td>
             <td>2</td>
             <td>
               If lookahead token <code>C</code> matches <code>token</code>, terminates the current rule and returns success (carry clear) <strong>without</strong> consuming the token. Otherwise continues to the next instruction.
             </td>
           </tr>
           <tr>
-            <td><code>GUARD_RANGE min, count</code></td>
-            <td><code>$F1, range_byte, min</code></td>
+            <td>GUARD_RANGE min, count</td>
+            <td>$F1, range_byte, min</td>
             <td>3</td>
             <td>
               Range variant of <code>GUARD</code>. Returns success without consuming if <code>C</code> falls within the range.
             </td>
           </tr>
           <tr>
-            <td><code>SLURP</code></td>
-            <td><code>$F2</code></td>
+            <td>SLURP</td>
+            <td>$F2</td>
             <td>1</td>
             <td>
               Directly copies raw un-tokenized characters from <code>buffer</code> to <code>line_buffer</code> until a NUL byte is reached. Used by <code>REM</code> and <code>DATA</code> statements to bypass the lexer.
             </td>
           </tr>
           <tr>
-            <td><code>FAIL</code></td>
-            <td><code>$FF</code></td>
+            <td>FAIL</td>
+            <td>$FF</td>
             <td>1</td>
             <td>
               Unconditionally sets the carry flag and returns, failing the current parse.
