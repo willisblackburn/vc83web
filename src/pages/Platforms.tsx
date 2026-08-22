@@ -29,6 +29,18 @@ const Platforms: React.FC = () => {
         demonstrates how minimal a port can be when the environment provides higher-level abstractions.
       </p>
 
+      <h3>Apple 1</h3>
+      <p>
+        The Apple 1 port targets the classic 1976 6502 single-board computer. Because the Apple 1 has no ROM BIOS character output 
+        subroutines (only the minimal Wozniak Monitor at <code>$FF00</code>), the I/O layer communicates directly with the onboard 
+        Motorola 6820 Peripheral Interface Adapter (PIA).
+      </p>
+      <p>
+        The port reads the keyboard and polling strobe from <code>KBD</code> and <code>KBDCR</code> (<code>$D010/$D011</code>) and waits 
+        for the terminal hardware by checking the busy flag on <code>DSP</code> (<code>$D012</code>). It implements interactive line 
+        reading and backspace editing directly on bare metal without host OS support.
+      </p>
+
       <h3>Apple II</h3>
       <p>
         The Apple II port represents a classic, highly constrained 8-bit environment. It integrates with ProDOS or DOS 3.3 for 
@@ -78,7 +90,7 @@ const Platforms: React.FC = () => {
         <li><strong>Linker Configuration:</strong> Create an <code>ld65</code> <code>.cfg</code> file defining memory regions.</li>
         <li><strong>Memory Allocation:</strong> Carve out zero-page space and RAM for buffers/stacks.</li>
         <li><strong>Initialization:</strong> Write a <code>startup</code> routine to handle CPU RESET and invoke the main loop.</li>
-        <li><strong>Mandatory I/O:</strong> Implement <code>io_get</code>, <code>io_put</code>, <code>io_read_record</code>, <code>io_end_record</code>, <code>io_end_field</code>, <code>io_save</code>, and <code>io_load</code>.</li>
+        <li><strong>Mandatory I/O:</strong> Implement <code>io_get</code>, <code>io_inkey</code>, <code>io_put</code>, <code>io_read_record</code>, <code>io_end_record</code>, <code>io_end_field</code>, <code>io_save</code>, and <code>io_load</code>.</li>
         <li><strong>Makefile Integration:</strong> Add the platform to the build system.</li>
       </ol>
 
@@ -197,34 +209,45 @@ initialize_target:
       </p>
       <div className="note">
         <strong>Error Handling Convention:</strong><br/>
-        Platform I/O routines report errors by invoking <code>raise ERR_IO_ERROR</code> directly, rather than returning 
-        status codes or setting the carry flag. The only exception is non-blocking <code>io_get</code>, where carry set 
+        Platform I/O routines report errors by invoking <code>raise ERR_IO_ERROR</code> directly (or returning with carry set 
+        <code>C=1</code> to the core dispatcher). The only exception is non-blocking <code>io_inkey</code>, where carry set 
         (<code>C=1</code>) indicates that no key is currently waiting (which is not an error).
       </div>
 
       <h4>io_get</h4>
       <p>
-        Reads a single byte or keystroke from the channel specified in the <code>channel</code> variable (where <code>$80</code> represents the default console).
+        Reads a single byte or keystroke from the channel specified in the <code>channel</code> variable (where <code>$80</code> represents the default console). 
+        This routine blocks until a character is ready.
+      </p>
+      <p>
+        <strong>Returns:</strong> Carry clear (<code>C=0</code>) and the byte in <code>A</code> on success; carry set (<code>C=1</code>) or <code>raise ERR_IO_ERROR</code> on EOF/error.
+      </p>
+<div className="example">{`io_get:
+        jsr     io_inkey                ; Poll non-blocking keyboard routine
+        bcs     io_get                  ; Loop until key is available
+        rts`}</div>
+
+      <h4>io_inkey</h4>
+      <p>
+        Polls for a keystroke from the keyboard without blocking (used by the <code>INKEY$()</code> function). 
+        It returns immediately regardless of whether a key is available.
+      </p>
+      <p>
+        <strong>Returns:</strong>
       </p>
       <ul>
-        <li><code>A = 0</code>: Blocking mode (waits until a character is ready). If a stream or hardware error occurs, it should invoke <code>raise ERR_IO_ERROR</code>.</li>
-        <li><code>A = 1</code>: Non-blocking mode (used by the <code>INKEY$</code> function; returns immediately with carry set <code>C=1</code> if no key is pending, or carry clear <code>C=0</code> with the byte in <code>A</code> if a key was pressed).</li>
+        <li><code>C = 0</code> (carry clear) and ASCII character in <code>A</code> if a key was pressed.</li>
+        <li><code>C = 1</code> (carry set) if no key is pending.</li>
       </ul>
-<div className="example">{`io_get:
-        cmp     #1                      ; Non-blocking mode (INKEY$)?
-        beq     @non_blocking
-@wait_key:
-        jsr     Chrin                   ; Blocking poll until key pressed
-        bcc     @wait_key
+<div className="example">{`io_inkey:
+        lda     $C000                   ; Read Apple II keyboard data
+        bpl     @no_key                 ; Bit 7 clear -> no key pressed
+        bit     $C010                   ; Clear keyboard strobe
+        and     #$7F                    ; Convert to standard ASCII
         clc
         rts
-@non_blocking:
-        jsr     Chrin                   ; C=1 if char available
-        bcs     @got_key
-        sec                             ; C=1 -> no key pressed
-        rts
-@got_key:
-        clc
+@no_key:
+        sec                             ; C=1 -> no key pending
         rts`}</div>
 
       <h4>io_put</h4>
@@ -242,7 +265,7 @@ initialize_target:
         lda     program_state           ; Only poll break key while program is running
         bne     @output                 ; PS_READY (non-zero): skip break check
         
-        jsr     Chrin                   ; Non-blocking keyboard poll
+        jsr     io_inkey                ; Non-blocking keyboard poll
         bcc     @output                 ; No key waiting
         cmp     #CH_ESC
         beq     @break
@@ -285,15 +308,67 @@ initialize_target:
         the routine must invoke <code>raise ERR_IO_ERROR</code> rather than returning with carry set.
       </p>
 
-      <h4>Optional Channel I/O (enable_io_channels)</h4>
+      <h3>Channel-Based I/O (enable_io_channels)</h3>
       <p>
-        When <code>enable_io_channels</code> is enabled, platforms can implement file and device streams. On error, these routines should call <code>raise ERR_IO_ERROR</code>:
+        VC83 BASIC features an optional channel-based I/O subsystem controlled by the <code>enable_io_channels</code> compile-time 
+        symbol (defined in <code>constants.inc</code> or target configuration files).
+      </p>
+
+      <h4>Atari BASIC-Inspired I/O Architecture</h4>
+      <p>
+        The channel model in VC83 BASIC is modeled directly on <strong>Atari BASIC</strong> and the Atari OS Central Input/Output 
+        (CIO) subsystem:
       </p>
       <ul>
-        <li><code>io_open</code>: Opens a channel (<code>channel = 0..7</code>, <code>A = mode</code>, <code>S0 = filename</code>).</li>
-        <li><code>io_close</code>: Closes the specified <code>channel</code>.</li>
-        <li><code>io_close_all</code>: Closes all open channels.</li>
-        <li><code>io_xio</code>: Executes device-specific control commands (<code>A = command</code>, <code>BC = arg1</code>, <code>DE = arg2</code>).</li>
+        <li>
+          <strong>Numbered Channels (<code>#0</code>–<code>#7</code>):</strong> All I/O operations can be directed to numbered 
+          logical channels. On platforms like the Atari, channel <code>#0</code> represents the default screen editor (<code>E:</code>), 
+          while channels <code>#1</code> through <code>#7</code> can be bound to arbitrary disk files, cassette tape, serial lines, 
+          or printers.
+        </li>
+        <li>
+          <strong>Universal Channel Syntax:</strong> When <code>enable_io_channels</code> is active, every standard I/O command 
+          accepts an optional channel prefix:
+          <ul>
+            <li><code>PRINT [#channel,] expression ...</code></li>
+            <li><code>INPUT [#channel,] variable ...</code></li>
+            <li><code>GET [#channel,] numeric_variable</code> (reads raw byte or key into variable)</li>
+            <li><code>PUT [#channel,] expression</code> (writes raw byte to stream)</li>
+            <li><code>OPEN [#channel,] name [, mode]</code></li>
+            <li><code>CLOSE [#channel]</code></li>
+            <li><code>XIO [#channel,] command [, arg1 [, arg2]]</code></li>
+          </ul>
+        </li>
+        <li>
+          <strong>Device-Aware <code>OPEN</code>:</strong> The <code>name</code> argument to <code>OPEN</code> (e.g. <code>"D:SCORES.DAT"</code>, 
+          <code>"C:"</code> for cassette, <code>"R:"</code> for RS-232, <code>"P:"</code> for printer) is passed as a string descriptor 
+          in <code>S0</code> to <code>io_open</code>. The target platform driver inspects the device prefix to determine which hardware 
+          peripheral or filesystem driver handles the stream.
+        </li>
+        <li>
+          <strong>General Device Control (<code>XIO</code>):</strong> The <code>XIO</code> command provides arbitrary device-specific 
+          control (such as disk file formatting, baud rate configuration, or graphics window manipulation) without requiring dedicated 
+          BASIC keywords.
+        </li>
+      </ul>
+
+      <h4>When to Omit enable_io_channels</h4>
+      <p>
+        Platforms without the concept of numbered I/O channels (such as <code>apple2</code>, <code>apple1</code>, and <code>ac6502</code>) 
+        do not define <code>enable_io_channels</code>. Omitting this symbol strips out channel parser grammar rules, 
+        <code>OPEN</code>/<code>CLOSE</code>/<code>XIO</code> statement dispatchers, and vector table entries, saving substantial ROM and RAM 
+        space for core language features.
+      </p>
+
+      <h4>Channel Driver Functions</h4>
+      <p>
+        When <code>enable_io_channels</code> is defined, the platform must implement the following additional driver routines:
+      </p>
+      <ul>
+        <li><code>io_open</code>: Opens a stream on <code>channel</code> (<code>channel = 0..7</code>, <code>A = mode</code>, <code>S0 = filename string</code>). Returns <code>C=0</code> on success, <code>C=1</code> on error.</li>
+        <li><code>io_close</code>: Closes the stream on <code>channel</code> (<code>channel = 0..7</code>). Returns <code>C=0</code> on success, <code>C=1</code> on error.</li>
+        <li><code>io_close_all</code>: Closes all open channels. Called automatically by <code>NEW</code>, <code>RUN</code>, and interpreter reset.</li>
+        <li><code>io_xio</code>: Executes device-specific control commands (<code>A = command</code>, <code>BC = arg1</code>, <code>DE = arg2</code>, <code>channel = 0..7</code>). Returns <code>C=0</code> on success, <code>C=1</code> on error.</li>
       </ul>
 
       <h3>Makefile Integration</h3>
