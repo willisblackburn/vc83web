@@ -79,6 +79,41 @@ const FAQ_ITEMS: FaqItem[] = [
     )
   },
   {
+    question: "Is it really an 8K BASIC?",
+    answer: (
+      <>
+        <p>
+          The <code>apple2</code> target fits in 8K (under 8,192 bytes), but it is intended as a proof of concept. 
+          To fit the entire interpreter, including its DFA lexer, PVM parser, linear-time string garbage collector, 
+          and 32-bit floating-point math engine—into an exact 8K footprint, the <code>apple2</code> target omits 
+          the trigonometric functions: <code>SIN</code>, <code>COS</code>, <code>TAN</code>, and <code>ATN</code>.
+        </p>
+        <p>
+          Historically, classic 6502 BASICs that claimed an "8K" label also made significant compromises or relied on external ROM:
+        </p>
+        <ul>
+          <li>
+            <strong>Atari BASIC:</strong> Squeezed into an 8K cartridge ROM, but relied on the Atari OS ROM for its 
+            floating-point math pack, lacked dynamic string garbage collection (using fixed-dimension string slicing instead), 
+            and omitted string arrays.
+          </li>
+          <li>
+            <strong>Microsoft / Commodore BASIC:</strong> Often described as an "8K BASIC" (occupying the 8K ROM at <code>$A000–$BFFF</code> on Commodore machines), it actually spilled 1,280 bytes of floating-point math and transcendental routines into the Kernal ROM (<code>$E000–$E4FF</code>), making its true footprint over 9.25K. Even with that extra space, it relied on a minimal keyword-replacement scanner rather than an upfront syntax-validating parser, limited variable names to two significant characters, and used an <i>O</i>(<i>n</i><sup>2</sup>) string garbage collector that caused noticeable pauses. Dialects that added graphics and extended statements (such as Applesoft II) grew to 10K, 12K, or 16K+.
+          </li>
+          <li>
+            <strong>BBC BASIC:</strong> Offered an exceptionally powerful language and inline assembler, but required a 16K ROM.
+          </li>
+        </ul>
+        <p>
+          While a true 8K BASIC requires some compromises, VC83 BASIC is intended for new 6502 builds. Keeping the 
+          portable language core down to 8K leaves plenty of headroom for platforms to extend the language—adding full trig, 
+          channel-based I/O, graphics, and sound—while staying comfortably within a 10K, 12K, or 16K ROM envelope (as seen in 
+          the <code>apple2_lc</code> and <code>ac6502</code> targets).
+        </p>
+      </>
+    )
+  },
+  {
     question: "Why don't you have ________?",
     answer: (
       <>
