@@ -93,18 +93,19 @@ const FAQ_ITEMS: FaqItem[] = [
         </p>
         <ul>
           <li>
-            <strong>Commodore BASIC:</strong> Often described as an "8K BASIC" (occupying the 8K ROM at <code>$A000–$BFFF</code> on the C64),
-            it actually spilled 1,280 bytes of floating-point math and transcendental routines into the Kernal ROM (<code>$E000–$E4FF</code>),
-            making its true footprint over 9.25K. Even with that extra space, it relied on a minimal keyword-replacement scanner rather
-            than an upfront syntax-validating parser, limited variable names to two significant characters,
-            had an <i>O</i>(<i>n</i><sup>2</sup>) string garbage collector that caused noticeable pauses, and lacked
-            built-in graphics and sound commands.
-          </li>
-          <li>
             <strong>Applesoft BASIC:</strong> Microsoft's dialect for the Apple II expanded to a 10K ROM
             (<code>$D000–$F7FF</code>) in order to include low-resolution and high-resolution graphics commands
             (<code>GR</code>, <code>HGR</code>, <code>PLOT</code>) and error handling (<code>ONERR GOTO</code>).
-            Despite requiring 10K, it still retained Microsoft's 2-character variable name limit and slow garbage collector.
+            Despite requiring 10K, it relied on a minimal keyword-replacement scanner rather
+            than an upfront syntax-validating parser, limited variable names to two significant characters,
+            had an <i>O</i>(<i>n</i><sup>2</sup>) string garbage collector that caused noticeable pauses.
+          </li>
+          <li>
+            <strong>Commodore BASIC:</strong> Often described as an "8K BASIC" (occupying the 8K ROM at <code>$A000–$BFFF</code> on the C64),
+            it actually spilled 1,280 bytes of floating-point math and transcendental routines into the Kernal ROM (<code>$E000–$E4FF</code>),
+            making its true footprint over 9.25K.
+            It still retained Microsoft's 2-character variable name limit and slow garbage collector, and lacked
+            built-in graphics and sound commands.
           </li>
           <li>
             <strong>Atari BASIC:</strong> Squeezed into an 8K cartridge ROM, but relied on the Atari OS ROM for its 
