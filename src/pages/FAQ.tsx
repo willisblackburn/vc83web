@@ -85,7 +85,7 @@ const FAQ_ITEMS: FaqItem[] = [
         <p>
           The <code>apple2</code> target fits in 8K (under 8,192 bytes), but it is intended as a proof of concept. 
           To fit the entire interpreter, including its DFA lexer, PVM parser, linear-time string garbage collector, 
-          and 32-bit floating-point math engine—into an exact 8K footprint, the <code>apple2</code> target omits 
+          and 9-digit floating-point math engine, into an exact 8K footprint, the <code>apple2</code> target omits 
           the trigonometric functions: <code>SIN</code>, <code>COS</code>, <code>TAN</code>, and <code>ATN</code>.
         </p>
         <p>
@@ -93,12 +93,23 @@ const FAQ_ITEMS: FaqItem[] = [
         </p>
         <ul>
           <li>
+            <strong>Commodore BASIC:</strong> Often described as an "8K BASIC" (occupying the 8K ROM at <code>$A000–$BFFF</code> on the C64),
+            it actually spilled 1,280 bytes of floating-point math and transcendental routines into the Kernal ROM (<code>$E000–$E4FF</code>),
+            making its true footprint over 9.25K. Even with that extra space, it relied on a minimal keyword-replacement scanner rather
+            than an upfront syntax-validating parser, limited variable names to two significant characters,
+            had an <i>O</i>(<i>n</i><sup>2</sup>) string garbage collector that caused noticeable pauses, and lacked
+            built-in graphics and sound commands.
+          </li>
+          <li>
+            <strong>Applesoft BASIC:</strong> Microsoft's dialect for the Apple II expanded to a 10K ROM
+            (<code>$D000–$F7FF</code>) in order to include low-resolution and high-resolution graphics commands
+            (<code>GR</code>, <code>HGR</code>, <code>PLOT</code>) and error handling (<code>ONERR GOTO</code>).
+            Despite requiring 10K, it still retained Microsoft's 2-character variable name limit and slow garbage collector.
+          </li>
+          <li>
             <strong>Atari BASIC:</strong> Squeezed into an 8K cartridge ROM, but relied on the Atari OS ROM for its 
             floating-point math pack, lacked dynamic string garbage collection (using fixed-dimension string slicing instead), 
             and omitted string arrays.
-          </li>
-          <li>
-            <strong>Microsoft / Commodore BASIC:</strong> Often described as an "8K BASIC" (occupying the 8K ROM at <code>$A000–$BFFF</code> on Commodore machines), it actually spilled 1,280 bytes of floating-point math and transcendental routines into the Kernal ROM (<code>$E000–$E4FF</code>), making its true footprint over 9.25K. Even with that extra space, it relied on a minimal keyword-replacement scanner rather than an upfront syntax-validating parser, limited variable names to two significant characters, and used an <i>O</i>(<i>n</i><sup>2</sup>) string garbage collector that caused noticeable pauses. Dialects that added graphics and extended statements (such as Applesoft II) grew to 10K, 12K, or 16K+.
           </li>
           <li>
             <strong>BBC BASIC:</strong> Offered an exceptionally powerful language and inline assembler, but required a 16K ROM.
