@@ -90,7 +90,7 @@ const Platforms: React.FC = () => {
         <li><strong>Linker Configuration:</strong> Create an <code>ld65</code> <code>.cfg</code> file defining memory regions.</li>
         <li><strong>Memory Allocation:</strong> Carve out zero-page space and RAM for buffers/stacks.</li>
         <li><strong>Initialization:</strong> Write a <code>startup</code> routine to handle CPU RESET and invoke the main loop.</li>
-        <li><strong>Mandatory I/O:</strong> Implement <code>io_get</code>, <code>io_inkey</code>, <code>io_put</code>, <code>io_read_record</code>, <code>io_end_record</code>, <code>io_end_field</code>, <code>io_save</code>, and <code>io_load</code>.</li>
+        <li><strong>Mandatory I/O:</strong> Implement <code>getch</code>, <code>inkey</code>, <code>putch</code>, <code>readline</code>, <code>newline</code>, <code>tab</code>, <code>save</code>, and <code>load</code>.</li>
         <li><strong>Makefile Integration:</strong> Add the platform to the build system.</li>
       </ol>
 
@@ -204,17 +204,17 @@ initialize_target:
 
       <h3>Mandatory Platform I/O Functions</h3>
       <p>
-        To interact with hardware and storage, a platform target implements the standard <code>io_*</code> driver routines. 
+        To interact with hardware and storage, a platform target implements the standard driver routines. 
         These translate VC83 BASIC's I/O operations into platform ROM calls, memory-mapped device accesses, or simulator traps.
       </p>
       <div className="note">
         <strong>Error Handling Convention:</strong><br/>
         Platform I/O routines report errors by invoking <code>raise ERR_IO_ERROR</code> directly (or returning with carry set 
-        <code>C=1</code> to the core dispatcher). The only exception is non-blocking <code>io_inkey</code>, where carry set 
+        <code>C=1</code> to the core dispatcher). The only exception is non-blocking <code>inkey</code>, where carry set 
         (<code>C=1</code>) indicates that no key is currently waiting (which is not an error).
       </div>
 
-      <h4>io_get</h4>
+      <h4>getch</h4>
       <p>
         Reads a single byte or keystroke from the channel specified in the <code>channel</code> variable (where <code>$80</code> represents the default console). 
         This routine blocks until a character is ready.
@@ -222,12 +222,12 @@ initialize_target:
       <p>
         <strong>Returns:</strong> Carry clear (<code>C=0</code>) and the byte in <code>A</code> on success; carry set (<code>C=1</code>) or <code>raise ERR_IO_ERROR</code> on EOF/error.
       </p>
-<div className="example">{`io_get:
-        jsr     io_inkey                ; Poll non-blocking keyboard routine
-        bcs     io_get                  ; Loop until key is available
+<div className="example">{`getch:
+        jsr     inkey                   ; Poll non-blocking keyboard routine
+        bcs     getch                   ; Loop until key is available
         rts`}</div>
 
-      <h4>io_inkey</h4>
+      <h4>inkey</h4>
       <p>
         Polls for a keystroke from the keyboard without blocking (used by the <code>INKEY$()</code> function). 
         It returns immediately regardless of whether a key is available.
@@ -239,7 +239,7 @@ initialize_target:
         <li><code>C = 0</code> (carry clear) and ASCII character in <code>A</code> if a key was pressed.</li>
         <li><code>C = 1</code> (carry set) if no key is pending.</li>
       </ul>
-<div className="example">{`io_inkey:
+<div className="example">{`inkey:
         lda     $C000                   ; Read Apple II keyboard data
         bpl     @no_key                 ; Bit 7 clear -> no key pressed
         bit     $C010                   ; Clear keyboard strobe
@@ -250,22 +250,22 @@ initialize_target:
         sec                             ; C=1 -> no key pending
         rts`}</div>
 
-      <h4>io_put</h4>
+      <h4>putch</h4>
       <p>
         Outputs a single character passed in the <code>A</code> register to the destination in <code>channel</code>.
       </p>
       <p>
-        <strong>Break Checking:</strong> <code>io_put</code> is an ideal location to poll for break keys 
+        <strong>Break Checking:</strong> <code>putch</code> is an ideal location to poll for break keys 
         (such as <code>ESC</code> or <code>CTRL-C</code>) while a program is actively running. If detected, 
         invoke <code>raise ERR_STOPPED</code> to halt execution. Make sure to check that <code>program_state</code> is 
         <code>PS_RUNNING</code> (0) so break polling does not consume keys typed at the <code>READY.</code> prompt.
       </p>
-<div className="example">{`io_put:
+<div className="example">{`putch:
         pha                             ; Save character to output
         lda     program_state           ; Only poll break key while program is running
         bne     @output                 ; PS_READY (non-zero): skip break check
         
-        jsr     io_inkey                ; Non-blocking keyboard poll
+        jsr     inkey                   ; Non-blocking keyboard poll
         bcc     @output                 ; No key waiting
         cmp     #CH_ESC
         beq     @break
@@ -278,7 +278,7 @@ initialize_target:
         pla                             ; Restore character
         jmp     Chrout                  ; Platform-specific character output`}</div>
 
-      <h4>io_read_record</h4>
+      <h4>readline</h4>
       <p>
         Reads an entire line of text from the console into <code>buffer</code>. 
         It handles interactive line editing (backspace/delete), echoes typed characters, and terminates the string with a 
@@ -286,22 +286,22 @@ initialize_target:
         If an unrecoverable read error or end-of-file occurs, invoke <code>raise ERR_IO_ERROR</code>.
       </p>
 
-      <h4>io_end_record</h4>
+      <h4>newline</h4>
       <p>
         Outputs the record delimiter (Carriage Return and/or Line Feed) on the active channel.
       </p>
-<div className="example">{`io_end_record:
+<div className="example">{`newline:
         lda     #CH_CR
-        jsr     io_put
+        jsr     putch
         lda     #CH_LF
-        jmp     io_put`}</div>
+        jmp     putch`}</div>
 
-      <h4>io_end_field</h4>
+      <h4>tab</h4>
       <p>
         Outputs a field separator (advancing the cursor to the next 8- or 16-column print zone) on the active channel.
       </p>
 
-      <h4>io_save and io_load</h4>
+      <h4>save and load</h4>
       <p>
         Persist and load BASIC program memory to and from storage. The filename descriptor is provided in <code>S0</code> (and <code>BC</code>). 
         If saving or loading fails (e.g., file not found, bad media, checksum mismatch, or if storage is unsupported), 
@@ -342,7 +342,7 @@ initialize_target:
         <li>
           <strong>Device-Aware <code>OPEN</code>:</strong> The <code>name</code> argument to <code>OPEN</code> (e.g. <code>"D:SCORES.DAT"</code>, 
           <code>"C:"</code> for cassette, <code>"R:"</code> for RS-232, <code>"P:"</code> for printer) is passed as a string descriptor 
-          in <code>S0</code> to <code>io_open</code>. The target platform driver inspects the device prefix to determine which hardware 
+          in <code>S0</code> to <code>open</code>. The target platform driver inspects the device prefix to determine which hardware 
           peripheral or filesystem driver handles the stream.
         </li>
         <li>
@@ -365,10 +365,10 @@ initialize_target:
         When <code>enable_io_channels</code> is defined, the platform must implement the following additional driver routines:
       </p>
       <ul>
-        <li><code>io_open</code>: Opens a stream on <code>channel</code> (<code>channel = 0..7</code>, <code>A = mode</code>, <code>S0 = filename string</code>). Returns <code>C=0</code> on success, <code>C=1</code> on error.</li>
-        <li><code>io_close</code>: Closes the stream on <code>channel</code> (<code>channel = 0..7</code>). Returns <code>C=0</code> on success, <code>C=1</code> on error.</li>
-        <li><code>io_close_all</code>: Closes all open channels. Called automatically by <code>NEW</code>, <code>RUN</code>, and interpreter reset.</li>
-        <li><code>io_xio</code>: Executes device-specific control commands (<code>A = command</code>, <code>BC = arg1</code>, <code>DE = arg2</code>, <code>channel = 0..7</code>). Returns <code>C=0</code> on success, <code>C=1</code> on error.</li>
+        <li><code>open</code>: Opens a stream on <code>channel</code> (<code>channel = 0..7</code>, <code>A = mode</code>, <code>S0 = filename string</code>). Returns <code>C=0</code> on success, <code>C=1</code> on error.</li>
+        <li><code>close</code>: Closes the stream on <code>channel</code> (<code>channel = 0..7</code>). Returns <code>C=0</code> on success, <code>C=1</code> on error.</li>
+        <li><code>close_all</code>: Closes all open channels. Called automatically by <code>NEW</code>, <code>RUN</code>, and interpreter reset.</li>
+        <li><code>xio</code>: Executes device-specific control commands (<code>A = command</code>, <code>BC = arg1</code>, <code>DE = arg2</code>, <code>channel = 0..7</code>). Returns <code>C=0</code> on success, <code>C=1</code> on error.</li>
       </ul>
 
       <h3>Makefile Integration</h3>
