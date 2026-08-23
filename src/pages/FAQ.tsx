@@ -104,7 +104,7 @@ const FAQ_ITEMS: FaqItem[] = [
             <strong>Commodore BASIC:</strong> Often described as an "8K BASIC" (occupying the 8K ROM at <code>$A000–$BFFF</code> on the C64),
             it actually spilled 1,280 bytes of floating-point math and transcendental routines into the Kernal ROM (<code>$E000–$E4FF</code>),
             making its true footprint over 9.25K.
-            It still retained Microsoft's 2-character variable name limit and slow garbage collector, and lacked
+            It still retained Microsoft's two-character variable name limit and slow garbage collector, and lacked
             built-in graphics and sound commands.
           </li>
           <li>
