@@ -539,6 +539,165 @@ pvm_arg_list:
         BRANCH_IF TOK_COMMA, pvm_arg_list
         RETURN`}</div>
 
+      <h2>Expression Evaluation</h2>
+      <p>
+        Runtime expression evaluation in VC83 BASIC is handled by <code>evaluate_expression</code> in <code>expression.s</code>. 
+        It evaluates mathematical, string, relational, and logical expressions using a two-stack architecture combined with an 
+        efficient <strong>lazy evaluation</strong> strategy.
+      </p>
+
+      <h3>Expression and Operator Stacks</h3>
+      <p>
+        The evaluator maintains two distinct stacks to track operands and pending operations:
+      </p>
+      <ul>
+        <li>
+          <strong>The Value Stack (<code>stack</code>):</strong> A page-aligned memory buffer managed by the zero-page pointer <code>stack_pos</code>. 
+          It grows downward and stores 6-byte <code>Value</code> structures. Each entry contains a 1-byte <code>type</code> tag 
+          (<code>TYPE_NUMBER = $00</code> or <code>TYPE_STRING = $01</code>) and a 5-byte data payload (packed 40-bit floating-point value or a 2-byte string header pointer).
+        </li>
+        <li>
+          <strong>The Operator Stack (<code>op_stack</code>):</strong> A byte array managed by the zero-page pointer <code>op_stack_pos</code> that grows downward. 
+          Each entry is a single 1-byte value encoding both the operator's precedence and its vector dispatch ID.
+        </li>
+      </ul>
+      <p>
+        When <code>evaluate_expression</code> is invoked, it immediately pushes a bottom sentinel, <code>PR_OPEN_PAREN</code> (precedence <code>$00</code>), 
+        onto <code>op_stack</code>. Because <code>PR_OPEN_PAREN</code> has the lowest possible precedence, operator reduction loops will never pop below this 
+        sentinel while evaluating subexpressions. When the expression ends, remaining pending operators are evaluated against <code>PR_CLOSE_PAREN</code> (<code>$20</code>), 
+        and the sentinel is popped directly with <code>inc op_stack_pos</code>.
+      </p>
+      <p>
+        Parenthesized subexpressions (<code>evaluate_paren</code>) leverage this same mechanism: pushing <code>PR_OPEN_PAREN</code>, recursively calling <code>evaluate_expression</code>, 
+        and popping the sentinel upon encountering the closing parenthesis.
+      </p>
+
+      <h3>Lazy Evaluation with FP0 and S0</h3>
+      <p>
+        To minimize memory traffic and stack overhead, VC83 BASIC employs a <strong>lazy evaluation</strong> strategy. 
+        Primary expressions leave their results directly in zero-page working registers without immediately pushing them to the value stack:
+      </p>
+      <ul>
+        <li><strong>Numeric values:</strong> Left unpacked in the 40-bit <code>FP0</code> floating-point accumulator.</li>
+        <li><strong>String values:</strong> Left in <code>S0</code> as a 2-byte pointer to the string's length header.</li>
+        <li><strong><code>expr_type</code>:</strong> A zero-page register updated during primary evaluation (<code>TYPE_NUMBER = 0</code>, <code>TYPE_STRING = 1</code>).</li>
+      </ul>
+      <p>
+        Retaining intermediate values directly in registers avoids the overhead of packing and unpacking floating-point numbers to and from memory. 
+        Consequently, simple assignments and single-term expressions (e.g. <code>X = 42</code>, <code>PRINT A$</code>, unary operations like <code>-X</code>, or single-argument functions) execute entirely within <code>FP0</code> and <code>S0</code> without touching the stack.
+      </p>
+
+      <h3>When Values Are Pushed to the Stack</h3>
+      <p>
+        The evaluator defers pushing the pending value in <code>FP0</code>/<code>S0</code> to the value stack (via <code>push_pending</code>) until strictly necessary:
+      </p>
+      <ul>
+        <li>
+          <strong>Holding Left Operands:</strong> When a binary operator is parsed, the evaluator must preserve the left-hand operand while evaluating the right-hand operand. 
+          <code>push_pending</code> writes the left operand to the value stack, freeing <code>FP0</code>/<code>S0</code> for the right operand.
+        </li>
+        <li>
+          <strong>Argument Lists:</strong> When parsing multi-argument statements, functions, or array indexing (<code>evaluate_argument_list</code>), each evaluated parameter is pushed to the stack before the next is evaluated.
+        </li>
+        <li>
+          <strong>Garbage Collection Safety:</strong> Active strings are pushed onto the value stack before allocating new strings on the heap (such as in string concatenation <code>op_concat</code>) so they remain discoverable during mark-sweep compaction.
+        </li>
+      </ul>
+
+      <h3>Single-Byte Precedence &amp; Operator Encoding</h3>
+      <p>
+        To minimize code size and execution overhead, the operator stack packs both the operator's precedence level and its dispatch index into a single byte:
+      </p>
+      <table className="pvm-table operator-precedence-table">
+        <thead>
+          <tr>
+            <th>Precedence</th>
+            <th>Constant</th>
+            <th>Operators &amp; Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>$F0</td>
+            <td>PR_UNARY_OP</td>
+            <td>Unary <code>-</code>, Unary <code>NOT</code></td>
+          </tr>
+          <tr>
+            <td>$C0</td>
+            <td>PR_POW</td>
+            <td><code>^</code> (exponentiation)</td>
+          </tr>
+          <tr>
+            <td>$A0</td>
+            <td>PR_MUL</td>
+            <td><code>*</code>, <code>/</code></td>
+          </tr>
+          <tr>
+            <td>$80</td>
+            <td>PR_ADD</td>
+            <td><code>+</code>, <code>-</code>, <code>&amp;</code> (string concatenation)</td>
+          </tr>
+          <tr>
+            <td>$60</td>
+            <td>PR_RELATIONAL</td>
+            <td><code>=</code>, <code>&lt;&gt;</code>, <code>&lt;=</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&gt;</code></td>
+          </tr>
+          <tr>
+            <td>$40</td>
+            <td>PR_LOGICAL</td>
+            <td><code>AND</code>, <code>OR</code></td>
+          </tr>
+          <tr>
+            <td>$20</td>
+            <td>PR_CLOSE_PAREN</td>
+            <td>End-of-expression reduction sentinel</td>
+          </tr>
+          <tr>
+            <td>$00</td>
+            <td>PR_OPEN_PAREN</td>
+            <td>Stack bottom sentinel / <code>(</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        When a binary operator token (<code>TOK_ADD = $20</code> to <code>TOK_OR = $2D</code>) is read:
+      </p>
+      <ol>
+        <li>The token's low nibble (0–13) is extracted with <code>and #$0F</code>.</li>
+        <li>Dividing by 2 (<code>lsr A</code>) provides an index into <code>operator_precedence_table</code>, fetching the high-nibble precedence byte.</li>
+        <li>The precedence byte is bitwise OR'd with the low-nibble operator index:
+          <br/>
+          <code>encoded_op = precedence | (token &amp; $0F)</code>
+        </li>
+      </ol>
+      <p>
+        Unary operators (unary minus and <code>NOT</code>) are assigned maximum precedence directly: <code>PR_UNARY_OP | TOK_UNARY_MINUS</code> (<code>$FE</code>) and <code>PR_UNARY_OP | TOK_UNARY_NOT</code> (<code>$FF</code>).
+      </p>
+
+      <div className="note">
+        <strong>Why This Encoding Is Fast:</strong><br/>
+        Because precedence occupies the upper bits (bits 4–7), <code>process_operators</code> can compare the incoming operator against pending operators with a single <code>cmp min_precedence</code> instruction. When ready to evaluate, masking with <code>and #$0F</code> directly indexes the split vector tables (<code>operator_vectors_l</code> and <code>operator_vectors_h</code>), which are dispatched in two instructions using the 6502 <code>RTS</code> trick (<code>pha</code>/<code>pha</code>/<code>rts</code>).
+      </div>
+
+      <h3>Operator Dispatch and Execution Details</h3>
+      <p>
+        The operator execution routines incorporate several low-level 6502 optimizations:
+      </p>
+      <ul>
+        <li>
+          <strong>Negated Addition for Subtraction:</strong> Rather than implementing separate subtraction logic, <code>op_sub</code> negates the right-hand operand in <code>FP0</code> (using <code>fneg</code>) and jumps directly into <code>fadd</code>, computing <code>(-right) + left = left - right</code>.
+        </li>
+        <li>
+          <strong>Polymorphic Relational Operators:</strong> Relational comparisons (<code>=</code>, <code>&lt;</code>, <code>&gt;</code>, etc.) verify that operand types match using <code>compare_values</code>. For numbers, it dispatches to <code>fcmp_2</code>; for strings, it calls <code>compare_string_values</code> for lexicographical comparison. True is loaded as float <code>1.0</code> via <code>load_one_fp0</code> and False as float <code>0.0</code> via <code>clear_fp0</code>.
+        </li>
+        <li>
+          <strong>Logical Bitwise Operators:</strong> <code>AND</code> and <code>OR</code> convert <code>FP0</code> and the stacked left operand into 16-bit signed integers via <code>truncate_fp_to_int</code>, execute 16-bit bitwise logic across register pairs, and convert the result back to float via <code>int_to_fp</code>.
+        </li>
+        <li>
+          <strong>Unary Operators:</strong> Unary <code>+</code> is ignored and discarded during parsing. Unary <code>-</code> (<code>fneg</code>) and <code>NOT</code> (testing if exponent is zero) execute with highest precedence before any binary operator.
+        </li>
+      </ul>
+
       <h2>Floating Point Support</h2>
       <p>
         VC83 BASIC utilizes a custom 5-byte (40-bit) floating point format designed for a balance 

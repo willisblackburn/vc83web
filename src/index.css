@@ -32,6 +32,8 @@ button {
 .token-ranges-table td:first-child,
 .pvm-opcode-table td:first-child,
 .pvm-opcode-table td:nth-child(2),
+.operator-precedence-table td:first-child,
+.operator-precedence-table td:nth-child(2),
 .pvm-table td:first-child,
 .fp-bits-table td:first-child,
 .fp-ops-table td:first-child,
