@@ -482,7 +482,7 @@ pvm_arg_4:
       <h3>Step 4: Configure Prolog &amp; Epilog Flags</h3>
       <p>
         VC83 BASIC features an automated stack dispatch mechanism. Each statement and function can configure a 4-bit 
-        metadata nibble (packed two entries per byte) to eliminate argument evaluation and return-value boilerplate:
+        metadata nybble (packed two entries per byte) to eliminate argument evaluation and return-value boilerplate:
       </p>
       <ul>
         <li><strong>Prolog (Bits 2–3):</strong>

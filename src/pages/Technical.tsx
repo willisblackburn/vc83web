@@ -663,9 +663,9 @@ pvm_arg_list:
         When a binary operator token (<code>TOK_ADD = $20</code> to <code>TOK_OR = $2D</code>) is read:
       </p>
       <ol>
-        <li>The token's low nibble (0–13) is extracted with <code>and #$0F</code>.</li>
-        <li>Dividing by 2 (<code>lsr A</code>) provides an index into <code>operator_precedence_table</code>, fetching the high-nibble precedence byte.</li>
-        <li>The precedence byte is bitwise OR'd with the low-nibble operator index:
+        <li>The token's low nybble (0–13) is extracted with <code>and #$0F</code>.</li>
+        <li>Dividing by 2 (<code>lsr A</code>) provides an index into <code>operator_precedence_table</code>, fetching the high-nybble precedence byte.</li>
+        <li>The precedence byte is bitwise OR'd with the low-nybble operator index:
           <br/>
           <code>encoded_op = precedence | (token &amp; $0F)</code>
         </li>
